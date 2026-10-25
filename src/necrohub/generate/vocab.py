@@ -489,7 +489,7 @@ SPECS: dict[Scenario, ScenarioSpec] = {
         manners=("violenta (acidente)",),
         exams=(_ETHANOL, "pesquisa de diatomáceas em medula óssea"),
         states=(1, 2, 3),
-        ages=(8, 70),
+        ages=(18, 70),  # adults only: the body measurements are adult ones
         male_share=0.8,
         injuries=(
             InjurySpec(

@@ -10,37 +10,38 @@
       "phone": "(81) 99999-1010"
     },
     "report": {
-      "number": "2025/2807",
+      "number": "2025/4173",
       "exam_date": "2025-05-04",
       "start_time": "13h30",
       "end_time": "15h15",
-      "police_report_number": "84119/2025"
+      "police_report_number": "97429/2025"
     },
     "examiner": {
-      "name": "Pedro Henrique Sá Cavalcante",
-      "crm": "12222",
+      "name": "Maya Sá Cavalcante",
+      "sex": "feminino",
+      "crm": "10404",
       "crm_uf": "PE"
     },
-    "assistant_name": "Rhavi Vieira Vasconcelos",
+    "assistant_name": "Pietra Vieira Vasconcelos",
     "decedent": {
       "name": "Yasmin da Luz da Rocha",
       "sex": "feminino",
-      "age": 66,
-      "skin_color": "parda",
-      "birthplace": "Palmas/TO",
-      "address": "Alameda Joana da Mata, nº 302, Bairro Novo",
-      "rg": "4056657",
-      "cpf": "418.182.666-05",
+      "age": 68,
+      "skin_color": "amarela",
+      "birthplace": "Aracaju/SE",
+      "address": "Rua Joana da Mata, nº 990, Jardim das Flores",
+      "rg": "5065748",
+      "cpf": "181.826.663-65",
       "mother_name": "Milena Gonçalves Nogueira"
     },
     "circumstances": {
-      "place_found": "em uma árvore de um terreno próximo à residência",
-      "body_position": "em suspensão incompleta, com os pés tocando o solo e laço de tecido ao redor do pescoço",
+      "place_found": "no quarto da residência",
+      "body_position": "em suspensão completa, com laço de corda ao redor do pescoço",
       "estimated_death_at": "2025-05-04T03:30:00"
     },
     "external": {
-      "height_cm": 151,
-      "weight_kg": 54,
+      "height_cm": 162,
+      "weight_kg": 67,
       "rigor": "generalizada",
       "livor": "fixos, em regiões de declive",
       "decomposition": "sem sinais de putrefação",
@@ -100,7 +101,6 @@
       }
     ],
     "complementary_exams": [
-      "exame histopatológico do sulco cervical",
       "dosagem de etanol no sangue"
     ],
     "conclusion": {
@@ -115,7 +115,7 @@
   },
   "realizer": "template",
   "template_id": "t2",
-  "text_sha256": "6d4435807d974fbda1d70a6530cc38080f2267c469207be98c8470dafedcdcb0",
+  "text_sha256": "52e271d0af41ec257dfa8d9a138bafd94ecf489e9a60463e06390698d9f16b0a",
   "entities": [
     {
       "start": 26,
@@ -127,7 +127,7 @@
       "start": 62,
       "end": 71,
       "label": "DOC_NUMBER",
-      "text": "2025/2807"
+      "text": "2025/4173"
     },
     {
       "start": 76,
@@ -137,224 +137,224 @@
     },
     {
       "start": 163,
-      "end": 191,
+      "end": 181,
       "label": "PER",
-      "text": "Pedro Henrique Sá Cavalcante"
+      "text": "Maya Sá Cavalcante"
     },
     {
-      "start": 203,
-      "end": 208,
+      "start": 193,
+      "end": 198,
       "label": "CRM",
-      "text": "12222"
+      "text": "10404"
     },
     {
-      "start": 225,
-      "end": 249,
+      "start": 215,
+      "end": 240,
       "label": "PER",
-      "text": "Rhavi Vieira Vasconcelos"
+      "text": "Pietra Vieira Vasconcelos"
     },
     {
-      "start": 326,
-      "end": 336,
+      "start": 317,
+      "end": 327,
       "label": "DOC_NUMBER",
-      "text": "84119/2025"
+      "text": "97429/2025"
     },
     {
-      "start": 359,
-      "end": 374,
+      "start": 350,
+      "end": 365,
       "label": "PHONE",
       "text": "(81) 99999-1010"
     },
     {
-      "start": 397,
-      "end": 419,
+      "start": 388,
+      "end": 410,
       "label": "PER",
       "text": "Yasmin da Luz da Rocha"
     },
     {
-      "start": 430,
-      "end": 455,
+      "start": 421,
+      "end": 446,
       "label": "PER",
       "text": "Milena Gonçalves Nogueira"
     },
     {
-      "start": 514,
-      "end": 523,
+      "start": 507,
+      "end": 517,
       "label": "LOC",
-      "text": "Palmas/TO"
+      "text": "Aracaju/SE"
     },
     {
-      "start": 534,
-      "end": 576,
+      "start": 528,
+      "end": 572,
       "label": "ADDRESS",
-      "text": "Alameda Joana da Mata, nº 302, Bairro Novo"
+      "text": "Rua Joana da Mata, nº 990, Jardim das Flores"
     },
     {
-      "start": 592,
-      "end": 599,
+      "start": 588,
+      "end": 595,
       "label": "RG",
-      "text": "4056657"
+      "text": "5065748"
     },
     {
-      "start": 605,
-      "end": 619,
+      "start": 601,
+      "end": 615,
       "label": "CPF",
-      "text": "418.182.666-05"
+      "text": "181.826.663-65"
     },
     {
-      "start": 904,
-      "end": 914,
+      "start": 769,
+      "end": 779,
       "label": "DATE",
       "text": "04/05/2025"
     },
     {
-      "start": 1098,
-      "end": 1119,
+      "start": 1011,
+      "end": 1032,
       "label": "INJURY",
       "text": "sulco de enforcamento"
     },
     {
-      "start": 1258,
-      "end": 1266,
+      "start": 1171,
+      "end": 1179,
       "label": "ORGAN",
       "text": "Encéfalo"
     },
     {
-      "start": 1312,
-      "end": 1319,
+      "start": 1225,
+      "end": 1232,
       "label": "ORGAN",
       "text": "Pescoço"
     },
     {
-      "start": 1322,
-      "end": 1431,
+      "start": 1235,
+      "end": 1344,
       "label": "FINDING",
       "text": "infiltração hemorrágica dos músculos esternocleidomastóideos e fratura do corno maior esquerdo do osso hioide"
     },
     {
-      "start": 1433,
-      "end": 1440,
+      "start": 1346,
+      "end": 1353,
       "label": "ORGAN",
       "text": "Pulmões"
     },
     {
-      "start": 1443,
-      "end": 1487,
+      "start": 1356,
+      "end": 1400,
       "label": "FINDING",
       "text": "congestão e edema, com petéquias subpleurais"
     },
     {
-      "start": 1489,
-      "end": 1496,
+      "start": 1402,
+      "end": 1409,
       "label": "ORGAN",
       "text": "Coração"
     },
     {
-      "start": 1499,
-      "end": 1523,
+      "start": 1412,
+      "end": 1436,
       "label": "FINDING",
       "text": "petéquias subepicárdicas"
     },
     {
-      "start": 1525,
-      "end": 1531,
+      "start": 1438,
+      "end": 1444,
       "label": "ORGAN",
       "text": "Fígado"
     },
     {
-      "start": 1564,
-      "end": 1568,
+      "start": 1477,
+      "end": 1481,
       "label": "ORGAN",
       "text": "Baço"
     },
     {
-      "start": 1613,
-      "end": 1617,
+      "start": 1526,
+      "end": 1530,
       "label": "ORGAN",
       "text": "Rins"
     },
     {
-      "start": 1662,
-      "end": 1670,
+      "start": 1575,
+      "end": 1583,
       "label": "ORGAN",
       "text": "Estômago"
     },
     {
-      "start": 1814,
-      "end": 1820,
+      "start": 1674,
+      "end": 1680,
       "label": "SUBSTANCE",
       "text": "etanol"
     },
     {
-      "start": 1871,
-      "end": 1904,
+      "start": 1731,
+      "end": 1764,
       "label": "CAUSE_OF_DEATH",
       "text": "Asfixia mecânica por enforcamento"
     },
     {
-      "start": 2022,
-      "end": 2041,
+      "start": 1882,
+      "end": 1901,
       "label": "MANNER_OF_DEATH",
       "text": "violenta (suicídio)"
     },
     {
-      "start": 2098,
-      "end": 2107,
+      "start": 1958,
+      "end": 1967,
       "label": "LOC",
       "text": "Recife/PE"
     },
     {
-      "start": 2109,
-      "end": 2126,
+      "start": 1969,
+      "end": 1986,
       "label": "DATE",
       "text": "4 de maio de 2025"
     },
     {
-      "start": 2129,
-      "end": 2157,
+      "start": 1989,
+      "end": 2007,
       "label": "PER",
-      "text": "Pedro Henrique Sá Cavalcante"
+      "text": "Maya Sá Cavalcante"
     }
   ],
   "sections": [
     {
       "start": 0,
-      "end": 377,
+      "end": 368,
       "label": "PREAMBLE"
     },
     {
-      "start": 377,
-      "end": 621,
+      "start": 368,
+      "end": 617,
       "label": "IDENTIFICATION"
     },
     {
-      "start": 621,
-      "end": 917,
+      "start": 617,
+      "end": 830,
       "label": "HISTORY"
     },
     {
-      "start": 917,
-      "end": 1244,
+      "start": 830,
+      "end": 1157,
       "label": "EXTERNAL_EXAM"
     },
     {
-      "start": 1244,
-      "end": 1716,
+      "start": 1157,
+      "end": 1629,
       "label": "INTERNAL_EXAM"
     },
     {
-      "start": 1716,
-      "end": 1833,
+      "start": 1629,
+      "end": 1693,
       "label": "COMPLEMENTARY_EXAMS"
     },
     {
-      "start": 1833,
-      "end": 2098,
+      "start": 1693,
+      "end": 1958,
       "label": "CONCLUSION"
     },
     {
-      "start": 2098,
-      "end": 2173,
+      "start": 1958,
+      "end": 2023,
       "label": "SIGNATURE"
     }
   ],

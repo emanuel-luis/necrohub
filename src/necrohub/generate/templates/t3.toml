@@ -6,7 +6,7 @@ body = '''
 **Relatório nº:** {{REPORT_NUMBER}}
 **Requisição policial:** inquérito nº {{POLICE_REPORT_NUMBER}}
 **Data do exame:** {{EXAM_DATE}}, das $start às $end
-**Médico-legista:** {{EXAMINER_NAME}}, CRM {{CRM}}/$crm_uf
+**$Legista:** {{EXAMINER_NAME}}, CRM {{CRM}}/$crm_uf
 **Auxiliar:** {{ASSISTANT_NAME}}
 **Telefone:** {{PHONE}}
 
@@ -40,7 +40,7 @@ $exams
 - Intervalo post mortem estimado: $h_lo a $h_hi horas
 
 <<SEC:SIGNATURE>>{{CITY_UF}}, {{EXAM_DATE_LONG}}.
-{{EXAMINER_NAME}} - Médico-legista
+{{EXAMINER_NAME}} - $Legista
 '''
 injury = [
   "- Lesão: $kind em $region$measure; $features",

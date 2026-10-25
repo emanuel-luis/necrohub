@@ -1,25 +1,25 @@
 # Relatório de Necropsia
 
-**Órgão:** Instituto de Medicina Legal (Maceió/AL)
-**Relatório nº:** 2025/9078
-**Requisição policial:** inquérito nº 57840/2025
+**Órgão:** Instituto Médico-Legal Regional (Maceió/AL)
+**Relatório nº:** 2025/5657
+**Requisição policial:** inquérito nº 78414/2025
 **Data do exame:** 07/01/2025, das 11h30 às 13h25
-**Médico-legista:** Ana Beatriz Lima Fonseca, CRM 10606/AL
+**Médica-legista:** Ana Beatriz Lima Fonseca, CRM 12121/AL
 **Auxiliar:** Sophia Siqueira Rodrigues
 **Telefone:** (82) 99999-1818
 
 ## 1. Identificação
-- Nome: João Miguel Sousa Silva (masculino, 53 anos, cor parda)
+- Nome: João Miguel Sousa Silva (masculino, 30 anos, cor amarela)
 - Mãe: Bianca Campos Melo
-- Natural de: Maceió/AL
-- Endereço: Rua Emilly das Neves, nº 2433, Jardim América
-- RG: 7654321 | CPF: 453.265.819-50
+- Natural de: Salvador/BA
+- Endereço: Rua Emilly das Neves, nº 370, Jardim das Flores
+- RG: 8024680 | CPF: 532.658.192-25
 
 ## 2. Dados circunstanciais
-Segundo a guia policial, a vítima foi encontrada em via pública, em decúbito lateral direito, após relato de disparos de arma de fogo por volta das 03h00 do dia 07/01/2025.
+Segundo a guia policial, a vítima foi encontrada na calçada em frente a uma residência, em decúbito lateral direito, após relato de disparos de arma de fogo por volta das 03h00 do dia 07/01/2025.
 
 ## 3. Exame externo
-- Estatura: 1,88 m; peso: 89 kg
+- Estatura: 1,79 m; peso: 77 kg
 - Rigidez cadavérica: generalizada
 - Livores: fixos, em regiões de declive
 - Fenômenos transformativos: sem sinais de putrefação
@@ -37,6 +37,7 @@ Segundo a guia policial, a vítima foi encontrada em via pública, em decúbito 
 
 ## 5. Exames complementares sugeridos
 - dosagem de etanol no sangue
+- radiografia de tórax para pesquisa de fragmentos de projétil
 - exame residuográfico das mãos
 
 ## 6. Conclusão
@@ -46,4 +47,4 @@ Segundo a guia policial, a vítima foi encontrada em via pública, em decúbito 
 - Intervalo post mortem estimado: 8 a 12 horas
 
 Maceió/AL, 7 de janeiro de 2025.
-Ana Beatriz Lima Fonseca - Médico-legista
+Ana Beatriz Lima Fonseca - Médica-legista

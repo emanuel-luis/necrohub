@@ -10,7 +10,7 @@ Data do exame: {{EXAM_DATE}}
 Hora do início: $start
 Hora do término: $end
 
-Perito Médico-Legal: {{EXAMINER_NAME}} - CRM/$crm_uf {{CRM}}
+$Perito Médico-Legal: {{EXAMINER_NAME}} - CRM/$crm_uf {{CRM}}
 Auxiliar de necropsia: {{ASSISTANT_NAME}}
 
 <<SEC:IDENTIFICATION>>1. Identificação
@@ -39,7 +39,7 @@ $exams
 
 <<SEC:SIGNATURE>>{{CITY_UF}}, {{EXAM_DATE_LONG}}.
 {{EXAMINER_NAME}}
-Perito Médico-Legal - CRM/$crm_uf {{CRM}}
+$Perito Médico-Legal - CRM/$crm_uf {{CRM}}
 '''
 injury = [
   "* $Kind em $region$measure, com $features.",

@@ -43,6 +43,7 @@ class ReportInfo(_Model):
 
 class Examiner(_Model):
     name: str
+    sex: Literal["masculino", "feminino"]
     crm: str
     crm_uf: str
 

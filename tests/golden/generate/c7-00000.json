@@ -4,43 +4,44 @@
     "case_id": "c7-00000",
     "scenario": "firearm_homicide",
     "institute": {
-      "name": "Instituto de Medicina Legal",
+      "name": "Instituto Médico-Legal Regional",
       "city": "Maceió",
       "uf": "AL",
       "phone": "(82) 99999-1818"
     },
     "report": {
-      "number": "2025/9078",
+      "number": "2025/5657",
       "exam_date": "2025-01-07",
       "start_time": "11h30",
       "end_time": "13h25",
-      "police_report_number": "57840/2025"
+      "police_report_number": "78414/2025"
     },
     "examiner": {
       "name": "Ana Beatriz Lima Fonseca",
-      "crm": "10606",
+      "sex": "feminino",
+      "crm": "12121",
       "crm_uf": "AL"
     },
     "assistant_name": "Sophia Siqueira Rodrigues",
     "decedent": {
       "name": "João Miguel Sousa Silva",
       "sex": "masculino",
-      "age": 53,
-      "skin_color": "parda",
-      "birthplace": "Maceió/AL",
-      "address": "Rua Emilly das Neves, nº 2433, Jardim América",
-      "rg": "7654321",
-      "cpf": "453.265.819-50",
+      "age": 30,
+      "skin_color": "amarela",
+      "birthplace": "Salvador/BA",
+      "address": "Rua Emilly das Neves, nº 370, Jardim das Flores",
+      "rg": "8024680",
+      "cpf": "532.658.192-25",
       "mother_name": "Bianca Campos Melo"
     },
     "circumstances": {
-      "place_found": "em via pública",
+      "place_found": "na calçada em frente a uma residência",
       "body_position": "decúbito lateral direito",
       "estimated_death_at": "2025-01-07T03:00:00"
     },
     "external": {
-      "height_cm": 188,
-      "weight_kg": 89,
+      "height_cm": 179,
+      "weight_kg": 77,
       "rigor": "generalizada",
       "livor": "fixos, em regiões de declive",
       "decomposition": "sem sinais de putrefação",
@@ -105,6 +106,7 @@
     ],
     "complementary_exams": [
       "dosagem de etanol no sangue",
+      "radiografia de tórax para pesquisa de fragmentos de projétil",
       "exame residuográfico das mãos"
     ],
     "conclusion": {
@@ -119,197 +121,197 @@
   },
   "realizer": "template",
   "template_id": "t3",
-  "text_sha256": "418bcd6488c51fdbc73f1365048bad2cf02d118c8e7d97db86ad81d5683f0b91",
+  "text_sha256": "0e7f4c04995f2f82463625c81ec01c5de460dd6a3b1ef3fb0067908a40eee645",
   "entities": [
     {
-      "start": 66,
-      "end": 75,
+      "start": 70,
+      "end": 79,
       "label": "LOC",
       "text": "Maceió/AL"
     },
     {
-      "start": 95,
-      "end": 104,
+      "start": 99,
+      "end": 108,
       "label": "DOC_NUMBER",
-      "text": "2025/9078"
+      "text": "2025/5657"
     },
     {
-      "start": 143,
-      "end": 153,
+      "start": 147,
+      "end": 157,
       "label": "DOC_NUMBER",
-      "text": "57840/2025"
+      "text": "78414/2025"
     },
     {
-      "start": 173,
-      "end": 183,
+      "start": 177,
+      "end": 187,
       "label": "DATE",
       "text": "07/01/2025"
     },
     {
-      "start": 224,
-      "end": 248,
+      "start": 228,
+      "end": 252,
       "label": "PER",
       "text": "Ana Beatriz Lima Fonseca"
     },
     {
-      "start": 254,
-      "end": 259,
+      "start": 258,
+      "end": 263,
       "label": "CRM",
-      "text": "10606"
+      "text": "12121"
     },
     {
-      "start": 277,
-      "end": 302,
+      "start": 281,
+      "end": 306,
       "label": "PER",
       "text": "Sophia Siqueira Rodrigues"
     },
     {
-      "start": 317,
-      "end": 332,
+      "start": 321,
+      "end": 336,
       "label": "PHONE",
       "text": "(82) 99999-1818"
     },
     {
-      "start": 362,
-      "end": 385,
+      "start": 366,
+      "end": 389,
       "label": "PER",
       "text": "João Miguel Sousa Silva"
     },
     {
-      "start": 425,
-      "end": 443,
+      "start": 431,
+      "end": 449,
       "label": "PER",
       "text": "Bianca Campos Melo"
     },
     {
-      "start": 458,
-      "end": 467,
+      "start": 464,
+      "end": 475,
       "label": "LOC",
-      "text": "Maceió/AL"
+      "text": "Salvador/BA"
     },
     {
-      "start": 480,
-      "end": 525,
+      "start": 488,
+      "end": 535,
       "label": "ADDRESS",
-      "text": "Rua Emilly das Neves, nº 2433, Jardim América"
+      "text": "Rua Emilly das Neves, nº 370, Jardim das Flores"
     },
     {
-      "start": 532,
-      "end": 539,
+      "start": 542,
+      "end": 549,
       "label": "RG",
-      "text": "7654321"
+      "text": "8024680"
     },
     {
-      "start": 547,
-      "end": 561,
+      "start": 557,
+      "end": 571,
       "label": "CPF",
-      "text": "453.265.819-50"
+      "text": "532.658.192-25"
     },
     {
-      "start": 752,
-      "end": 762,
+      "start": 785,
+      "end": 795,
       "label": "DATE",
       "text": "07/01/2025"
     },
     {
-      "start": 955,
-      "end": 990,
+      "start": 988,
+      "end": 1023,
       "label": "INJURY",
       "text": "ferimento perfurocontuso de entrada"
     },
     {
-      "start": 1082,
-      "end": 1115,
+      "start": 1115,
+      "end": 1148,
       "label": "INJURY",
       "text": "ferimento perfurocontuso de saída"
     },
     {
-      "start": 1244,
-      "end": 1252,
+      "start": 1277,
+      "end": 1285,
       "label": "ORGAN",
       "text": "Encéfalo"
     },
     {
-      "start": 1301,
-      "end": 1308,
+      "start": 1334,
+      "end": 1341,
       "label": "ORGAN",
       "text": "Pulmões"
     },
     {
-      "start": 1311,
-      "end": 1425,
+      "start": 1344,
+      "end": 1458,
       "label": "FINDING",
       "text": "lobo superior do pulmão esquerdo transfixado pelo trajeto do projétil, com hemotórax esquerdo de cerca de 1.200 mL"
     },
     {
-      "start": 1428,
-      "end": 1435,
+      "start": 1461,
+      "end": 1468,
       "label": "ORGAN",
       "text": "Coração"
     },
     {
-      "start": 1437,
-      "end": 1498,
+      "start": 1470,
+      "end": 1531,
       "label": "FINDING",
       "text": "lesão transfixante do ventrículo esquerdo, com hemopericárdio"
     },
     {
-      "start": 1501,
-      "end": 1507,
+      "start": 1534,
+      "end": 1540,
       "label": "ORGAN",
       "text": "Fígado"
     },
     {
-      "start": 1554,
-      "end": 1558,
+      "start": 1587,
+      "end": 1591,
       "label": "ORGAN",
       "text": "Baço"
     },
     {
-      "start": 1606,
-      "end": 1610,
+      "start": 1639,
+      "end": 1643,
       "label": "ORGAN",
       "text": "Rins"
     },
     {
-      "start": 1657,
-      "end": 1665,
+      "start": 1690,
+      "end": 1698,
       "label": "ORGAN",
       "text": "Estômago"
     },
     {
-      "start": 1762,
-      "end": 1768,
+      "start": 1795,
+      "end": 1801,
       "label": "SUBSTANCE",
       "text": "etanol"
     },
     {
-      "start": 1846,
-      "end": 1926,
+      "start": 1942,
+      "end": 2022,
       "label": "CAUSE_OF_DEATH",
       "text": "Choque hipovolêmico secundário a ferimento cardíaco por projétil de arma de fogo"
     },
     {
-      "start": 2005,
-      "end": 2025,
+      "start": 2101,
+      "end": 2121,
       "label": "MANNER_OF_DEATH",
       "text": "violenta (homicídio)"
     },
     {
-      "start": 2074,
-      "end": 2083,
+      "start": 2170,
+      "end": 2179,
       "label": "LOC",
       "text": "Maceió/AL"
     },
     {
-      "start": 2085,
-      "end": 2105,
+      "start": 2181,
+      "end": 2201,
       "label": "DATE",
       "text": "7 de janeiro de 2025"
     },
     {
-      "start": 2107,
-      "end": 2131,
+      "start": 2203,
+      "end": 2227,
       "label": "PER",
       "text": "Ana Beatriz Lima Fonseca"
     }
@@ -317,42 +319,42 @@
   "sections": [
     {
       "start": 0,
-      "end": 334,
+      "end": 338,
       "label": "PREAMBLE"
     },
     {
-      "start": 334,
-      "end": 563,
+      "start": 338,
+      "end": 573,
       "label": "IDENTIFICATION"
     },
     {
-      "start": 563,
-      "end": 765,
+      "start": 573,
+      "end": 798,
       "label": "HISTORY"
     },
     {
-      "start": 765,
-      "end": 1222,
+      "start": 798,
+      "end": 1255,
       "label": "EXTERNAL_EXAM"
     },
     {
-      "start": 1222,
-      "end": 1711,
+      "start": 1255,
+      "end": 1744,
       "label": "INTERNAL_EXAM"
     },
     {
-      "start": 1711,
-      "end": 1812,
+      "start": 1744,
+      "end": 1908,
       "label": "COMPLEMENTARY_EXAMS"
     },
     {
-      "start": 1812,
-      "end": 2074,
+      "start": 1908,
+      "end": 2170,
       "label": "CONCLUSION"
     },
     {
-      "start": 2074,
-      "end": 2149,
+      "start": 2170,
+      "end": 2245,
       "label": "SIGNATURE"
     }
   ],

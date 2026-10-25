@@ -26,6 +26,14 @@ def test_identifiers_are_fake_and_text_is_latin1() -> None:
         case.model_dump_json().encode("latin-1")
 
 
+def test_body_measurements_are_plausible_adult_ones() -> None:
+    for i in range(1000):
+        case = sample_case(13, i)
+        height_m = case.external.height_cm / 100
+        assert 18.0 <= case.external.weight_kg / height_m**2 <= 32.0, case.case_id
+        assert case.decedent.age >= 16, case.case_id
+
+
 def test_death_precedes_the_exam_within_the_stated_window() -> None:
     for i in range(20):
         case = sample_case(5, i)

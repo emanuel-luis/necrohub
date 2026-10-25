@@ -44,6 +44,35 @@ def test_every_family_renders_every_scenario(family: str, index: int) -> None:
             assert result.text[span.start : span.end] == span.text
 
 
+# (male form, female form) of each word that refers to the examiner, per family
+AGREEMENT = {
+    "t1": [("Perito Médico-Legal", "Perita Médico-Legal")],
+    "t2": [
+        ("o perito médico-legista", "a perita médica-legista"),
+        ("auxiliado por", "auxiliada por"),
+        ("\nMédico-legista\n", "\nMédica-legista\n"),
+    ],
+    "t3": [
+        ("**Médico-legista:**", "**Médica-legista:**"),
+        ("- Médico-legista\n", "- Médica-legista\n"),
+    ],
+}
+
+
+@pytest.mark.parametrize("family", sorted(load_families()))
+def test_examiner_words_agree_with_the_examiner_sex(family: str) -> None:
+    base = sample_case(7, 0)
+    for sex, ours, theirs in (("masculino", 0, 1), ("feminino", 1, 0)):
+        case = base.model_copy(update={"examiner": base.examiner.model_copy(update={"sex": sex})})
+        result = fill(
+            Draft(template_id=family, body=REALIZER.render(case, family, random.Random(0))), case
+        )
+        assert isinstance(result, Realized)
+        for pair in AGREEMENT[family]:
+            assert pair[ours] in result.text, (sex, pair[ours])
+            assert pair[theirs] not in result.text, (sex, pair[theirs])
+
+
 def test_realize_is_deterministic() -> None:
     case = sample_case(7, 1)
     assert REALIZER.realize(case, 7) == REALIZER.realize(case, 7)

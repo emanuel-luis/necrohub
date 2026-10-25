@@ -56,6 +56,27 @@ def _mark_substances(text: str) -> str:
     return _SUBSTANCE.sub(r"[[SUBSTANCE|\1]]", text)
 
 
+# words that agree with the examiner's sex ("a perita médica-legista ..., auxiliada por")
+_EXAMINER_WORDS = {
+    "masculino": {
+        "o": "o",
+        "perito": "perito",
+        "Perito": "Perito",
+        "legista": "médico-legista",
+        "Legista": "Médico-legista",
+        "auxiliado": "auxiliado",
+    },
+    "feminino": {
+        "o": "a",
+        "perito": "perita",
+        "Perito": "Perita",
+        "legista": "médica-legista",
+        "Legista": "Médica-legista",
+        "auxiliado": "auxiliada",
+    },
+}
+
+
 def _num(x: float, digits: int) -> str:
     return f"{x:.{digits}f}".replace(".", ",")
 
@@ -161,6 +182,7 @@ class TemplateRealizer:
             start=case.report.start_time,
             end=case.report.end_time,
             crm_uf=case.examiner.crm_uf,
+            **_EXAMINER_WORDS[case.examiner.sex],
             sex=d.sex,
             age=d.age,
             skin=d.skin_color,

@@ -3,6 +3,7 @@
 import random
 from datetime import date, datetime, timedelta
 from functools import cache
+from typing import Literal
 
 from faker import Faker
 
@@ -86,6 +87,10 @@ def sample_case(seed: int, i: int) -> CaseFacts:
 
     sex = "masculino" if rng.random() < spec.male_share else "feminino"
     tall = (160, 190) if sex == "masculino" else (150, 175)
+    height_cm = rng.randint(*tall)
+    # adult BMI 18.5-31.5, so the weight agrees with the height
+    weight_kg = round(rng.uniform(18.5, 31.5) * (height_cm / 100) ** 2)
+    examiner_sex: Literal["masculino", "feminino"] = rng.choice(("masculino", "feminino"))
     birth_city, birth_uf, _ = rng.choice(vocab.CITIES)
     optional = rng.sample(spec.optional_injuries, rng.randint(0, len(spec.optional_injuries)))
     extra_exams = rng.sample(spec.exams, rng.randint(1, len(spec.exams)))
@@ -104,7 +109,8 @@ def sample_case(seed: int, i: int) -> CaseFacts:
             police_report_number=f"{rng.randrange(1000, 100000)}/{exam_day.year}",
         ),
         examiner=Examiner(
-            name=_person(fake, rng.choice(("masculino", "feminino"))),
+            name=_person(fake, examiner_sex),
+            sex=examiner_sex,
             crm=rng.choice(fake_values("crm")),
             crm_uf=uf,
         ),
@@ -127,8 +133,8 @@ def sample_case(seed: int, i: int) -> CaseFacts:
             estimated_death_at=death_at,
         ),
         external=External(
-            height_cm=rng.randint(*tall),
-            weight_kg=rng.randint(48, 105),
+            height_cm=height_cm,
+            weight_kg=weight_kg,
             rigor=state.rigor,
             livor=state.livor,
             decomposition=state.decomposition,
