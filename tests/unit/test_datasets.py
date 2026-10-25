@@ -222,8 +222,8 @@ def test_alignment_budget_failure_keeps_previous_out(
     real = build.project
 
     def lossy(source, target, spans):  # type: ignore[no-untyped-def]
-        projected, rejected = real(source, target, spans)
-        return projected[1:], rejected + projected[:1]
+        projected, rejected = real(source, target, spans[1:])
+        return projected, [spans[0], *rejected]
 
     monkeypatch.setattr(build, "project", lossy)
     strict = PARAMS.model_copy(update={"dataset": DatasetParams(max_align_reject_fraction=0.0)})
@@ -245,3 +245,8 @@ def test_cli_build_dataset(base: Path) -> None:
     result = CliRunner().invoke(app, args)
     assert result.exit_code == 0, result.output
     assert (base / "m" / "build_dataset.json").is_file()
+
+
+def test_pii_leak_check_sees_a_value_split_by_a_line_wrap() -> None:
+    assert build.pii_leaks(["Nome: João Miguel\nSousa Silva."], {"João Miguel Sousa Silva"}) == 1
+    assert build.pii_leaks(["Nome: [PER]."], {"João Miguel Sousa Silva"}) == 0

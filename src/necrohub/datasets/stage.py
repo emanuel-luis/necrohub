@@ -21,6 +21,7 @@ from necrohub.datasets.build import (
 from necrohub.datasets.card import render_card
 from necrohub.datasets.split import SPLITS, Split, assign_splits
 from necrohub.params import Params
+from necrohub.preprocess.align import whitespace_drift
 from necrohub.runs import (
     Counts,
     FileRef,
@@ -82,12 +83,14 @@ def run_build_dataset(
             }
             ner: list[NerRecord] = []
             sections: list[SectionRecord] = []
-            n_projected = n_rejected = n_dropped = n_ext_dropped = leaks = input_leaks = 0
+            n_projected = n_drift = n_rejected = n_dropped = n_ext_dropped = 0
+            leaks = input_leaks = 0
             for doc, gold in pairs:
                 spans, rejected, lost = project_gold(
                     gold, (raw / gold.files.txt).read_text("utf-8"), doc
                 )
                 n_projected += len(spans)
+                n_drift += whitespace_drift(gold.entities, spans, rejected)
                 n_rejected += len(rejected)
                 n_dropped += sum(1 for s in doc.sections if s.label in lost)
                 extraction = extraction_record(doc, gold.case, spans)
@@ -158,6 +161,8 @@ def run_build_dataset(
                 "section_labels": dict(sorted(Counter(str(r.label) for r in sections).items())),
                 "alignment": {
                     "projected": n_projected,
+                    "exact": n_projected - n_drift,
+                    "whitespace_drift": n_drift,
                     "rejected": n_rejected,
                     "reject_fraction": reject_fraction,
                     "ner_records_dropped": n_dropped,

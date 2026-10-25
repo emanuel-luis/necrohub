@@ -20,10 +20,12 @@ def project[S: Span](source: str, target: str, spans: Sequence[S]) -> tuple[list
     mapped back afterwards. Whitespace-only drift (PDF line breaks, dropped blank lines, trailing
     spaces) then leaves the two sequences identical, so a repeated word can never be matched to
     the wrong copy. A span is projected when its first and last non-whitespace characters both
-    fall in matching blocks and the mapped slice of `target` reads exactly the span's text;
-    anything else (an endpoint in a changed region, a change inside the span, including changed
-    whitespace inside it) is rejected, never guessed. Spans from different source offsets that
-    land on the same target offsets are all rejected. Projected spans are copies.
+    fall in matching blocks and the mapped slice of `target` has the same non-whitespace
+    characters as the span's text. Whitespace inside a span may differ (a PDF line wrap inside a
+    name): the projected span's `text` is then the target slice, so it verifies against `target`
+    (`whitespace_drift` counts these). Anything else (an endpoint in a changed region, a changed
+    visible character inside the span) is rejected, never guessed. Spans from different source
+    offsets that land on the same target offsets are all rejected. Projected spans are copies.
 
     Cost: SequenceMatcher is quadratic in the worst case and roughly linear-times-repetition on
     report text; tens of milliseconds for two 2000-character reports. Each span is then two
@@ -53,7 +55,12 @@ def project[S: Span](source: str, target: str, spans: Sequence[S]) -> tuple[list
         if first is None or last is None:
             return None
         start, end = first - lead, last + 1 + trail
-        return (start, end) if start >= 0 and target[start:end] == text else None
+        ok = (
+            start >= 0
+            and end <= len(target)
+            and _visible(target[start:end])[0] == _visible(text)[0]
+        )
+        return (start, end) if ok else None
 
     ranges = [target_range(s) for s in spans]
     owners: dict[tuple[int, int], set[tuple[int, int]]] = {}
@@ -65,7 +72,16 @@ def project[S: Span](source: str, target: str, spans: Sequence[S]) -> tuple[list
     rejected: list[S] = []
     for span, r in zip(spans, ranges, strict=True):
         if r is not None and len(owners[r]) == 1:
-            projected.append(span.model_copy(update={"start": r[0], "end": r[1]}))
+            text = target[r[0] : r[1]]
+            projected.append(span.model_copy(update={"start": r[0], "end": r[1], "text": text}))
         else:
             rejected.append(span)
     return projected, rejected
+
+
+def whitespace_drift(
+    spans: Sequence[Span], projected: Sequence[Span], rejected: Sequence[Span]
+) -> int:
+    """How many of `project`'s projected spans differ from their source span in whitespace only."""
+    kept = [s for s in spans if s not in rejected]
+    return sum(1 for s, p in zip(kept, projected, strict=True) if p.text != s.text)

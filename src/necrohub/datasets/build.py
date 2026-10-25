@@ -147,5 +147,13 @@ def pii_values(gold: GoldRecord) -> set[str]:
 
 
 def pii_leaks(texts: Iterable[str], pii: set[str]) -> int:
-    """How many of the texts contain a gold PII value (counts only, never the value)."""
-    return sum(1 for t in texts if any(v in t for v in pii))
+    """How many of the texts contain a gold PII value (counts only, never the value).
+
+    Whitespace is removed from both sides first, so a value split by a line wrap still counts.
+    """
+    values = [v for v in (_squeeze(v) for v in pii) if v]
+    return sum(1 for t in texts if any(v in _squeeze(t) for v in values))
+
+
+def _squeeze(text: str) -> str:
+    return "".join(text.split())
