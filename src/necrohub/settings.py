@@ -1,15 +1,19 @@
 from typing import Literal
 
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """Runtime settings, read from NECROHUB_* environment variables when instantiated."""
+    """Runtime settings, read from NECROHUB_* (and the backends' own) environment variables when
+    instantiated."""
 
     model_config = SettingsConfigDict(env_prefix="NECROHUB_", extra="ignore")
 
     device: Literal["auto", "cpu", "cuda"] = "auto"
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
+    ollama_host: str = Field(default="http://localhost:11434", validation_alias="OLLAMA_HOST")
+    gemini_api_key: SecretStr | None = Field(default=None, validation_alias="GEMINI_API_KEY")
 
 
 def resolve_device(device: str = "auto") -> str:
