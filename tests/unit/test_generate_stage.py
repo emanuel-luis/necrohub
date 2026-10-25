@@ -78,6 +78,12 @@ def test_failed_check_keeps_the_previous_out(
         for m in (tmp_path / "runs" / "generate").glob("*.json")
     ]
     assert sorted(statuses) == ["failed", "succeeded"]
+    failed = [
+        json.loads(m.read_text("utf-8"))
+        for m in (tmp_path / "runs" / "generate").glob("*.json")
+        if json.loads(m.read_text("utf-8"))["status"] == "failed"
+    ]
+    assert failed[0]["outputs"] == []  # a failed run claims no output
 
 
 def test_unlabeled_identifier_is_found_and_labelled_one_is_not() -> None:

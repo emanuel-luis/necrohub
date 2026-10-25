@@ -76,8 +76,9 @@ def run_generate(
         tree = sha256_tree(tmp)
         run.counts = Counts(read=g.n_cases, written=len(golds), rejected=len(rejects))
         run.rejects_path = (out / "rejects.jsonl").as_posix()
-        run.outputs = [FileRef(path=out.as_posix(), sha256=tree, records=len(golds))]
         run.raise_if_failed()
+        # only a run that passed its checks claims an output
+        run.outputs = [FileRef(path=out.as_posix(), sha256=tree, records=len(golds))]
 
     metrics = {
         "n_cases": g.n_cases,

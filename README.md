@@ -25,7 +25,7 @@ phases. The design and the phase plan are in
 In place now:
 
 - Seeded synthetic generation that samples structured case facts first and writes the report
-  second, so every name, document number, date, injury, organ finding and cause of death has an
+  second, so every name, document number, date, injury, abnormal organ finding and cause of death has an
   exact character span. Runs are byte-identical for the same seed, every run writes a manifest,
   and a failed boundary check keeps the previous output.
 - Typed contracts: Pydantic v2 models with `extra="forbid"` for spans, sections and processed
