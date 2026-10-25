@@ -12,11 +12,11 @@ questions over the corpus with retrieval.
 
 ## Status
 
-Phase 2 of 8, first half: scaffold, text normalization, section splitting, regex and Hugging
-Face NER de-identification, hashing and Hugging Face embeddings, the identifier leak check, and a
-seeded template generator with exact gold labels are in place. The CLI has two commands:
-`check-identifiers` and `generate`. PDF rendering and the LLM realizer (Ollama, optional Gemini)
-finish phase 2. Ingestion, the DVC pipeline, training, the retrieval API and the UI come in later
+Phase 2 of 8: scaffold, text normalization, section splitting, regex and Hugging Face NER
+de-identification, hashing and Hugging Face embeddings, the identifier leak check, a seeded
+template generator with exact gold labels, an optional LLM realizer (local Ollama, optional
+Gemini) behind the same labelling step, and PDF rendering of part of the reports are in place.
+The CLI has two commands: `check-identifiers` and `generate`. Ingestion, the DVC pipeline, training, the retrieval API and the UI come in later
 phases. The design and the phase plan are in
 [docs/REFACTOR_PLAN.md](docs/REFACTOR_PLAN.md), the decisions in [docs/DECISIONS.md](docs/DECISIONS.md).
 
@@ -75,6 +75,40 @@ uv run necrohub generate --params params.yaml --out data/raw   # or: make genera
 uv run necrohub --version
 ```
 
+### LLM realizer (optional, local)
+
+The template realizer is the default and the only path in CI. For more varied text, a local
+model writes the report body instead. It sees only non-identifying case facts and slot names and
+writes placeholders such as `{{DECEDENT_NAME}}` and `[[CAUSE_OF_DEATH|...]]`; the same `fill()`
+step then inserts the identifiers and labels the spans, so gold labels stay exact. Drafts that
+drop a required slot, use an unknown one, leave a marker broken, write a PII value as literal text
+(any CPF, RG, CRM, phone, e-mail, name, date, document number, address or CEP the regex
+de-identifier finds outside a slot) or use characters outside latin-1 are rejected per case
+into `rejects.jsonl`, retried with a new seed up to `generate.llm.max_attempts`, and the run fails
+when rejects exceed `max_reject_fraction`. Typographic dashes, quotes and ellipses are
+transliterated first and counted in `metrics/generate.json`.
+
+```bash
+# install Ollama from https://ollama.com, then:
+ollama pull qwen3:4b-instruct-2507-q4_K_M   # about 2.5 GB, fits a 4 GB GPU
+uv sync --locked --extra ollama
+# set generate.realizer: llm in params.yaml (OLLAMA_HOST overrides http://localhost:11434)
+uv run necrohub generate --params params.yaml --out data/raw
+```
+
+Gemini is an optional, paid backend: `uv sync --locked --extra genai`, export `GEMINI_API_KEY`
+and set `generate.llm.backend: gemini` with a Gemini model name. LLM runs depend on the backend,
+so only template runs are byte-reproducible.
+
+### PDFs
+
+A seeded `pdf_fraction` of the reports (default 0.25) is also rendered to
+`reports/<case_id>.pdf` with fpdf2 core fonts and fixed metadata, so the bytes repeat across
+runs, and `GoldRecord.files.pdf` points at it. The txt stays the source of the spans; from phase
+3 on, ingestion extracts the PDF text and projects the spans onto it. `check-identifiers` does
+not extract PDF text yet: their content streams are compressed, so it sees only opaque bytes
+(and lists a file as skipped when it looks binary).
+
 `make help` lists the other targets. On Windows without `make`, run the `uv run` commands from the
 Makefile directly.
 
@@ -83,13 +117,15 @@ Makefile directly.
 ```
 src/necrohub/
   cli.py                 Typer app (check-identifiers, generate)
-  settings.py            environment settings (NECROHUB_*)
+  settings.py            environment settings (NECROHUB_*, OLLAMA_HOST, GEMINI_API_KEY)
   params.py              typed sections of params.yaml
   runs.py                run manifests, atomic output swaps, tree hashes, JSONL io
   ids.py                 CPF/CNPJ check digits, identifier patterns, fake pool, leak check
   data/fake_identifiers.toml
   contracts/             Span, SectionSpan, ProcessedText, CaseFacts, GoldRecord
-  generate/              vocab, sampler, templates/*.toml, realizers, fill, checks, stage
+  llm/                   ChatLLM protocol, Ollama and Gemini clients (optional extras)
+  generate/              vocab, sampler, templates/*.toml, realizers, llm_realizer, prompts/,
+                         fill, checks, render_pdf, stage
   preprocess/            normalize, sections, pipeline, deid/{base,regex,hf_ner}
   embed/                 Embedder protocol, token windows, hashing and Hugging Face embedders
 tests/

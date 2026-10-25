@@ -6,15 +6,15 @@ help:           ## list the targets
 install:        ## sync the environment from uv.lock
 	uv sync --locked
 
-install-ml:     ## sync with the ml and cpu extras (CPU torch wheels; needed by `make type` and `make test-ml`)
-	uv sync --locked --extra ml --extra cpu
+install-ml:     ## sync with the ml, cpu, ollama and genai extras (CPU torch wheels; needed by `make type` and `make test-ml`)
+	uv sync --locked --extra ml --extra cpu --extra ollama --extra genai
 
 lint:           ## what CI's lint job runs
 	uv run ruff check
 	uv run ruff format --check
 	uv run necrohub check-identifiers
 
-type:           ## strict mypy on src (run `make install-ml` first: src imports torch and transformers)
+type:           ## strict mypy on src (run `make install-ml` first: src imports torch, transformers and the LLM SDKs)
 	uv run mypy
 
 test:           ## offline unit tests (ml, db, external and slow are deselected)
