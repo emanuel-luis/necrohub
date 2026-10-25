@@ -517,7 +517,7 @@ least 3 template families per section (pt-BR, latin-1 charset for fpdf2 core fon
 Done when:
 - `necrohub generate` runs twice and gives the same `sha256_tree(data/raw)`.
 - All gold spans verify.
-- `necrohub check-identifiers --paths data/raw` exits 0.
+- `necrohub check-identifiers data/raw` exits 0.
 - The LLM realizer passes with a scripted `FakeLLM`, including reject cases (missing slot,
   invented CPF).
 - Real Gemini and Ollama tests are marked `external`.
