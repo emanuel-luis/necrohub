@@ -1,5 +1,6 @@
 """Brazilian identifiers: check digits, value patterns, the fake pool and the leak check."""
 
+import codecs
 import random
 import re
 import subprocess
@@ -69,18 +70,22 @@ def _compile(*patterns: str, flags: int = 0) -> tuple[re.Pattern[str], ...]:
 IDENTIFIER_PATTERNS: dict[str, tuple[re.Pattern[str], ...]] = {
     "CPF": _compile(
         r"(?<![\d.])(?P<value>\d{3}\.\d{3}\.\d{3}-\d{2})(?!\d)",
-        rf"\bCPF\b{_CTX}(?P<value>\d{{11}})(?!\d)",
+        rf"\bCPF\b{_CTX}(?P<value>\d{{3}}\.?\d{{3}}\.?\d{{3}}-?\d{{2}})(?!\d)",
     ),
     "CNPJ": _compile(
         r"(?<![\d.])(?P<value>\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2})(?!\d)",
         rf"\bCNPJ\b{_CTX}(?P<value>\d{{14}})(?!\d)",
     ),
     "RG": _compile(rf"\bRG\b{_CTX}(?P<value>\d{{1,2}}\.?\d{{3}}\.?\d{{3}}(?:-?[0-9Xx])?)(?!\d)"),
-    "CRM": _compile(r"\bCRM(?:[/-]?\s*[A-Z]{2})?\s*(?:n[ºo°]\.?\s*)?(?P<value>\d{4,6})\b"),
+    # CRM, optional UF, optional context separator, then 4-6 digits with an optional thousands dot
+    "CRM": _compile(
+        rf"\bCRM(?:[/-]?\s*[A-Z]{{2}})?{_CTX}(?P<value>\d{{1,3}}\.?\d{{3}})(?!\d)",
+        flags=re.IGNORECASE,
+    ),
     # a phone needs a DDD in parentheses, +55, a nine-digit mobile with hyphen, or a phone word
     "PHONE": _compile(
-        r"(?<![\d-])(?P<value>(?:\+55\s?)?\(\d{2}\)\s?9?\d{4}-?\d{4})(?!\d)",
-        r"(?<![\d-])(?P<value>\+55\s?\d{2}\s?9?\d{4}-?\d{4})(?!\d)",
+        r"(?<![\d-])(?P<value>(?:\+55\s?)?\(\d{2}\)\s?9?\d{4}[ -]?\d{4})(?!\d)",
+        r"(?<![\d-])(?P<value>\+55\s?\(?\d{2}\)?\s?9?\d{4}[ -]?\d{4})(?!\d)",
         r"(?<![\d/.-])(?P<value>9\d{4}-\d{4})(?!\d)",
         rf"\b(?:tel(?:efone)?|fone|cel(?:ular)?|whats(?:app)?|contato)\b\.?{_CTX}"
         r"(?P<value>(?:\(\d{2}\)\s?)?9?\d{4}-?\d{4})(?!\d)",
@@ -218,21 +223,45 @@ def collect_files(paths: Sequence[Path], root: Path) -> list[Path]:
     return sorted(keep)
 
 
-def check_files(files_: Sequence[Path], root: Path) -> list[Finding]:
-    """Scan text files (binary and non-UTF-8 files are skipped)."""
+_BOMS = (
+    (codecs.BOM_UTF8, "utf-8-sig"),
+    (codecs.BOM_UTF32_LE, "utf-32"),  # before UTF-16 LE: FF FE 00 00 starts with FF FE
+    (codecs.BOM_UTF32_BE, "utf-32"),
+    (codecs.BOM_UTF16_LE, "utf-16"),
+    (codecs.BOM_UTF16_BE, "utf-16"),
+)
+
+
+def _decode(data: bytes) -> str | None:
+    """Text of a non-binary file (BOM, UTF-8, cp1252, latin-1), or None for a binary file."""
+    for bom, codec in _BOMS:
+        if data.startswith(bom):
+            return data.decode(codec, errors="replace")
+    if b"\0" in data[:8192]:
+        return None
+    try:
+        return data.decode("utf-8")
+    except UnicodeDecodeError:
+        pass
+    try:
+        return data.decode("cp1252")
+    except UnicodeDecodeError:
+        return data.decode("latin-1")  # never fails
+
+
+def check_files(files_: Sequence[Path], root: Path) -> tuple[list[Finding], list[str]]:
+    """Scan every text file; returns the findings and the paths of the binary files skipped."""
     findings: list[Finding] = []
+    skipped: list[str] = []
     base = root.resolve()
     for f in files_:
-        data = f.read_bytes()
-        if b"\0" in data[:8192]:
-            continue
-        try:
-            text = data.decode("utf-8")
-        except UnicodeDecodeError:
-            continue
         resolved = f.resolve()
         shown = (
             resolved.relative_to(base).as_posix() if resolved.is_relative_to(base) else f.as_posix()
         )
-        findings += scan_text(text, shown)
-    return findings
+        text = _decode(f.read_bytes())
+        if text is None:
+            skipped.append(shown)
+        else:
+            findings += scan_text(text, shown)
+    return findings, skipped

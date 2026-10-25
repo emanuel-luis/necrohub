@@ -33,7 +33,7 @@ jobs:
       - run: uvx pip-audit==2.10.1 --disable-pip --progress-spinner off -r "$RUNNER_TEMP/locked.txt"
 
   zizmor:
-    name: zizmor (GitHub Actions workflows)
+    name: zizmor (GitHub Actions workflows and Dependabot config)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -43,8 +43,8 @@ jobs:
         with: { persist-credentials: false }
       - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
         with: { python-version: "3.12" }
-      - name: Audit the workflows (fails on a finding of medium severity or higher)
-        run: uvx zizmor==1.30.1 --format=github --min-severity=medium .github/workflows
+      - name: Audit .github (fails on a finding of medium severity or higher)
+        run: uvx zizmor==1.30.1 --format=github --min-severity=medium .github
         env:
           # the online audits: impostor commits, known-vulnerable actions, stale refs
           GH_TOKEN: ${{ github.token }}

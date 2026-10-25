@@ -31,7 +31,7 @@ _OTHER: dict[str, tuple[re.Pattern[str], ...]] = {
             rf"\bPerito[^\n:]{{0,40}}:[ \t]*{_TITLE}",
             rf"\bAuxiliar[^\n:]{{0,40}}:[ \t]*{_ASSISTANT}",
             r"\bidentificad[oa] como[ \t]+",
-            r"\bCorpo de[ \t]+",
+            r"\bCorpo de[ \t]+(?!(?i:Delito|Bombeiros)\b)",
             r"\bT[ée]cnic[oa] de Necropsia[ \t]+",
         )
     ),

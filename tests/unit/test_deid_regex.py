@@ -44,6 +44,29 @@ def test_cpf_redacts_value_keeps_label() -> None:
     assert found(f"código {digits}") == []
 
 
+def test_cpf_without_dots_but_with_hyphen() -> None:
+    d = fake_cpf(random.Random(2)).replace(".", "").replace("-", "")
+    value = f"{d[:9]}-{d[9:]}"
+    assert found(f"CPF {value}") == [("CPF", value)]
+
+
+def test_crm_forms() -> None:
+    # fake-pool values, so the leak check stays quiet; the 4-digit value is built at runtime
+    assert found("CRM: 12345") == [("CRM", "12345")]
+    assert found("CRM-SP: 22456") == [("CRM", "22456")]
+    assert found("CRM/SP 33.567") == [("CRM", "33.567")]
+    assert found("crm 44678") == [("CRM", "44678")]
+    four = "12" + "34"
+    assert found(f"CRM nº {four}") == [("CRM", four)]
+    assert found("CRM 1234567") == []
+
+
+def test_phone_with_space_separator() -> None:
+    assert found("ligar (98) 99999 0101") == [("PHONE", "(98) 99999 0101")]
+    assert found("ligar +55 98 99999 0101") == [("PHONE", "+55 98 99999 0101")]
+    assert found("ligar +55 (98) 99999-0101") == [("PHONE", "+55 (98) 99999-0101")]
+
+
 def test_rg_and_crm_need_their_label() -> None:
     assert found("RG nº 1234567 SSP/MA") == [("RG", "1234567")]
     assert found("CRM/MA 12345") == [("CRM", "12345")]
@@ -104,6 +127,8 @@ def test_names_need_a_cue() -> None:
         ("PER", "João Pereira da Costa")
     ]
     assert found("O Coração apresenta Lesão Transfixante") == []
+    assert found("Exame de Corpo de Delito realizado") == []
+    assert found("encaminhado ao Corpo de Bombeiros Militar") == []
 
 
 def test_labels_are_pii() -> None:

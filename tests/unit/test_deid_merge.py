@@ -29,7 +29,13 @@ def test_ties_keep_the_first_group() -> None:
 def test_overlaps_redacted_once() -> None:
     text = "abcdefghij"
     overlapping = [span(0, 6, EntityLabel.PER, "abcdef"), span(4, 10, EntityLabel.RG, "efghij")]
-    assert redact(text, overlapping) == "[PER]ghij"
+    assert redact(text, overlapping) == "[PER]"
+    chained = [
+        span(0, 4, EntityLabel.CPF, "abcd"),
+        span(3, 8, EntityLabel.PER, "defgh"),
+        span(7, 9, EntityLabel.RG, "hi"),
+    ]
+    assert redact(text, chained) == "[PER]j"
     apart = [span(0, 4, EntityLabel.CPF, "abcd"), span(6, 8, EntityLabel.RG, "gh")]
     assert redact(text, apart) == "[CPF]ef[RG]ij"
 

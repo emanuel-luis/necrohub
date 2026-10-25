@@ -6,27 +6,38 @@ questions over the corpus with retrieval.
 
 > **Synthetic data only. Not for clinical, medico-legal or forensic use.**
 > Every report, name and identifier in this repository is generated or invented. A CI check fails
-> the build when a file holds an identifier that is not on the fake allowlist.
+> the build when a text file holds a CPF or CNPJ with a valid check digit, or an RG, CRM, phone or
+> e-mail that is not on the fake allowlist. It is a pattern check, not a guarantee: it cannot see
+> names, addresses or identifiers written in forms it does not know.
 
 ## Status
 
 Phase 1 of 8: scaffold, text normalization, section splitting, regex and Hugging Face NER
-de-identification, hashing and Hugging Face embeddings, and the identifier leak check are in place. The generator, ingestion, DVC pipeline, training, retrieval API
-and UI come in later phases. The design and the phase plan are in
+de-identification, hashing and Hugging Face embeddings, and the identifier leak check are in
+place. They are library functions with tests; the only CLI command so far is the leak check. The
+generator, ingestion, the DVC pipeline and its data layers, training, the retrieval API and the UI
+come in later phases. The design and the phase plan are in
 [docs/REFACTOR_PLAN.md](docs/REFACTOR_PLAN.md), the decisions in [docs/DECISIONS.md](docs/DECISIONS.md).
 
 ## What this demonstrates
 
-- Layered data flow: raw, interim, processed and serving layers with one owner per layer and
-  deterministic, hash-checkable outputs.
-- Typed contracts and quality gates: Pydantic v2 models with `extra="forbid"` at every boundary,
-  and checks that fail a stage instead of passing bad data on.
+In place now:
+
+- Typed contracts: Pydantic v2 models with `extra="forbid"` for spans, sections and processed
+  text; `Span.verify` checks a span against the text it came from.
 - De-identification with a leak check in CI: context-anchored patterns that redact the value and
-  keep the label, plus a check that fails on any identifier outside a committed fake pool.
-- A reproducible pipeline: a pinned `uv.lock`, seeded generation, golden tests, and offline CI
-  with no model downloads.
-- Model fine-tuning on generated gold labels: exact character spans from the generator train and
-  evaluate the NER and section encoders (planned).
+  keep the label ("CPF nº [CPF]"), an optional Hugging Face NER detector, and a check that fails on
+  identifier-shaped values outside a committed fake pool.
+- Reproducible, offline checks: a pinned `uv.lock`, golden tests on synthetic reports, property
+  tests, and CI that runs tiny local models with no downloads.
+
+Planned (see the phase plan):
+
+- Layered data flow: raw, interim, processed and serving layers, each written by one stage, with
+  run metadata and hash-checkable outputs under DVC.
+- Seeded synthetic generation that emits structured gold labels before the report text.
+- Fine-tuning on those gold labels: exact character spans train and evaluate the NER and section
+  encoders.
 
 ## Architecture (target)
 
@@ -45,9 +56,9 @@ flowchart LR
 
 ## Tech stack
 
-Python 3.12, uv, Pydantic v2 and pydantic-settings, Typer, ftfy, NumPy. Planned: Hugging Face
-Transformers and PyTorch (CPU wheels in CI), DVC, Postgres with pgvector, FastAPI, Streamlit,
-Docker Compose. Quality: ruff, mypy strict, pytest, Hypothesis, pip-audit and zizmor in CI.
+Python 3.12, uv, Pydantic v2 and pydantic-settings, Typer, ftfy, NumPy; Hugging Face
+Transformers and PyTorch as the optional `ml` extra (CPU wheels in CI). Planned: DVC, Postgres with
+pgvector, FastAPI, Streamlit, Docker Compose. Quality: ruff, mypy strict, pytest, Hypothesis, pip-audit and zizmor in CI.
 
 ## Quickstart
 

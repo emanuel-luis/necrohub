@@ -68,6 +68,44 @@ def test_lock_files_and_binaries_are_skipped(tmp_path: Path) -> None:
     assert check(tmp_path)[0] == 0
 
 
+def test_cp1252_file_is_scanned(tmp_path: Path) -> None:
+    f = tmp_path / "a.txt"
+    f.write_bytes(f"necropsia ação\nCPF nº {valid_cpf()}\n".encode("cp1252"))
+    assert check(f)[0] == 1
+
+
+@pytest.mark.parametrize("codec", ["utf-16", "utf-32", "utf-8-sig"])
+def test_bom_files_are_scanned(tmp_path: Path, codec: str) -> None:
+    f = tmp_path / "a.txt"
+    f.write_bytes(f"ação\nCPF nº {valid_cpf()}\n".encode(codec))
+    assert check(f)[0] == 1
+
+
+def test_binary_file_is_reported_as_skipped(tmp_path: Path) -> None:
+    (tmp_path / "blob.bin").write_bytes(b"\0" + valid_cpf().encode())
+    code, out = check(tmp_path)
+    assert code == 0
+    assert "1 binary skipped (" in out and "blob.bin" in out
+    assert valid_cpf() not in out
+
+
+def test_crm_phone_forms_are_flagged(tmp_path: Path) -> None:
+    crm, dotted = "8" * 5, f"{'7' * 3}.{'6' * 3}"
+    phone = f"9{'7' * 4} {'1' * 4}"
+    forms = [
+        f"CRM: {crm}",
+        f"CRM-SP: {crm}",
+        f"CRM/SP {dotted}",
+        f"crm {crm}",
+        f"({'9' * 2}) {phone}",
+        f"+55 {'9' * 2} {phone}",
+    ]
+    for i, form in enumerate(forms):
+        f = tmp_path / f"f{i}.txt"
+        f.write_text(form, encoding="utf-8")
+        assert check(f)[0] == 1, form
+
+
 def test_default_file_set_is_git_tracked_and_new_files(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

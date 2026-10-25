@@ -12,14 +12,18 @@ def process(
     deidentifiers: Sequence[Deidentifier] = (RegexDeidentifier(),),
     steps: Sequence[str] = DEFAULT_STEPS,
 ) -> ProcessedText:
-    """Normalize, split into sections, detect PII on the normalized text, merge and redact once."""
+    """Normalize, split into sections, detect PII on the normalized text, merge and redact once.
+
+    `entities` keeps the longest of overlapping spans, but redaction covers every detected span:
+    redacting only the merged spans would leave the uncovered tail of a partial overlap readable.
+    """
     normalized = normalize(text, steps)
-    entities = merge_spans([d.detect(normalized) for d in deidentifiers])
+    detected = [d.detect(normalized) for d in deidentifiers]
     return ProcessedText(
         text=normalized,
         normalize_steps=list(steps),
         sections=split_sections(normalized),
-        entities=entities,
-        redacted_text=redact(normalized, entities),
+        entities=merge_spans(detected),
+        redacted_text=redact(normalized, [s for group in detected for s in group]),
         deidentifiers=[d.name for d in deidentifiers],
     )

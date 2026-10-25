@@ -75,13 +75,16 @@ class HfNerDeidentifier:
             k.upper(): EntityLabel(v) for k, v in (label_map or DEFAULT_LABEL_MAP).items()
         }
         tokenizer = AutoTokenizer.from_pretrained(model)
+        if not tokenizer.is_fast:
+            # a slow tokenizer cannot stride, and truncating long reports would leak the tail
+            raise ValueError(f"{model}: a fast tokenizer is required for windowed NER")
         tokenizer.model_max_length = min(tokenizer.model_max_length, 512)
         self._pipe: Any = pipeline(
             "token-classification",
             model=AutoModelForTokenClassification.from_pretrained(model),
             tokenizer=tokenizer,
             aggregation_strategy="simple",
-            stride=stride if tokenizer.is_fast else 0,
+            stride=stride,
             device=resolve_device(device),
         )
 

@@ -37,10 +37,11 @@ def check_identifiers(
 
     root = Path.cwd()
     files = collect_files(paths or [], root)
-    findings = check_files(files, root)
+    findings, skipped = check_files(files, root)
     for finding in findings:
         typer.echo(finding)
+    note = f", {len(skipped)} binary skipped ({', '.join(skipped)})" if skipped else ""
     if findings:
-        typer.echo(f"{len(findings)} finding(s) in {len(files)} files", err=True)
+        typer.echo(f"{len(findings)} finding(s) in {len(files)} files{note}", err=True)
         raise typer.Exit(1)
-    typer.echo(f"checked {len(files)} files: no leaked identifiers")
+    typer.echo(f"checked {len(files)} files: no leaked identifiers{note}")
