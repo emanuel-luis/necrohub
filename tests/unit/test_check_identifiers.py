@@ -144,3 +144,21 @@ def test_digit_runs_inside_hex_hashes_are_not_numbers(tmp_path: Path) -> None:
     # the trade-off: a bare digit run with a letter right after it reads as part of a token
     f.write_text(f"{digits}x\n", encoding="utf-8")
     assert check(f)[0] == 0
+
+
+def test_pdf_text_is_scanned(tmp_path: Path) -> None:
+    from necrohub.generate.render_pdf import render_pdf
+    from necrohub.ids import fake_values
+
+    (tmp_path / "leak.pdf").write_bytes(render_pdf(f"Laudo\nCPF nº {valid_cpf()}\n")[0])
+    code, out = check(tmp_path / "leak.pdf")
+    assert code == 1 and "leak.pdf:2: CPF ***" in out and valid_cpf() not in out
+    clean = f"RG nº {fake_values('rg')[0]}, CRM {fake_values('crm')[0]}\n"
+    (tmp_path / "clean.pdf").write_bytes(render_pdf(clean)[0])
+    assert check(tmp_path / "clean.pdf") == (0, "checked 1 files: no leaked identifiers\n")
+
+
+def test_unparsable_pdf_is_skipped(tmp_path: Path) -> None:
+    (tmp_path / "broken.pdf").write_bytes(b"%PDF-1.4\n" + valid_cpf().encode())
+    code, out = check(tmp_path)
+    assert code == 0 and "1 binary skipped (" in out and "broken.pdf)" in out

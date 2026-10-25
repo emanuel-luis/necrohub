@@ -1,6 +1,6 @@
 from typing import Literal, Self
 
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from necrohub.contracts.spans import PredictedSpan, SectionSpan
 
@@ -28,3 +28,42 @@ class ProcessedText(BaseModel):
                 raise ValueError("sections must be ordered, non-overlapping and inside the text")
             end = section.end
         return self
+
+
+class ProcessedDocument(ProcessedText):
+    """One record of processed/documents.jsonl: the pipeline output of one ingested document."""
+
+    doc_id: str
+
+
+class IngestedDocument(BaseModel):
+    """One record of interim/ingested.jsonl: the text of one report as read from the raw layer."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: Literal[1] = 1
+    doc_id: str
+    source_path: str  # relative to the raw layer, forward slashes
+    source_format: Literal["txt", "pdf"]
+    source_sha256: str
+    extractor: str  # name@version
+    text: str
+    n_chars: int
+    warnings: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _n_chars_is_len(self) -> Self:
+        if self.n_chars != len(self.text):
+            raise ValueError("n_chars must equal len(text)")
+        return self
+
+
+class DocReject(BaseModel):
+    """A document an ingest or preprocess run could not accept; any reject fails the run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: Literal[1] = 1
+    doc_id: str
+    reason: str
+    detail: str = ""

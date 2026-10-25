@@ -1,4 +1,4 @@
-.PHONY: help install install-ml lint type test test-ml test-fast leak-check generate format clean
+.PHONY: help install install-ml lint type test test-ml test-fast leak-check generate ingest preprocess format clean
 
 help:           ## list the targets
 	@grep -E '^[a-zA-Z_-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-14s %s\n", $$1, $$2}'
@@ -31,6 +31,12 @@ leak-check:     ## fail on identifiers that are not in the fake pool
 
 generate:       ## synthetic reports with gold labels into data/raw (params.yaml)
 	uv run necrohub generate --params params.yaml --out data/raw
+
+ingest:         ## raw reports (PDF text when a case has one) into data/interim
+	uv run necrohub ingest --params params.yaml --in data/raw --out data/interim
+
+preprocess:     ## normalize, split sections and de-identify data/interim into data/processed
+	uv run necrohub preprocess --params params.yaml --in data/interim --out data/processed
 
 format:         ## apply ruff fixes and formatting
 	uv run ruff check --fix

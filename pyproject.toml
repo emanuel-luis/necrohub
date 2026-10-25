@@ -20,6 +20,7 @@ dependencies = [
   "ftfy>=6.3",
   "faker>=30",
   "fpdf2>=2.8",
+  "pypdf>=5",
 ]
 
 [project.optional-dependencies]

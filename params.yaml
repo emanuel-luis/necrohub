@@ -13,3 +13,12 @@ generate:
     temperature: 0.8
     max_attempts: 3
     timeout_s: 120
+ingest:
+  formats: [txt, pdf]  # a case with a PDF is read from the PDF (pypdf), otherwise from its txt
+  max_pdf_length_drift: 0.15  # PDF text length within +-15 % of its txt twin
+preprocess:
+  normalize: [fix_text, nfc, newlines, nbsp, trailing_ws, blank_lines]
+  deidentifiers: [regex]  # add hf_ner with hf_ner.model set to a local or Hub model
+  hf_ner:
+    model: null
+    threshold: 0.7
