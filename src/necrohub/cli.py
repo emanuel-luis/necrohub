@@ -67,3 +67,30 @@ def generate(
         typer.echo(str(exc), err=True)
         raise typer.Exit(1) from exc
     typer.echo(f"generate: {run.counts.written} reports in {out.as_posix()} (run {run.run_id})")
+
+
+@app.command()
+def ingest(
+    params: Annotated[Path, typer.Option(help="Pipeline parameters file.")] = Path("params.yaml"),
+    in_: Annotated[Path, typer.Option("--in", help="Raw layer directory.")] = Path("data/raw"),
+    out: Annotated[Path, typer.Option(help="Interim layer directory to (re)write.")] = Path(
+        "data/interim"
+    ),
+    runs_dir: Annotated[Path, typer.Option(help="Where run manifests go.")] = Path("runs"),
+    metrics_dir: Annotated[Path, typer.Option(help="Where metrics/ingest.json goes.")] = Path(
+        "metrics"
+    ),
+) -> None:
+    """Read every raw report (PDF text when the case has a PDF) into the interim layer."""
+    from necrohub.ingest.stage import run_ingest
+    from necrohub.params import load_params
+    from necrohub.runs import StageFailed
+
+    try:
+        run = run_ingest(
+            load_params(params).ingest, in_, out, runs_dir=runs_dir, metrics_dir=metrics_dir
+        )
+    except StageFailed as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(1) from exc
+    typer.echo(f"ingest: {run.counts.written} documents in {out.as_posix()} (run {run.run_id})")
