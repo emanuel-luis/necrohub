@@ -1,0 +1,60 @@
+# The demo pipeline: `make demo` (= `uv run dvc repro`). Stages call the necrohub CLI. Run
+# manifests go to runs/ (gitignored, not an out); metrics/<stage>.json are tracked in git.
+stages:
+  generate:
+    cmd: necrohub generate --params params.yaml --out data/raw --metrics-dir metrics
+    deps:
+      - src/necrohub/generate
+      - src/necrohub/contracts
+    params:
+      - seed
+      - generate
+    outs:
+      - data/raw
+    metrics:
+      - metrics/generate.json:
+          cache: false
+  ingest:
+    cmd: necrohub ingest --params params.yaml --in data/raw --out data/interim --metrics-dir metrics
+    deps:
+      - data/raw  # reports, and gold/ for the case list
+      - src/necrohub/ingest
+    params:
+      - ingest
+    outs:
+      - data/interim
+    metrics:
+      - metrics/ingest.json:
+          cache: false
+  preprocess:
+    cmd: >-
+      necrohub preprocess --params params.yaml --in data/interim --out data/processed
+      --raw data/raw --metrics-dir metrics
+    deps:
+      - data/interim
+      - data/raw  # gold spans for the alignment metric
+      - src/necrohub/preprocess
+    params:
+      - preprocess
+    outs:
+      - data/processed
+    metrics:
+      - metrics/preprocess.json:
+          cache: false
+  build_dataset:
+    cmd: >-
+      necrohub build-dataset --params params.yaml --processed data/processed --raw data/raw
+      --out data/datasets --metrics-dir metrics
+    deps:
+      - data/processed
+      - data/raw  # gold records and the txt their spans refer to
+      - src/necrohub/datasets
+    params:
+      - seed
+      - generate.holdout_templates
+      - dataset
+    outs:
+      - data/datasets
+    metrics:
+      - metrics/build_dataset.json:
+          cache: false

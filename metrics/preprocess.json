@@ -1,0 +1,37 @@
+{
+  "entities_by_label": {
+    "ADDRESS": 24,
+    "CPF": 24,
+    "CRM": 33,
+    "DATE": 72,
+    "DOC_NUMBER": 33,
+    "PER": 24,
+    "PHONE": 24,
+    "RG": 24
+  },
+  "gold_alignment": {
+    "pdf_projected": 221,
+    "pdf_rejected": 8,
+    "projected": 765,
+    "reject_fraction": 0.010349,
+    "rejected": 8,
+    "txt_projected": 544,
+    "txt_rejected": 0
+  },
+  "processed_sha256": "2cd231c46405c59000b182317302e78acda7df6f487cfc1b28c193fada46321f",
+  "read": 24,
+  "rejected": 0,
+  "section_coverage_mean": 1.0,
+  "section_coverage_min": 1.0,
+  "sections_by_label": {
+    "COMPLEMENTARY_EXAMS": 24,
+    "CONCLUSION": 24,
+    "EXTERNAL_EXAM": 24,
+    "HISTORY": 24,
+    "IDENTIFICATION": 24,
+    "INTERNAL_EXAM": 24,
+    "PREAMBLE": 24,
+    "SIGNATURE": 24
+  },
+  "written": 24
+}

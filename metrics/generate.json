@@ -1,0 +1,45 @@
+{
+  "attempts": 24,
+  "by_scenario": {
+    "cardiac_natural": 2,
+    "drowning": 2,
+    "fall": 3,
+    "firearm_homicide": 3,
+    "hanging": 2,
+    "other_natural": 2,
+    "poisoning": 2,
+    "sharp_force": 3,
+    "traffic": 3,
+    "undetermined": 2
+  },
+  "by_template": {
+    "t1": 9,
+    "t2": 11,
+    "t3": 4
+  },
+  "entities_by_label": {
+    "ADDRESS": 24,
+    "CAUSE_OF_DEATH": 24,
+    "CPF": 24,
+    "CRM": 33,
+    "DATE": 72,
+    "DOC_NUMBER": 48,
+    "FINDING": 52,
+    "INJURY": 36,
+    "LOC": 72,
+    "MANNER_OF_DEATH": 24,
+    "ORGAN": 170,
+    "PER": 120,
+    "PHONE": 24,
+    "RG": 24,
+    "SUBSTANCE": 26
+  },
+  "n_cases": 24,
+  "pdf_replaced_chars": 0,
+  "pdfs": 7,
+  "raw_sha256": "7c25416a8b5edfd4c282c64870cbc261d4cc347cd030e310f2a601bf3cbd91f0",
+  "reject_reasons": {},
+  "rejected": 0,
+  "transliterated_chars": 0,
+  "written": 24
+}

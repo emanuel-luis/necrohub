@@ -1,0 +1,7 @@
+# Add patterns of files dvc should ignore, which could improve
+# the performance. Learn more at
+# https://dvc.org/doc/user-guide/dvcignore
+
+# Python bytecode next to the source packages a stage depends on
+__pycache__/
+*.pyc
