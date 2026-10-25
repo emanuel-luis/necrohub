@@ -141,40 +141,86 @@ rename. Rerunning gives byte-identical outs, and `tests/unit/test_idempotency.py
 ```python
 class ChatLLM(Protocol):
     name: str
-    def complete(self, messages: Sequence[ChatMessage], *, json_schema: dict[str, Any] | None = None,
-                 temperature: float = 0.2, seed: int | None = None) -> str: ...
+
+    def complete(
+        self,
+        messages: Sequence[ChatMessage],
+        *,
+        json_schema: dict[str, Any] | None = None,
+        temperature: float = 0.2,
+        seed: int | None = None,
+    ) -> str: ...
+
+
 # GeminiLLM(api_key: SecretStr, model: str), OllamaLLM(host: str, model: str)
+
 
 class TextRealizer(Protocol):
     name: str
-    def realize(self, case: CaseFacts, seed: int) -> Draft: ...   # Draft{template_id, body}
+
+    def realize(self, case: CaseFacts, seed: int) -> Draft: ...  # Draft{template_id, body}
+
+
 # TemplateRealizer(templates_dir), LlmRealizer(llm: ChatLLM, prompt: str)
-def fill(draft: Draft, case: CaseFacts) -> Realized | Reject: ...  # Realized{text, entities, sections}
+def fill(
+    draft: Draft, case: CaseFacts
+) -> Realized | Reject: ...  # Realized{text, entities, sections}
+
+
 # draft syntax: {{SLOT}} -> CaseFacts value + PII span; [[LABEL|surface]] -> clinical span; <<SEC:LABEL>> line marker
+
 
 class Deidentifier(Protocol):
     name: str
+
     def detect(self, text: str) -> list[PredictedSpan]: ...
+
+
 # RegexDeidentifier(), HfNerDeidentifier(model: str, threshold: float, device: str), LlmDeidentifier(llm: ChatLLM)
-def merge_spans(groups: Sequence[Sequence[PredictedSpan]], how: Literal["longest"] = "longest") -> list[PredictedSpan]: ...
-def redact(text: str, spans: Sequence[Span]) -> str: ...   # "[LABEL]", single pass, right to left, no overlaps
+def merge_spans(
+    groups: Sequence[Sequence[PredictedSpan]], how: Literal["longest"] = "longest"
+) -> list[PredictedSpan]: ...
+def redact(
+    text: str, spans: Sequence[Span]
+) -> str: ...  # "[LABEL]", single pass, right to left, no overlaps
+
 
 class Embedder(Protocol):
     id: str
     dim: int
+
     def embed(self, texts: Sequence[str]) -> npt.NDArray[np.float32]: ...  # (n, dim), L2-normalized
+
+
 # HashingEmbedder(dim: int = 256)  # blake2b feature hashing of word unigrams+bigrams, signed
 # HfEmbedder(model: str, layer_weighting: Literal["last", "linear_decay"], max_length: int, stride: int, device: str)
-def windows(n_tokens: int, size: int, stride: int) -> list[tuple[int, int]]: ...  # raises if stride >= size
+def windows(
+    n_tokens: int, size: int, stride: int
+) -> list[tuple[int, int]]: ...  # raises if stride >= size
+
 
 class VectorStore(Protocol):
-    def upsert(self, index_version: str, chunks: Sequence[Chunk], vectors: npt.NDArray[np.float32]) -> int: ...
-    def search(self, index_version: str, vector: npt.NDArray[np.float32], k: int) -> list[RetrievedChunk]: ...
+    def upsert(
+        self, index_version: str, chunks: Sequence[Chunk], vectors: npt.NDArray[np.float32]
+    ) -> int: ...
+    def search(
+        self, index_version: str, vector: npt.NDArray[np.float32], k: int
+    ) -> list[RetrievedChunk]: ...
     def count(self, index_version: str) -> int: ...
+
+
 # InMemoryVectorStore(), PgVectorStore(dsn: SecretStr)
 
-def answer(question: str, *, embedder: Embedder, store: VectorStore, index_version: str,
-           llm: ChatLLM | None, k: int) -> Answer: ...   # llm=None -> extractive answer
+
+def answer(
+    question: str,
+    *,
+    embedder: Embedder,
+    store: VectorStore,
+    index_version: str,
+    llm: ChatLLM | None,
+    k: int,
+) -> Answer: ...  # llm=None -> extractive answer
 ```
 
 ## 8. Migration map
