@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from functools import cache
 from importlib.resources import files
 from pathlib import Path
+from typing import Any, Literal
 
 # --- check digits ---------------------------------------------------------------------------
 
@@ -124,8 +125,20 @@ class FakePool:
 
 
 @cache
+def _raw_pool() -> dict[str, Any]:
+    return tomllib.loads(
+        files("necrohub").joinpath("data/fake_identifiers.toml").read_text("utf-8")
+    )
+
+
+def fake_values(kind: Literal["rg", "crm", "phone"]) -> tuple[str, ...]:
+    """The pool's values of one kind, as written and in file order (the generator draws these)."""
+    return tuple(_raw_pool()[kind])
+
+
+@cache
 def load_pool() -> FakePool:
-    raw = tomllib.loads(files("necrohub").joinpath("data/fake_identifiers.toml").read_text("utf-8"))
+    raw = _raw_pool()
 
     def keys(name: str) -> frozenset[str]:
         return frozenset(_key(v) for v in raw[name])
@@ -146,6 +159,24 @@ def load_pool() -> FakePool:
 _LOOSE_CPF = re.compile(r"(?<![\d.])\d{3}\.?\d{3}\.?\d{3}-?\d{2}(?!\d)")
 _LOOSE_CNPJ = re.compile(r"(?<![\d.])\d{2}\.?\d{3}\.?\d{3}/?\d{4}-?\d{2}(?!\d)")
 _SKIP_NAMES = frozenset({"uv.lock", "dvc.lock"})
+
+
+def _ascii_alnum(char: str) -> bool:
+    return char.isascii() and char.isalnum()
+
+
+def _is_number(line: str, m: re.Match[str], keywords: tuple[str, ...]) -> bool:
+    """False for a bare digit run inside a longer ASCII token, such as a hex hash.
+
+    A value with separators, or one written right after its keyword ("CPF" + digits), still
+    counts. Only ASCII neighbours matter: "nº" + digits is a number.
+    """
+    if not m.group().isdigit():
+        return True
+    before = line[: m.start()]
+    if before.upper().endswith(keywords):
+        return True
+    return not (_ascii_alnum(before[-1:]) or _ascii_alnum(line[m.end() : m.end() + 1]))
 
 
 @dataclass(frozen=True)
@@ -175,12 +206,16 @@ def scan_text(text: str, path: str, pool: FakePool | None = None) -> list[Findin
         found += [
             ("CPF", m.group())
             for m in _LOOSE_CPF.finditer(line)
-            if is_valid_cpf(m.group()) and _key(m.group()) not in pool.cpf
+            if is_valid_cpf(m.group())
+            and _key(m.group()) not in pool.cpf
+            and _is_number(line, m, ("CPF", "NO"))
         ]
         found += [
             ("CNPJ", m.group())
             for m in _LOOSE_CNPJ.finditer(line)
-            if is_valid_cnpj(m.group()) and _key(m.group()) not in pool.cnpj
+            if is_valid_cnpj(m.group())
+            and _key(m.group()) not in pool.cnpj
+            and _is_number(line, m, ("CNPJ", "NO"))
         ]
         for label, known in (("RG", pool.rg), ("CRM", pool.crm)):
             found += [

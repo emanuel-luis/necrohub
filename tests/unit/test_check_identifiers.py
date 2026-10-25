@@ -130,3 +130,17 @@ def test_default_file_set_is_git_tracked_and_new_files(
     (tmp_path / "new.txt").write_text(valid_cpf(), encoding="utf-8")
     result = runner.invoke(app, ["check-identifiers"])
     assert result.exit_code == 1 and "new.txt:1: CPF" in result.output
+
+
+def test_digit_runs_inside_hex_hashes_are_not_numbers(tmp_path: Path) -> None:
+    digits = valid_cpf().replace(".", "").replace("-", "")
+    f = tmp_path / "gold.json"
+    f.write_text(f'{{"text_sha256": "ab{digits}cd"}}\n', encoding="utf-8")
+    assert check(f)[0] == 0
+    dotted = valid_cpf()
+    for glued in (f"nº{digits}", f"CPF{digits}", f"cpf{dotted}", f"No{digits}", f"{dotted}x"):
+        f.write_text(glued + "\n", encoding="utf-8")
+        assert check(f)[0] == 1, glued
+    # the trade-off: a bare digit run with a letter right after it reads as part of a token
+    f.write_text(f"{digits}x\n", encoding="utf-8")
+    assert check(f)[0] == 0

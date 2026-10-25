@@ -23,8 +23,10 @@ All notable changes to this project are documented here. The format follows
 - Redaction covers the union of overlapping spans, also across detectors, so a partial overlap
   never leaves the uncovered tail readable; the record's `entities` keep the longest span.
 - `necrohub check-identifiers`: fails on checksum-valid CPF and CNPJ numbers and on RG, CRM, phone
-  and e-mail values that are not in the committed fake pool. It reads UTF-8, UTF-8/16/32 with a
-  BOM, cp1252 and latin-1 text, and lists the binary files it skipped.
+  and e-mail values that are not in the committed fake pool. It reads UTF-8, UTF-16/32 with or
+  without a BOM, cp1252 and latin-1 text, and lists the binary files it skipped. A bare digit
+  run inside a longer ASCII token, such as a hex hash, is not read as a CPF or CNPJ unless it
+  follows its keyword.
 - Golden tests on three synthetic reports.
 - Embeddings: `Embedder` protocol, `cosine_matrix`, token `windows` (rejects `stride >= size`),
   a deterministic `HashingEmbedder` (blake2b feature hashing) and `HfEmbedder` (windows over ids
@@ -36,6 +38,23 @@ All notable changes to this project are documented here. The format follows
 - `NECROHUB_DEVICE=auto|cpu|cuda` through `resolve_device`.
 - CI job `test-ml` (tiny offline models), `make install-ml` and `make test-ml`.
 - Dependabot cooldown of 7 days; zizmor audits the whole `.github` folder.
+- Run metadata shared by stages: run manifests, atomic output directory swaps, tree hashes.
+- `params.yaml` with typed `seed` and `generate` sections; unknown sections are ignored.
+- Generator contracts: `CaseFacts`, `Draft`, `Realized`, `Reject` and `GoldRecord`, whose
+  `verify` checks the text hash, every span and that the sections tile the text.
+- Seeded case sampler over ten scenarios (firearm homicide, sharp force, traffic, fall, hanging,
+  drowning, cardiac and other natural deaths, poisoning, undetermined). Names come from Faker
+  `pt_BR` seeded per case, CPFs are checksum-invalid, and RG, CRM and phone values come from the
+  fake pool, now 30 RG, 30 CRM and 20 phone values.
+- `fill()`: turns a draft with `{{SLOT}}`, `[[LABEL|surface]]` and `<<SEC:LABEL>>` markers into
+  text with exact entity and section spans, or a typed reject.
+- Template realizer with three report families (`t1`, `t2`, `t3`) and phrase variants; every
+  family's sections equal `split_sections` and its text is latin-1 encodable.
+- `necrohub generate` and `make generate`: writes `reports/`, `gold/` and `rejects.jsonl`,
+  `metrics/generate.json` and a run manifest; boundary checks (spans, required slots, leftover
+  markers, unlabelled identifier-shaped values, reject budget) fail the run and keep the previous
+  output.
+- `faker` as a core dependency.
 
 ### Origin
 

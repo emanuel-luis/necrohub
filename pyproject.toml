@@ -18,6 +18,7 @@ dependencies = [
   "pyyaml>=6",
   "numpy>=2.1",
   "ftfy>=6.3",
+  "faker>=30",
 ]
 
 [project.optional-dependencies]

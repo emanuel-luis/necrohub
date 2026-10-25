@@ -45,3 +45,25 @@ def check_identifiers(
         typer.echo(f"{len(findings)} finding(s) in {len(files)} files{note}", err=True)
         raise typer.Exit(1)
     typer.echo(f"checked {len(files)} files: no leaked identifiers{note}")
+
+
+@app.command()
+def generate(
+    params: Annotated[Path, typer.Option(help="Pipeline parameters file.")] = Path("params.yaml"),
+    out: Annotated[Path, typer.Option(help="Raw layer directory to (re)write.")] = Path("data/raw"),
+    runs_dir: Annotated[Path, typer.Option(help="Where run manifests go.")] = Path("runs"),
+    metrics_dir: Annotated[Path, typer.Option(help="Where metrics/generate.json goes.")] = Path(
+        "metrics"
+    ),
+) -> None:
+    """Generate synthetic reports with gold labels into the raw layer."""
+    from necrohub.generate.stage import run_generate
+    from necrohub.params import load_params
+    from necrohub.runs import StageFailed
+
+    try:
+        run = run_generate(load_params(params), out, runs_dir=runs_dir, metrics_dir=metrics_dir)
+    except StageFailed as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(1) from exc
+    typer.echo(f"generate: {run.counts.written} reports in {out.as_posix()} (run {run.run_id})")

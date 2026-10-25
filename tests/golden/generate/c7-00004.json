@@ -1,0 +1,365 @@
+{
+  "schema_version": 1,
+  "case": {
+    "case_id": "c7-00004",
+    "scenario": "hanging",
+    "institute": {
+      "name": "Instituto Médico-Legal",
+      "city": "Recife",
+      "uf": "PE",
+      "phone": "(81) 99999-1010"
+    },
+    "report": {
+      "number": "2025/4173",
+      "exam_date": "2025-05-04",
+      "start_time": "13h30",
+      "end_time": "15h15",
+      "police_report_number": "97429/2025"
+    },
+    "examiner": {
+      "name": "Maya Sá Cavalcante",
+      "sex": "feminino",
+      "crm": "10404",
+      "crm_uf": "PE"
+    },
+    "assistant_name": "Pietra Vieira Vasconcelos",
+    "decedent": {
+      "name": "Yasmin da Luz da Rocha",
+      "sex": "feminino",
+      "age": 68,
+      "skin_color": "amarela",
+      "birthplace": "Aracaju/SE",
+      "address": "Rua Joana da Mata, nº 990, Jardim das Flores",
+      "rg": "5065748",
+      "cpf": "181.826.663-65",
+      "mother_name": "Milena Gonçalves Nogueira"
+    },
+    "circumstances": {
+      "place_found": "no quarto da residência",
+      "body_position": "em suspensão completa, com laço de corda ao redor do pescoço",
+      "estimated_death_at": "2025-05-04T03:30:00"
+    },
+    "external": {
+      "height_cm": 162,
+      "weight_kg": 67,
+      "rigor": "generalizada",
+      "livor": "fixos, em regiões de declive",
+      "decomposition": "sem sinais de putrefação",
+      "injuries": [
+        {
+          "kind": "sulco de enforcamento",
+          "region": "região cervical anterior e lateral",
+          "side": null,
+          "size_cm": 1.1,
+          "features": [
+            "interrupção na região occipital, no ponto do nó",
+            "fundo apergaminhado"
+          ]
+        }
+      ]
+    },
+    "internal": [
+      {
+        "organ": "Encéfalo",
+        "finding": "de aspecto habitual ao exame macroscópico",
+        "abnormal": false
+      },
+      {
+        "organ": "Pescoço",
+        "finding": "infiltração hemorrágica dos músculos esternocleidomastóideos e fratura do corno maior esquerdo do osso hioide",
+        "abnormal": true
+      },
+      {
+        "organ": "Pulmões",
+        "finding": "congestão e edema, com petéquias subpleurais",
+        "abnormal": true
+      },
+      {
+        "organ": "Coração",
+        "finding": "petéquias subepicárdicas",
+        "abnormal": true
+      },
+      {
+        "organ": "Fígado",
+        "finding": "sem alterações macroscópicas",
+        "abnormal": false
+      },
+      {
+        "organ": "Baço",
+        "finding": "de forma, volume e consistência habituais",
+        "abnormal": false
+      },
+      {
+        "organ": "Rins",
+        "finding": "de forma, volume e consistência habituais",
+        "abnormal": false
+      },
+      {
+        "organ": "Estômago",
+        "finding": "de aspecto habitual ao exame macroscópico",
+        "abnormal": false
+      }
+    ],
+    "complementary_exams": [
+      "dosagem de etanol no sangue"
+    ],
+    "conclusion": {
+      "cause_of_death": "Asfixia mecânica por enforcamento",
+      "mechanism": "constrição do pescoço por laço acionado pelo peso do próprio corpo",
+      "manner_of_death": "violenta (suicídio)",
+      "time_since_death_h": [
+        8,
+        12
+      ]
+    }
+  },
+  "realizer": "template",
+  "template_id": "t2",
+  "text_sha256": "52e271d0af41ec257dfa8d9a138bafd94ecf489e9a60463e06390698d9f16b0a",
+  "entities": [
+    {
+      "start": 26,
+      "end": 32,
+      "label": "LOC",
+      "text": "Recife"
+    },
+    {
+      "start": 62,
+      "end": 71,
+      "label": "DOC_NUMBER",
+      "text": "2025/4173"
+    },
+    {
+      "start": 76,
+      "end": 86,
+      "label": "DATE",
+      "text": "04/05/2025"
+    },
+    {
+      "start": 163,
+      "end": 181,
+      "label": "PER",
+      "text": "Maya Sá Cavalcante"
+    },
+    {
+      "start": 193,
+      "end": 198,
+      "label": "CRM",
+      "text": "10404"
+    },
+    {
+      "start": 215,
+      "end": 240,
+      "label": "PER",
+      "text": "Pietra Vieira Vasconcelos"
+    },
+    {
+      "start": 317,
+      "end": 327,
+      "label": "DOC_NUMBER",
+      "text": "97429/2025"
+    },
+    {
+      "start": 350,
+      "end": 365,
+      "label": "PHONE",
+      "text": "(81) 99999-1010"
+    },
+    {
+      "start": 388,
+      "end": 410,
+      "label": "PER",
+      "text": "Yasmin da Luz da Rocha"
+    },
+    {
+      "start": 421,
+      "end": 446,
+      "label": "PER",
+      "text": "Milena Gonçalves Nogueira"
+    },
+    {
+      "start": 507,
+      "end": 517,
+      "label": "LOC",
+      "text": "Aracaju/SE"
+    },
+    {
+      "start": 528,
+      "end": 572,
+      "label": "ADDRESS",
+      "text": "Rua Joana da Mata, nº 990, Jardim das Flores"
+    },
+    {
+      "start": 588,
+      "end": 595,
+      "label": "RG",
+      "text": "5065748"
+    },
+    {
+      "start": 601,
+      "end": 615,
+      "label": "CPF",
+      "text": "181.826.663-65"
+    },
+    {
+      "start": 769,
+      "end": 779,
+      "label": "DATE",
+      "text": "04/05/2025"
+    },
+    {
+      "start": 1011,
+      "end": 1032,
+      "label": "INJURY",
+      "text": "sulco de enforcamento"
+    },
+    {
+      "start": 1171,
+      "end": 1179,
+      "label": "ORGAN",
+      "text": "Encéfalo"
+    },
+    {
+      "start": 1225,
+      "end": 1232,
+      "label": "ORGAN",
+      "text": "Pescoço"
+    },
+    {
+      "start": 1235,
+      "end": 1344,
+      "label": "FINDING",
+      "text": "infiltração hemorrágica dos músculos esternocleidomastóideos e fratura do corno maior esquerdo do osso hioide"
+    },
+    {
+      "start": 1346,
+      "end": 1353,
+      "label": "ORGAN",
+      "text": "Pulmões"
+    },
+    {
+      "start": 1356,
+      "end": 1400,
+      "label": "FINDING",
+      "text": "congestão e edema, com petéquias subpleurais"
+    },
+    {
+      "start": 1402,
+      "end": 1409,
+      "label": "ORGAN",
+      "text": "Coração"
+    },
+    {
+      "start": 1412,
+      "end": 1436,
+      "label": "FINDING",
+      "text": "petéquias subepicárdicas"
+    },
+    {
+      "start": 1438,
+      "end": 1444,
+      "label": "ORGAN",
+      "text": "Fígado"
+    },
+    {
+      "start": 1477,
+      "end": 1481,
+      "label": "ORGAN",
+      "text": "Baço"
+    },
+    {
+      "start": 1526,
+      "end": 1530,
+      "label": "ORGAN",
+      "text": "Rins"
+    },
+    {
+      "start": 1575,
+      "end": 1583,
+      "label": "ORGAN",
+      "text": "Estômago"
+    },
+    {
+      "start": 1674,
+      "end": 1680,
+      "label": "SUBSTANCE",
+      "text": "etanol"
+    },
+    {
+      "start": 1731,
+      "end": 1764,
+      "label": "CAUSE_OF_DEATH",
+      "text": "Asfixia mecânica por enforcamento"
+    },
+    {
+      "start": 1882,
+      "end": 1901,
+      "label": "MANNER_OF_DEATH",
+      "text": "violenta (suicídio)"
+    },
+    {
+      "start": 1958,
+      "end": 1967,
+      "label": "LOC",
+      "text": "Recife/PE"
+    },
+    {
+      "start": 1969,
+      "end": 1986,
+      "label": "DATE",
+      "text": "4 de maio de 2025"
+    },
+    {
+      "start": 1989,
+      "end": 2007,
+      "label": "PER",
+      "text": "Maya Sá Cavalcante"
+    }
+  ],
+  "sections": [
+    {
+      "start": 0,
+      "end": 368,
+      "label": "PREAMBLE"
+    },
+    {
+      "start": 368,
+      "end": 617,
+      "label": "IDENTIFICATION"
+    },
+    {
+      "start": 617,
+      "end": 830,
+      "label": "HISTORY"
+    },
+    {
+      "start": 830,
+      "end": 1157,
+      "label": "EXTERNAL_EXAM"
+    },
+    {
+      "start": 1157,
+      "end": 1629,
+      "label": "INTERNAL_EXAM"
+    },
+    {
+      "start": 1629,
+      "end": 1693,
+      "label": "COMPLEMENTARY_EXAMS"
+    },
+    {
+      "start": 1693,
+      "end": 1958,
+      "label": "CONCLUSION"
+    },
+    {
+      "start": 1958,
+      "end": 2023,
+      "label": "SIGNATURE"
+    }
+  ],
+  "files": {
+    "txt": "reports/c7-00004.txt",
+    "pdf": null
+  }
+}

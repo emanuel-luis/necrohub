@@ -13,12 +13,19 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
 - `make test`: offline unit tests. `uv run pytest --update-golden` rewrites `tests/golden`; read
   the diff before accepting it.
 - `uv run necrohub check-identifiers [PATHS...]`: the identifier leak check.
+- `make generate` / `uv run necrohub generate --params params.yaml --out data/raw`: synthetic
+  reports and gold (`--runs-dir`, `--metrics-dir` override `runs/` and `metrics/`).
 
 ## Repo map
 
 - `src/necrohub/ids.py`: check digits, identifier patterns, fake pool loader, leak check.
 - `src/necrohub/data/fake_identifiers.toml`: the only identifier-shaped values allowed in the repo.
-- `src/necrohub/contracts/`: Pydantic models for spans and documents.
+- `src/necrohub/contracts/`: Pydantic models for spans, documents and generator gold (`gold.py`).
+- `src/necrohub/params.py` + `params.yaml`: typed params sections (`seed`, `generate`).
+- `src/necrohub/runs.py`: `stage_run`, `atomic_dir`, `sha256_tree`, JSONL io.
+- `src/necrohub/generate/`: `vocab`, `sampler` (`sample_case(seed, i)`), `templates/*.toml`,
+  `realizers` (`TextRealizer`, `TemplateRealizer`), `fill`, `checks`, `stage`. Template headers
+  must be ones `split_sections` recognizes; template text stays latin-1.
 - `src/necrohub/preprocess/`: `normalize`, `sections`, `pipeline`, `deid/{base,regex,hf_ner}`.
 - `src/necrohub/embed/`: `base` (Embedder, cosine_matrix), `chunking`, `hashing`, `hf` (torch and transformers are imported inside functions and classes only).
 - `tests/unit`, `tests/ml`, `tests/external`, `tests/fixtures/reports`, `tests/golden`, `tests/conftest.py` (`golden` fixture).
