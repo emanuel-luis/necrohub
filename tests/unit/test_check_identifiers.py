@@ -141,3 +141,6 @@ def test_digit_runs_inside_hex_hashes_are_not_numbers(tmp_path: Path) -> None:
     for glued in (f"nº{digits}", f"CPF{digits}", f"cpf{dotted}", f"No{digits}", f"{dotted}x"):
         f.write_text(glued + "\n", encoding="utf-8")
         assert check(f)[0] == 1, glued
+    # the trade-off: a bare digit run with a letter right after it reads as part of a token
+    f.write_text(f"{digits}x\n", encoding="utf-8")
+    assert check(f)[0] == 0
