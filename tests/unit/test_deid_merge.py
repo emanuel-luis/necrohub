@@ -1,5 +1,6 @@
 from necrohub.contracts.spans import EntityLabel, PredictedSpan
 from necrohub.preprocess.deid.base import merge_spans, redact
+from necrohub.preprocess.deid.hf_ner import NerEntity, merge_subwords
 
 
 def span(start: int, end: int, label: EntityLabel, text: str = "") -> PredictedSpan:
@@ -42,3 +43,27 @@ def test_merge_is_pure() -> None:
     merged = merge_spans(groups)
     assert groups == before
     assert [s.start for s in merged] == sorted(s.start for s in merged)
+
+
+def _ent(group: str, word: str, start: int, end: int, score: float = 0.9) -> NerEntity:
+    return NerEntity(entity_group=group, word=word, start=start, end=end, score=score)
+
+
+def test_merge_subwords() -> None:
+    text = "Corpo de Joãozinho Silva em São Luís"
+    entities = [
+        _ent("PESSOA", "##zinho", 12, 18, 0.95),  # unsorted on purpose
+        _ent("PESSOA", "Jo", 9, 12, 0.8),  # first piece cut mid-word
+        _ent("PESSOA", "##ilva", 20, 24),  # orphan piece: widened to the whole word
+        _ent("LOCAL", " São Luís", 27, 36),  # leading space is trimmed
+    ]
+    before = [dict(e) for e in entities]
+    out = merge_subwords(entities, text)
+    assert entities == before  # input untouched
+    assert [(e["start"], e["end"], e["word"]) for e in out] == [
+        (9, 18, "Joãozinho"),
+        (19, 24, "Silva"),
+        (28, 36, "São Luís"),
+    ]
+    assert out[0]["score"] == 0.95
+    assert merge_subwords([], text) == []

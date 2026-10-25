@@ -45,8 +45,8 @@ jobs:
         with: { persist-credentials: false }
       - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
         with: { python-version: "3.12", enable-cache: true }
-      # phase 1b adds `--extra ml --extra cpu` here, once src imports torch and transformers
-      - run: uv sync --locked
+      # src imports torch and transformers, so mypy needs the extras
+      - run: uv sync --locked --extra ml --extra cpu
       - run: uv run mypy
 
   test-unit:
@@ -64,3 +64,20 @@ jobs:
       - run: uv sync --locked
       # ml, db, external and slow stay deselected by the pytest config
       - run: uv run pytest
+
+  test-ml:
+    name: test-ml (tiny models, offline)
+    runs-on: ubuntu-latest
+    needs: lint
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    env:
+      HF_HUB_OFFLINE: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { persist-credentials: false }
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with: { python-version: "3.12", enable-cache: true }
+      - run: uv sync --locked --extra ml --extra cpu
+      - run: uv run pytest -m ml

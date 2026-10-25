@@ -10,8 +10,8 @@ questions over the corpus with retrieval.
 
 ## Status
 
-Phase 1 of 8: scaffold, text normalization, section splitting, regex de-identification and the
-identifier leak check are in place. The generator, ingestion, DVC pipeline, training, retrieval API
+Phase 1 of 8: scaffold, text normalization, section splitting, regex and Hugging Face NER
+de-identification, hashing and Hugging Face embeddings, and the identifier leak check are in place. The generator, ingestion, DVC pipeline, training, retrieval API
 and UI come in later phases. The design and the phase plan are in
 [docs/REFACTOR_PLAN.md](docs/REFACTOR_PLAN.md), the decisions in [docs/DECISIONS.md](docs/DECISIONS.md).
 
@@ -54,6 +54,7 @@ Docker Compose. Quality: ruff, mypy strict, pytest, Hypothesis, pip-audit and zi
 ```bash
 uv sync --locked
 make test                          # offline unit tests
+make install-ml && make test-ml    # CPU torch + tiny-model tests, offline
 uv run necrohub check-identifiers  # fail on identifiers outside the fake pool
 uv run necrohub --version
 ```
@@ -70,9 +71,12 @@ src/necrohub/
   ids.py                 CPF/CNPJ check digits, identifier patterns, fake pool, leak check
   data/fake_identifiers.toml
   contracts/             Span, SectionSpan, ProcessedText
-  preprocess/            normalize, sections, pipeline, deid/{base,regex}
+  preprocess/            normalize, sections, pipeline, deid/{base,regex,hf_ner}
+  embed/                 Embedder protocol, token windows, hashing and Hugging Face embedders
 tests/
   unit/                  offline tests
+  ml/                    tiny local models (marker ml), offline
+  external/              real model downloads (marker external, never in CI)
   fixtures/reports/      three synthetic reports
   golden/                expected outputs (pytest --update-golden rewrites them)
 docs/                    refactor plan and decisions

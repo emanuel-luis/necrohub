@@ -6,8 +6,10 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
 ## Commands
 
 - `uv sync --locked`: install (never sync a CUDA build; the torch wheels come from the `cpu` extra).
+- `make install-ml`: `uv sync --locked --extra ml --extra cpu`; needed before `make type` and `make test-ml`.
 - `make lint`: `ruff check`, `ruff format --check`, `necrohub check-identifiers`.
-- `make type`: strict mypy on `src`.
+- `make type`: strict mypy on `src` (after `make install-ml`).
+- `make test-ml`: `ml` tests with tiny local models, `HF_HUB_OFFLINE=1`. `external` tests download real models and never run in CI.
 - `make test`: offline unit tests. `uv run pytest --update-golden` rewrites `tests/golden`; read
   the diff before accepting it.
 - `uv run necrohub check-identifiers [PATHS...]`: the identifier leak check.
@@ -17,8 +19,9 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
 - `src/necrohub/ids.py`: check digits, identifier patterns, fake pool loader, leak check.
 - `src/necrohub/data/fake_identifiers.toml`: the only identifier-shaped values allowed in the repo.
 - `src/necrohub/contracts/`: Pydantic models for spans and documents.
-- `src/necrohub/preprocess/`: `normalize`, `sections`, `pipeline`, `deid/{base,regex}`.
-- `tests/unit`, `tests/fixtures/reports`, `tests/golden`, `tests/conftest.py` (`golden` fixture).
+- `src/necrohub/preprocess/`: `normalize`, `sections`, `pipeline`, `deid/{base,regex,hf_ner}`.
+- `src/necrohub/embed/`: `base` (Embedder, cosine_matrix), `chunking`, `hashing`, `hf` (torch and transformers are imported inside functions and classes only).
+- `tests/unit`, `tests/ml`, `tests/external`, `tests/fixtures/reports`, `tests/golden`, `tests/conftest.py` (`golden` fixture).
 
 ## Invariants
 

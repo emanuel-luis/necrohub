@@ -19,6 +19,14 @@ All notable changes to this project are documented here. The format follows
 - `necrohub check-identifiers`: fails on checksum-valid CPF and CNPJ numbers and on RG, CRM, phone
   and e-mail values that are not in the committed fake pool.
 - Golden tests on three synthetic reports.
+- Embeddings: `Embedder` protocol, `cosine_matrix`, token `windows` (rejects `stride >= size`),
+  a deterministic `HashingEmbedder` (blake2b feature hashing) and `HfEmbedder` (windows over ids
+  without specials, every window wrapped in cls/sep, masked mean over tokens then over windows,
+  models loaded once).
+- `HfNerDeidentifier` (token-classification pipeline built once, label map to `EntityLabel`,
+  threshold) and the pure `merge_subwords`.
+- `NECROHUB_DEVICE=auto|cpu|cuda` through `resolve_device`.
+- CI job `test-ml` (tiny offline models), `make install-ml` and `make test-ml`.
 
 ### Origin
 
