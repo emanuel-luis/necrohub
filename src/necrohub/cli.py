@@ -94,3 +94,44 @@ def ingest(
         typer.echo(str(exc), err=True)
         raise typer.Exit(1) from exc
     typer.echo(f"ingest: {run.counts.written} documents in {out.as_posix()} (run {run.run_id})")
+
+
+@app.command()
+def preprocess(
+    params: Annotated[Path, typer.Option(help="Pipeline parameters file.")] = Path("params.yaml"),
+    in_: Annotated[Path, typer.Option("--in", help="Interim layer directory.")] = Path(
+        "data/interim"
+    ),
+    out: Annotated[Path, typer.Option(help="Processed layer directory to (re)write.")] = Path(
+        "data/processed"
+    ),
+    raw: Annotated[
+        Path | None,
+        typer.Option(
+            help="Raw layer with gold/ and reports/ for the alignment metric. "
+            "Default: raw next to --in."
+        ),
+    ] = None,
+    runs_dir: Annotated[Path, typer.Option(help="Where run manifests go.")] = Path("runs"),
+    metrics_dir: Annotated[Path, typer.Option(help="Where metrics/preprocess.json goes.")] = Path(
+        "metrics"
+    ),
+) -> None:
+    """Normalize, split into sections and de-identify every ingested document."""
+    from necrohub.params import load_params
+    from necrohub.preprocess.stage import run_preprocess
+    from necrohub.runs import StageFailed
+
+    try:
+        run = run_preprocess(
+            load_params(params).preprocess,
+            in_,
+            out,
+            raw=raw,
+            runs_dir=runs_dir,
+            metrics_dir=metrics_dir,
+        )
+    except StageFailed as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(1) from exc
+    typer.echo(f"preprocess: {run.counts.written} documents in {out.as_posix()} (run {run.run_id})")
