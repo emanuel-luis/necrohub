@@ -156,8 +156,10 @@ def load_pool() -> FakePool:
 
 # --- leak check -----------------------------------------------------------------------------
 
-_LOOSE_CPF = re.compile(r"(?<![\d.])\d{3}\.?\d{3}\.?\d{3}-?\d{2}(?!\d)")
-_LOOSE_CNPJ = re.compile(r"(?<![\d.])\d{2}\.?\d{3}\.?\d{3}/?\d{4}-?\d{2}(?!\d)")
+# ASCII letters count as neighbours too, so digit runs inside hex hashes are not read as numbers
+# (\w would also swallow the "º" in "nº", hiding a CPF written right after it)
+_LOOSE_CPF = re.compile(r"(?<![0-9A-Za-z.])\d{3}\.?\d{3}\.?\d{3}-?\d{2}(?![0-9A-Za-z])")
+_LOOSE_CNPJ = re.compile(r"(?<![0-9A-Za-z.])\d{2}\.?\d{3}\.?\d{3}/?\d{4}-?\d{2}(?![0-9A-Za-z])")
 _SKIP_NAMES = frozenset({"uv.lock", "dvc.lock"})
 
 

@@ -23,8 +23,9 @@ All notable changes to this project are documented here. The format follows
 - Redaction covers the union of overlapping spans, also across detectors, so a partial overlap
   never leaves the uncovered tail readable; the record's `entities` keep the longest span.
 - `necrohub check-identifiers`: fails on checksum-valid CPF and CNPJ numbers and on RG, CRM, phone
-  and e-mail values that are not in the committed fake pool. It reads UTF-8, UTF-8/16/32 with a
-  BOM, cp1252 and latin-1 text, and lists the binary files it skipped.
+  and e-mail values that are not in the committed fake pool. It reads UTF-8, UTF-16/32 with or
+  without a BOM, cp1252 and latin-1 text, and lists the binary files it skipped. Digit runs
+  inside longer alphanumeric tokens, such as hex hashes, are not read as CPF or CNPJ.
 - Golden tests on three synthetic reports.
 - Embeddings: `Embedder` protocol, `cosine_matrix`, token `windows` (rejects `stride >= size`),
   a deterministic `HashingEmbedder` (blake2b feature hashing) and `HfEmbedder` (windows over ids
