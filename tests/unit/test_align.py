@@ -134,3 +134,66 @@ def test_moved_span_is_rejected() -> None:
     word = Span(start=0, end=7, label=EntityLabel.LOC, text="ÔMEGA K")
     projected, rejected = project("ÔMEGA Kaaaaaaaa", "aaaaaaaaÔMEGA K", [word])
     assert projected == [] and rejected == [word]
+
+
+def test_repeated_word_under_whitespace_drift_keeps_its_copy() -> None:
+    source, target = "SP Silva SP  e Silva\n\na", "SP  Silva\nSP  \ne\nSilva\na"
+    word = Span(start=15, end=20, label=EntityLabel.PER, text="Silva")
+    projected, rejected = project(source, target, [word])
+    assert rejected == [] and [(p.start, p.end) for p in projected] == [(17, 22)]
+
+
+def test_same_word_twice_maps_to_two_targets() -> None:
+    a = Span(start=0, end=5, label=EntityLabel.PER, text="Silva")
+    b = Span(start=0, end=5, label=EntityLabel.LOC, text="Silva")
+    assert project("Silva x", "Silva  x", [a, b])[0] == [a, b]  # same source range: both kept
+    # two copies of a word map to two distinct targets (the collision guard never fires here)
+    c = Span(start=6, end=11, label=EntityLabel.PER, text="Silva")
+    assert project("Silva Silva", "Silva\nSilva", [a, c]) == (
+        [a, c.model_copy(update={"start": 6, "end": 11})],
+        [],
+    )
+
+
+_TOKENS = st.sampled_from(["SP", "Silva", "e", "de", "a", "Silva,", "nº"])
+_WS = st.text(alphabet=" \n\t", max_size=3)
+
+
+@settings(max_examples=300, deadline=None)
+@given(
+    st.lists(st.tuples(_TOKENS, _WS, _WS), min_size=2, max_size=25),
+    st.lists(st.tuples(st.integers(0, 24), st.integers(0, 3)), min_size=1, max_size=6),
+)
+def test_whitespace_only_drift_never_moves_a_span(
+    parts: list[tuple[str, str, str]], picks: list[tuple[int, int]]
+) -> None:
+    # source and target hold the same tokens; only the whitespace before each token differs
+    # (the source always separates tokens). Spans cover runs of repeated tokens.
+    source = target = ""
+    src_pos: list[tuple[int, int]] = []
+    tgt_pos: list[tuple[int, int]] = []
+    for i, (token, ws_src, ws_tgt) in enumerate(parts):
+        source += (ws_src or " ") if i else ws_src
+        target += ws_tgt
+        src_pos.append((len(source), len(source) + len(token)))
+        tgt_pos.append((len(target), len(target) + len(token)))
+        source += token
+        target += token
+    n = len(parts)
+    runs = sorted({(i % n, min(i % n + k, n - 1)) for i, k in picks})
+    spans = [
+        Span(
+            start=src_pos[i][0],
+            end=src_pos[j][1],
+            label=EntityLabel.PER,
+            text=source[src_pos[i][0] : src_pos[j][1]],
+        )
+        for i, j in runs
+    ]
+    projected, rejected = project(source, target, spans)
+    truth = {(src_pos[i][0], src_pos[j][1]): (tgt_pos[i][0], tgt_pos[j][1]) for i, j in runs}
+    for p, s in zip(projected, [s for s in spans if s not in rejected], strict=True):
+        assert (p.start, p.end) == truth[(s.start, s.end)]
+    for r in rejected:
+        start, end = truth[(r.start, r.end)]
+        assert target[start:end] != r.text  # only spans whose inner whitespace changed

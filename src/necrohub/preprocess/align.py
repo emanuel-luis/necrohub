@@ -7,33 +7,65 @@ from difflib import SequenceMatcher
 from necrohub.contracts.spans import Span
 
 
+def _visible(text: str) -> tuple[str, list[int]]:
+    """The text without whitespace, and the original offset of each character kept."""
+    offsets = [i for i, c in enumerate(text) if not c.isspace()]
+    return "".join(text[i] for i in offsets), offsets
+
+
 def project[S: Span](source: str, target: str, spans: Sequence[S]) -> tuple[list[S], list[S]]:
     """Map spans of `source` onto `target`; returns (projected, rejected), each in input order.
 
-    The two texts are diffed once with difflib (autojunk off). A span is projected when its first
-    and last characters both fall in `equal` regions and the mapped slice of `target` still reads
-    exactly the span's text; anything else (an endpoint inside a changed region, or a change
-    inside the span) is rejected, never guessed. Projected spans are copies with new offsets.
+    Whitespace is removed from both texts before the diff (difflib, autojunk off), and offsets are
+    mapped back afterwards. Whitespace-only drift (PDF line breaks, dropped blank lines, trailing
+    spaces) then leaves the two sequences identical, so a repeated word can never be matched to
+    the wrong copy. A span is projected when its first and last non-whitespace characters both
+    fall in matching blocks and the mapped slice of `target` reads exactly the span's text;
+    anything else (an endpoint in a changed region, a change inside the span, including changed
+    whitespace inside it) is rejected, never guessed. Spans from different source offsets that
+    land on the same target offsets are all rejected. Projected spans are copies.
 
     Cost: SequenceMatcher is quadratic in the worst case and roughly linear-times-repetition on
-    report text; about tens of milliseconds for a pair of 2000-character reports. Each span is then
-    one binary search over the matching blocks.
+    report text; tens of milliseconds for two 2000-character reports. Each span is then two
+    binary searches over the matching blocks.
     """
-    blocks = SequenceMatcher(None, source, target, autojunk=False).get_matching_blocks()
+    src, src_at = _visible(source)
+    tgt, tgt_at = _visible(target)
+    blocks = SequenceMatcher(None, src, tgt, autojunk=False).get_matching_blocks()
     starts = [b.a for b in blocks]
 
     def mapped(pos: int) -> int | None:
-        i = bisect_right(starts, pos) - 1
-        if i < 0 or pos >= blocks[i].a + blocks[i].size:
+        """Target offset of the visible character at source offset pos, if it matched."""
+        k = bisect_right(src_at, pos) - 1  # index of pos in the visible sequence
+        if k < 0 or src_at[k] != pos:
             return None
-        return blocks[i].b + pos - blocks[i].a
+        i = bisect_right(starts, k) - 1
+        if i < 0 or k >= blocks[i].a + blocks[i].size:
+            return None
+        return tgt_at[blocks[i].b + k - blocks[i].a]
+
+    def target_range(span: S) -> tuple[int, int] | None:
+        text = span.text
+        lead, trail = len(text) - len(text.lstrip()), len(text) - len(text.rstrip())
+        if lead == len(text):
+            return None
+        first, last = mapped(span.start + lead), mapped(span.end - 1 - trail)
+        if first is None or last is None:
+            return None
+        start, end = first - lead, last + 1 + trail
+        return (start, end) if start >= 0 and target[start:end] == text else None
+
+    ranges = [target_range(s) for s in spans]
+    owners: dict[tuple[int, int], set[tuple[int, int]]] = {}
+    for span, r in zip(spans, ranges, strict=True):
+        if r is not None:
+            owners.setdefault(r, set()).add((span.start, span.end))
 
     projected: list[S] = []
     rejected: list[S] = []
-    for span in spans:
-        start, last = mapped(span.start), mapped(span.end - 1)
-        if start is None or last is None or target[start : last + 1] != span.text:
-            rejected.append(span)
+    for span, r in zip(spans, ranges, strict=True):
+        if r is not None and len(owners[r]) == 1:
+            projected.append(span.model_copy(update={"start": r[0], "end": r[1]}))
         else:
-            projected.append(span.model_copy(update={"start": start, "end": last + 1}))
+            rejected.append(span)
     return projected, rejected
