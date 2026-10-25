@@ -1,0 +1,43 @@
+Laudo de Exame de Necropsia
+
+Instituto Médico-Legal Dr. [PER] - São Luís/MA
+Laudo nº [DOC_NUMBER]
+Data: [DATE]
+Hora do início: 07h30
+Hora do término: 09h15
+
+Perito Médico-Legal: Dr. [PER] - CRM/MA [CRM]
+Auxiliar: Técnica de Necropsia [PER]
+
+1. Identificação
+    Corpo identificado como [PER], sexo feminino, 67 anos, natural de São Luís/MA, residente na [ADDRESS]. Reconhecimento por familiares e documento de identidade (RG nº [RG] SSP/MA).
+
+2. Histórico e Circunstâncias
+    Informações recebidas pela equipe de remoção e familiares indicam que a vítima foi encontrada em sua residência, inconsciente, sem sinais de trauma externo evidente. Relatos de dispneia súbita nas últimas horas e relato de prévio diagnóstico de hipertensão arterial sistêmica e diabetes mellitus tipo 2. Não há suspeita de evento violento.
+
+3. Exame Externo
+    Cadáver do sexo feminino, cor parda, estatura aproximada 1,62 m, peso estimado 70 kg. Rigor mortis presente de forma parcial; início de livores cadavéricos em decúbito dorsal, fixos. Ausência de lesões cortantes, perfuro-contusas ou escoriações relevantes. Unhas sem sinais de lesão. Vestimenta intacta.
+
+4. Exame Interno
+    Cavidade torácica: pulmões aumentados de volume, aspecto congesto, superfície com áreas de edema. Não há hemotórax nem derrame pleural volumoso.
+    Coração: aumento discreto de massa cardíaca, cavidades com espessamento da parede ventricular esquerda compatível com hipertrofia concentricamente acentuada. Observa-se placa aterosclerótica relevante na artéria coronária anterior descendente proximal (estenose significativa). No miocárdio subendocárdico da parede anterior ventricular esquerda observa-se área de amolecimento e palidez compatível com infarto agudo recente (entre 6 e 24 horas), com início de ruptura de fibras e leve hemorragia focal. Válvulas sem alterações macroscópicas relevantes.
+
+Abdome: fígado e baço sem alterações macroscópicas significativas; rins com cicatriz cortical multifocal compatível com nefroesclerose hipertensiva crônica.
+
+Encéfalo: sem hemorragias encefálicas evidentes ao exame macroscópico.
+
+5. Exames Complementares Sugeridos
+
+* Exame histológico de miocárdio (para confirmação de infarto agudo e estimativa temporal).
+* Dosagens toxicológicas de rotina (sangue/urina) para exclusão de contribuintes farmacológicos/agentes tóxicos.
+
+6. Conclusão
+
+1) Causa da morte: Insuficiência circulatória aguda por infarto do miocárdio agudo (síndrome coronariana aguda) em contexto de doença coronariana aterosclerótica.
+2) Natureza da morte: Natural.
+3) Tempo estimado do óbito: provável evolução em horas antes do achado, compatível com início de infarto nas últimas 6–24 horas.
+
+São Luís/MA, [DATE].
+Dr. [PER]
+Perito Médico-Legal - CRM/MA [CRM]
+Assinatura digital

@@ -1,0 +1,44 @@
+[
+  {
+    "label": "PREAMBLE",
+    "start": 0,
+    "end": 276,
+    "first_line": "Laudo de Exame de Necropsia"
+  },
+  {
+    "label": "IDENTIFICATION",
+    "start": 276,
+    "end": 542,
+    "first_line": "1. Identificação"
+  },
+  {
+    "label": "HISTORY",
+    "start": 542,
+    "end": 849,
+    "first_line": "2. Histórico e Circunstâncias"
+  },
+  {
+    "label": "EXTERNAL_EXAM",
+    "start": 849,
+    "end": 1635,
+    "first_line": "3. Exame Externo"
+  },
+  {
+    "label": "INTERNAL_EXAM",
+    "start": 1635,
+    "end": 2157,
+    "first_line": "4. Exame Interno"
+  },
+  {
+    "label": "CONCLUSION",
+    "start": 2157,
+    "end": 2388,
+    "first_line": "5. Conclusão"
+  },
+  {
+    "label": "SIGNATURE",
+    "start": 2388,
+    "end": 2504,
+    "first_line": "São Luís/MA, 06 de outubro de 2025."
+  }
+]

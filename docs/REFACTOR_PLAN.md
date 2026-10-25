@@ -2,7 +2,8 @@
 
 Target design and migration map for merging `ragnosis`, `necropsy-hub` and `necropsy-llm-hub` into
 one reproducible pipeline for synthetic pt-BR forensic necropsy reports. Decisions are recorded in
-`docs/DECISIONS.md`. This plan assumes rows 1-5 and does not block on rows 6-7.
+`docs/DECISIONS.md`. Rows 6-7 were answered after the plan was written: the fine-tuning is staged
+(P4 and P6 both run) and the generator LLM is a local Ollama model, with Gemini optional.
 
 ## 1. Decisions taken in this plan
 
@@ -141,40 +142,86 @@ rename. Rerunning gives byte-identical outs, and `tests/unit/test_idempotency.py
 ```python
 class ChatLLM(Protocol):
     name: str
-    def complete(self, messages: Sequence[ChatMessage], *, json_schema: dict[str, Any] | None = None,
-                 temperature: float = 0.2, seed: int | None = None) -> str: ...
+
+    def complete(
+        self,
+        messages: Sequence[ChatMessage],
+        *,
+        json_schema: dict[str, Any] | None = None,
+        temperature: float = 0.2,
+        seed: int | None = None,
+    ) -> str: ...
+
+
 # GeminiLLM(api_key: SecretStr, model: str), OllamaLLM(host: str, model: str)
+
 
 class TextRealizer(Protocol):
     name: str
-    def realize(self, case: CaseFacts, seed: int) -> Draft: ...   # Draft{template_id, body}
+
+    def realize(self, case: CaseFacts, seed: int) -> Draft: ...  # Draft{template_id, body}
+
+
 # TemplateRealizer(templates_dir), LlmRealizer(llm: ChatLLM, prompt: str)
-def fill(draft: Draft, case: CaseFacts) -> Realized | Reject: ...  # Realized{text, entities, sections}
+def fill(
+    draft: Draft, case: CaseFacts
+) -> Realized | Reject: ...  # Realized{text, entities, sections}
+
+
 # draft syntax: {{SLOT}} -> CaseFacts value + PII span; [[LABEL|surface]] -> clinical span; <<SEC:LABEL>> line marker
+
 
 class Deidentifier(Protocol):
     name: str
+
     def detect(self, text: str) -> list[PredictedSpan]: ...
+
+
 # RegexDeidentifier(), HfNerDeidentifier(model: str, threshold: float, device: str), LlmDeidentifier(llm: ChatLLM)
-def merge_spans(groups: Sequence[Sequence[PredictedSpan]], how: Literal["longest"] = "longest") -> list[PredictedSpan]: ...
-def redact(text: str, spans: Sequence[Span]) -> str: ...   # "[LABEL]", single pass, right to left, no overlaps
+def merge_spans(
+    groups: Sequence[Sequence[PredictedSpan]], how: Literal["longest"] = "longest"
+) -> list[PredictedSpan]: ...
+def redact(
+    text: str, spans: Sequence[Span]
+) -> str: ...  # "[LABEL]", single pass, right to left, no overlaps
+
 
 class Embedder(Protocol):
     id: str
     dim: int
+
     def embed(self, texts: Sequence[str]) -> npt.NDArray[np.float32]: ...  # (n, dim), L2-normalized
+
+
 # HashingEmbedder(dim: int = 256)  # blake2b feature hashing of word unigrams+bigrams, signed
 # HfEmbedder(model: str, layer_weighting: Literal["last", "linear_decay"], max_length: int, stride: int, device: str)
-def windows(n_tokens: int, size: int, stride: int) -> list[tuple[int, int]]: ...  # raises if stride >= size
+def windows(
+    n_tokens: int, size: int, stride: int
+) -> list[tuple[int, int]]: ...  # raises if stride >= size
+
 
 class VectorStore(Protocol):
-    def upsert(self, index_version: str, chunks: Sequence[Chunk], vectors: npt.NDArray[np.float32]) -> int: ...
-    def search(self, index_version: str, vector: npt.NDArray[np.float32], k: int) -> list[RetrievedChunk]: ...
+    def upsert(
+        self, index_version: str, chunks: Sequence[Chunk], vectors: npt.NDArray[np.float32]
+    ) -> int: ...
+    def search(
+        self, index_version: str, vector: npt.NDArray[np.float32], k: int
+    ) -> list[RetrievedChunk]: ...
     def count(self, index_version: str) -> int: ...
+
+
 # InMemoryVectorStore(), PgVectorStore(dsn: SecretStr)
 
-def answer(question: str, *, embedder: Embedder, store: VectorStore, index_version: str,
-           llm: ChatLLM | None, k: int) -> Answer: ...   # llm=None -> extractive answer
+
+def answer(
+    question: str,
+    *,
+    embedder: Embedder,
+    store: VectorStore,
+    index_version: str,
+    llm: ChatLLM | None,
+    k: int,
+) -> Answer: ...  # llm=None -> extractive answer
 ```
 
 ## 8. Migration map
@@ -403,8 +450,12 @@ Files: `pyproject.toml` (section 9, P1 deps only), `uv.lock`, `.python-version` 
 or forensic use", credits to the three origin repos), `CHANGELOG.md` (`[Unreleased]`),
 `CLAUDE.md`, `.github/workflows/ci.yml` (lint, type, test-unit, test-ml),
 `src/necrohub/{__init__,py.typed,cli,settings,ids}.py`, `src/necrohub/data/fake_identifiers.toml`,
-`contracts/{spans,documents}.py`, `preprocess/{normalize,nlp_optional,sections,pipeline}.py`,
+`contracts/{spans,documents}.py`, `preprocess/{normalize,sections,pipeline}.py`,
 `preprocess/deid/{base,regex,hf_ner}.py`, `embed/{base,chunking,hashing,hf}.py`.
+Per DECISIONS rows 9-10, P1 skips `nlp_optional.py` and the `nlp` extra, and ships only the `cpu`
+torch extra (`cu128` and the extras conflict arrive in P4). P1 runs as two implementer passes:
+P1a (scaffold, contracts, normalize, sections, regex de-id, leak check, CI, docs skeleton) and
+P1b (embeddings, HF NER, `ml` tests and CI job).
 
 Fixtures and goldens:
 - `tests/fixtures/reports/{firearm_a,firearm_b,natural}.txt`, migrated verbatim. Their identifiers
@@ -559,10 +610,9 @@ because the files are disjoint. P4, P5 and P6 can run in parallel after P3.
 | The hashing embedder retrieves poorly | Labelled as a mechanics-only default. The HF embedder is a param switch |
 | Faker names can match real people | Unavoidable and harmless. Stated in the data card |
 
-## 12. Open questions (user only)
+## 12. Open questions (resolved)
 
-1. Fine-tuning target (DECISIONS row 6): staged (a)+(b), recommended, or (a) only (drop P6), or
-   (b) only (P4 shrinks to the regex baseline plus the eval harness). The NER dataset is built
-   either way because the de-identification evaluation needs it.
-2. Generator LLM backend (DECISIONS row 7): Gemini or Ollama decides which `ChatLLM` P2 tests
-   first. The interface, the template realizer and the demo are the same either way.
+1. Fine-tuning target (DECISIONS row 6): staged (a)+(b). P4 and P6 both run; P6 stays a cloud
+   notebook.
+2. Generator LLM backend (DECISIONS row 7): Ollama first, with a pinned small model; Gemini is an
+   optional backend, marked `external` in tests and never called in CI.

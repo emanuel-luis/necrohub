@@ -1,0 +1,14 @@
+# The only identifier-shaped values allowed in the repository. Everything here is synthetic.
+# `necrohub check-identifiers` flags any RG, CRM or phone that is not listed, any CPF or CNPJ
+# with a valid check digit (listed ones excepted) and any e-mail outside the allowed domains.
+# Generated CPFs and CNPJs have an invalid check digit by construction, so they need no entry.
+
+cpf = ["123.456.789-00"]
+cnpj = []
+rg = ["125623240", "1234567", "7654321", "9876543", "2468135"]
+crm = ["12345", "22456", "33567", "44678"]
+phone = ["(98) 99999-0101", "(98) 98888-0202", "(98) 3200-0303", "(99) 97777-0404"]
+
+[email]
+domains = ["example.org", "example.com", "example.net", "users.noreply.github.com"]
+addresses = ["emanuel.filho08@gmail.com"]

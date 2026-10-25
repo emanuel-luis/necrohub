@@ -1,0 +1,44 @@
+[
+  {
+    "label": "PREAMBLE",
+    "start": 0,
+    "end": 254,
+    "first_line": "Relatório de Exame Cadavérico"
+  },
+  {
+    "label": "IDENTIFICATION",
+    "start": 254,
+    "end": 524,
+    "first_line": "1. Identificação"
+  },
+  {
+    "label": "HISTORY",
+    "start": 524,
+    "end": 845,
+    "first_line": "2. Dados Circunstanciais"
+  },
+  {
+    "label": "EXTERNAL_EXAM",
+    "start": 845,
+    "end": 1714,
+    "first_line": "3. Exame Externo"
+  },
+  {
+    "label": "INTERNAL_EXAM",
+    "start": 1714,
+    "end": 2315,
+    "first_line": "4. Exame Interno"
+  },
+  {
+    "label": "CONCLUSION",
+    "start": 2315,
+    "end": 2586,
+    "first_line": "5. Diagnóstico e Conclusão"
+  },
+  {
+    "label": "SIGNATURE",
+    "start": 2586,
+    "end": 2697,
+    "first_line": "São Luís/MA, 06 de outubro de 2025."
+  }
+]
