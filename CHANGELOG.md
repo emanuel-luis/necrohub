@@ -24,8 +24,9 @@ All notable changes to this project are documented here. The format follows
   never leaves the uncovered tail readable; the record's `entities` keep the longest span.
 - `necrohub check-identifiers`: fails on checksum-valid CPF and CNPJ numbers and on RG, CRM, phone
   and e-mail values that are not in the committed fake pool. It reads UTF-8, UTF-16/32 with or
-  without a BOM, cp1252 and latin-1 text, and lists the binary files it skipped. Digit runs
-  inside longer alphanumeric tokens, such as hex hashes, are not read as CPF or CNPJ.
+  without a BOM, cp1252 and latin-1 text, and lists the binary files it skipped. A bare digit
+  run inside a longer ASCII token, such as a hex hash, is not read as a CPF or CNPJ unless it
+  follows its keyword.
 - Golden tests on three synthetic reports.
 - Embeddings: `Embedder` protocol, `cosine_matrix`, token `windows` (rejects `stride >= size`),
   a deterministic `HashingEmbedder` (blake2b feature hashing) and `HfEmbedder` (windows over ids

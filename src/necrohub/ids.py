@@ -156,11 +156,27 @@ def load_pool() -> FakePool:
 
 # --- leak check -----------------------------------------------------------------------------
 
-# ASCII letters count as neighbours too, so digit runs inside hex hashes are not read as numbers
-# (\w would also swallow the "º" in "nº", hiding a CPF written right after it)
-_LOOSE_CPF = re.compile(r"(?<![0-9A-Za-z.])\d{3}\.?\d{3}\.?\d{3}-?\d{2}(?![0-9A-Za-z])")
-_LOOSE_CNPJ = re.compile(r"(?<![0-9A-Za-z.])\d{2}\.?\d{3}\.?\d{3}/?\d{4}-?\d{2}(?![0-9A-Za-z])")
+_LOOSE_CPF = re.compile(r"(?<![\d.])\d{3}\.?\d{3}\.?\d{3}-?\d{2}(?!\d)")
+_LOOSE_CNPJ = re.compile(r"(?<![\d.])\d{2}\.?\d{3}\.?\d{3}/?\d{4}-?\d{2}(?!\d)")
 _SKIP_NAMES = frozenset({"uv.lock", "dvc.lock"})
+
+
+def _ascii_alnum(char: str) -> bool:
+    return char.isascii() and char.isalnum()
+
+
+def _is_number(line: str, m: re.Match[str], keywords: tuple[str, ...]) -> bool:
+    """False for a bare digit run inside a longer ASCII token, such as a hex hash.
+
+    A value with separators, or one written right after its keyword ("CPF" + digits), still
+    counts. Only ASCII neighbours matter: "nº" + digits is a number.
+    """
+    if not m.group().isdigit():
+        return True
+    before = line[: m.start()]
+    if before.upper().endswith(keywords):
+        return True
+    return not (_ascii_alnum(before[-1:]) or _ascii_alnum(line[m.end() : m.end() + 1]))
 
 
 @dataclass(frozen=True)
@@ -190,12 +206,16 @@ def scan_text(text: str, path: str, pool: FakePool | None = None) -> list[Findin
         found += [
             ("CPF", m.group())
             for m in _LOOSE_CPF.finditer(line)
-            if is_valid_cpf(m.group()) and _key(m.group()) not in pool.cpf
+            if is_valid_cpf(m.group())
+            and _key(m.group()) not in pool.cpf
+            and _is_number(line, m, ("CPF", "NO"))
         ]
         found += [
             ("CNPJ", m.group())
             for m in _LOOSE_CNPJ.finditer(line)
-            if is_valid_cnpj(m.group()) and _key(m.group()) not in pool.cnpj
+            if is_valid_cnpj(m.group())
+            and _key(m.group()) not in pool.cnpj
+            and _is_number(line, m, ("CNPJ", "NO"))
         ]
         for label, known in (("RG", pool.rg), ("CRM", pool.crm)):
             found += [

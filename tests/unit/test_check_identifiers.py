@@ -137,5 +137,7 @@ def test_digit_runs_inside_hex_hashes_are_not_numbers(tmp_path: Path) -> None:
     f = tmp_path / "gold.json"
     f.write_text(f'{{"text_sha256": "ab{digits}cd"}}\n', encoding="utf-8")
     assert check(f)[0] == 0
-    f.write_text(f"nº{digits}\n", encoding="utf-8")
-    assert check(f)[0] == 1
+    dotted = valid_cpf()
+    for glued in (f"nº{digits}", f"CPF{digits}", f"cpf{dotted}", f"No{digits}", f"{dotted}x"):
+        f.write_text(glued + "\n", encoding="utf-8")
+        assert check(f)[0] == 1, glued
