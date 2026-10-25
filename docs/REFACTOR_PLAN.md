@@ -403,8 +403,12 @@ Files: `pyproject.toml` (section 9, P1 deps only), `uv.lock`, `.python-version` 
 or forensic use", credits to the three origin repos), `CHANGELOG.md` (`[Unreleased]`),
 `CLAUDE.md`, `.github/workflows/ci.yml` (lint, type, test-unit, test-ml),
 `src/necrohub/{__init__,py.typed,cli,settings,ids}.py`, `src/necrohub/data/fake_identifiers.toml`,
-`contracts/{spans,documents}.py`, `preprocess/{normalize,nlp_optional,sections,pipeline}.py`,
+`contracts/{spans,documents}.py`, `preprocess/{normalize,sections,pipeline}.py`,
 `preprocess/deid/{base,regex,hf_ner}.py`, `embed/{base,chunking,hashing,hf}.py`.
+Per DECISIONS rows 9-10, P1 skips `nlp_optional.py` and the `nlp` extra, and ships only the `cpu`
+torch extra (`cu128` and the extras conflict arrive in P4). P1 runs as two implementer passes:
+P1a (scaffold, contracts, normalize, sections, regex de-id, leak check, CI, docs skeleton) and
+P1b (embeddings, HF NER, `ml` tests and CI job).
 
 Fixtures and goldens:
 - `tests/fixtures/reports/{firearm_a,firearm_b,natural}.txt`, migrated verbatim. Their identifiers
