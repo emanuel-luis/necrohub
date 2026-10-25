@@ -6,7 +6,7 @@ from pathlib import Path
 from necrohub.contracts.gold import GoldFiles, GoldRecord, Reject, text_sha256
 from necrohub.generate.checks import check_raw
 from necrohub.generate.fill import fill
-from necrohub.generate.realizers import TemplateRealizer, TextRealizer, load_families
+from necrohub.generate.realizers import TemplateRealizer, TextRealizer
 from necrohub.generate.sampler import sample_case
 from necrohub.params import Params
 from necrohub.runs import (
@@ -34,11 +34,14 @@ def run_generate(
     Raises StageFailed (previous out kept, manifest marked failed) when a boundary check fails.
     """
     g = params.generate
-    realizer: TextRealizer = TemplateRealizer()
     # the template realizer must reject nothing; P2b's LLM realizer gets the configured budget
     budget = 0.0 if g.realizer == "template" else g.max_reject_fraction
     stage_params = {"seed": params.seed, "generate": g.model_dump()}
     with stage_run("generate", stage_params, runs_dir) as run, atomic_dir(out, run.run_id) as tmp:
+        # inside the run: a bad holdout setting fails the run with a manifest
+        realizer: TextRealizer = TemplateRealizer(
+            holdout_templates=g.holdout_templates, holdout_fraction=g.holdout_fraction
+        )
         golds: list[GoldRecord] = []
         rejects: list[Reject] = []
         for i in range(g.n_cases):
@@ -69,8 +72,6 @@ def run_generate(
 
         for name, passed, detail in check_raw(tmp, g.n_cases, budget):
             run.check(name, passed, detail)
-        unknown = sorted(set(g.holdout_templates) - set(load_families()))
-        run.check("holdout_templates_known", not unknown, ", ".join(unknown))
 
         tree = sha256_tree(tmp)
         run.counts = Counts(read=g.n_cases, written=len(golds), rejected=len(rejects))

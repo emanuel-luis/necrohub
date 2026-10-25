@@ -115,7 +115,7 @@
   },
   "realizer": "template",
   "template_id": "t2",
-  "text_sha256": "2039e21fa7c4f21e9fa85851510bf518383294b796144e9396e9ff8d2d8462b4",
+  "text_sha256": "898ad22f99c829915b1fb4a5d0fa6b1c0377b07be5881ec7bf831e801d2ac708",
   "entities": [
     {
       "start": 26,
@@ -208,110 +208,110 @@
       "text": "24/06/2024"
     },
     {
-      "start": 1049,
-      "end": 1070,
+      "start": 1051,
+      "end": 1072,
       "label": "INJURY",
       "text": "sulco de enforcamento"
     },
     {
-      "start": 1236,
-      "end": 1244,
+      "start": 1238,
+      "end": 1246,
       "label": "ORGAN",
       "text": "Encéfalo"
     },
     {
-      "start": 1290,
-      "end": 1297,
+      "start": 1292,
+      "end": 1299,
       "label": "ORGAN",
       "text": "Pescoço"
     },
     {
-      "start": 1300,
-      "end": 1409,
+      "start": 1302,
+      "end": 1411,
       "label": "FINDING",
       "text": "infiltração hemorrágica dos músculos esternocleidomastóideos e fratura do corno maior esquerdo do osso hioide"
     },
     {
-      "start": 1411,
-      "end": 1418,
+      "start": 1413,
+      "end": 1420,
       "label": "ORGAN",
       "text": "Pulmões"
     },
     {
-      "start": 1421,
-      "end": 1465,
+      "start": 1423,
+      "end": 1467,
       "label": "FINDING",
       "text": "congestão e edema, com petéquias subpleurais"
     },
     {
-      "start": 1467,
-      "end": 1474,
+      "start": 1469,
+      "end": 1476,
       "label": "ORGAN",
       "text": "Coração"
     },
     {
-      "start": 1477,
-      "end": 1501,
+      "start": 1479,
+      "end": 1503,
       "label": "FINDING",
       "text": "petéquias subepicárdicas"
     },
     {
-      "start": 1503,
-      "end": 1509,
+      "start": 1505,
+      "end": 1511,
       "label": "ORGAN",
       "text": "Fígado"
     },
     {
-      "start": 1554,
-      "end": 1558,
+      "start": 1557,
+      "end": 1561,
       "label": "ORGAN",
       "text": "Baço"
     },
     {
-      "start": 1603,
-      "end": 1607,
+      "start": 1606,
+      "end": 1610,
       "label": "ORGAN",
       "text": "Rins"
     },
     {
-      "start": 1652,
-      "end": 1660,
+      "start": 1655,
+      "end": 1663,
       "label": "ORGAN",
       "text": "Estômago"
     },
     {
-      "start": 1752,
-      "end": 1758,
+      "start": 1754,
+      "end": 1760,
       "label": "SUBSTANCE",
       "text": "etanol"
     },
     {
-      "start": 1863,
-      "end": 1896,
+      "start": 1864,
+      "end": 1897,
       "label": "CAUSE_OF_DEATH",
       "text": "Asfixia mecânica por enforcamento"
     },
     {
-      "start": 2014,
-      "end": 2033,
+      "start": 2015,
+      "end": 2034,
       "label": "MANNER_OF_DEATH",
       "text": "violenta (suicídio)"
     },
     {
-      "start": 2090,
-      "end": 2099,
+      "start": 2091,
+      "end": 2100,
       "label": "LOC",
       "text": "Maceió/AL"
     },
     {
-      "start": 2101,
-      "end": 2120,
+      "start": 2102,
+      "end": 2121,
       "label": "DATE",
       "text": "24 de junho de 2024"
     },
     {
-      "start": 2123,
-      "end": 2151,
+      "start": 2124,
+      "end": 2152,
       "label": "PER",
       "text": "Pedro Henrique Sá Cavalcante"
     }
@@ -334,27 +334,27 @@
     },
     {
       "start": 870,
-      "end": 1222,
+      "end": 1224,
       "label": "EXTERNAL_EXAM"
     },
     {
-      "start": 1222,
-      "end": 1707,
+      "start": 1224,
+      "end": 1709,
       "label": "INTERNAL_EXAM"
     },
     {
-      "start": 1707,
-      "end": 1825,
+      "start": 1709,
+      "end": 1826,
       "label": "COMPLEMENTARY_EXAMS"
     },
     {
-      "start": 1825,
-      "end": 2090,
+      "start": 1826,
+      "end": 2091,
       "label": "CONCLUSION"
     },
     {
-      "start": 2090,
-      "end": 2167,
+      "start": 2091,
+      "end": 2168,
       "label": "SIGNATURE"
     }
   ],

@@ -13,6 +13,7 @@ class GenerateParams(BaseModel):
     n_cases: int = Field(ge=1)
     realizer: Literal["template"]
     holdout_templates: list[str]
+    holdout_fraction: float = Field(default=0.15, ge=0.0, lt=1.0)
     max_reject_fraction: float = Field(ge=0.0, le=1.0)
 
 

@@ -3,7 +3,7 @@
 import random
 import re
 import tomllib
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from functools import cache
 from importlib.resources import files
@@ -11,6 +11,7 @@ from string import Template
 from typing import Protocol
 
 from necrohub.contracts.gold import CaseFacts, Draft
+from necrohub.generate.sampler import case_index
 from necrohub.generate.vocab import SPECS, SUBSTANCES
 
 
@@ -72,12 +73,41 @@ class TemplateRealizer:
 
     name = "template"
 
-    def __init__(self, families: Mapping[str, Family] | None = None) -> None:
+    def __init__(
+        self,
+        families: Mapping[str, Family] | None = None,
+        holdout_templates: Sequence[str] = (),
+        holdout_fraction: float = 0.0,
+    ) -> None:
         self.families = dict(families or load_families())
+        self.holdout = sorted(holdout_templates)
+        self.regular = sorted(set(self.families) - set(self.holdout))
+        unknown = sorted(set(self.holdout) - set(self.families))
+        if unknown or not self.regular or not 0.0 <= holdout_fraction < 1.0:
+            raise ValueError(
+                f"bad holdout: unknown {unknown}, regular {self.regular}, fraction "
+                f"{holdout_fraction}"
+            )
+        self.holdout_fraction = holdout_fraction if self.holdout else 0.0
+
+    def family_for(self, i: int) -> str:
+        """Low-discrepancy family choice over the case index (Kronecker sequence i * alpha).
+
+        alpha = sqrt(3) - 1 has bounded partial quotients, like the golden ratio, but the golden
+        ratio moves only 0.18 per 10 cases, so the three cases of a scenario in any 30 (scenarios
+        rotate by i % 10) could share a family. With this alpha they span 0.64 of [0, 1) and
+        always fall in at least two families.
+        """
+        u = (i * 0.7320508075688772) % 1.0
+        h = self.holdout_fraction
+        if u < h:
+            return self.holdout[i % len(self.holdout)]
+        n = len(self.regular)
+        return self.regular[min(int((u - h) / (1 - h) * n), n - 1)]
 
     def realize(self, case: CaseFacts, seed: int) -> Draft:
         rng = random.Random(f"{seed}:{case.case_id}:template")
-        family_id = rng.choice(sorted(self.families))
+        family_id = self.family_for(case_index(case.case_id))
         return Draft(template_id=family_id, body=self.render(case, family_id, rng))
 
     def render(self, case: CaseFacts, family_id: str, rng: random.Random) -> str:

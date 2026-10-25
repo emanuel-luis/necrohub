@@ -30,6 +30,15 @@ def _faker() -> Faker:
     return Faker("pt_BR")
 
 
+def case_id(seed: int, i: int) -> str:
+    return f"c{seed}-{i:05d}"
+
+
+def case_index(case_id: str) -> int:
+    """The index i that case_id(seed, i) was built from."""
+    return int(case_id.rsplit("-", 1)[1])
+
+
 def case_rng(seed: int, i: int) -> random.Random:
     """The case's own generator; str seeds hash with SHA-512, the same on every platform."""
     return random.Random(f"{seed}:{i}")
@@ -82,7 +91,7 @@ def sample_case(seed: int, i: int) -> CaseFacts:
     extra_exams = rng.sample(spec.exams, rng.randint(1, len(spec.exams)))
 
     return CaseFacts(
-        case_id=f"c{seed}-{i:05d}",
+        case_id=case_id(seed, i),
         scenario=scenario,
         institute=Institute(
             name=rng.choice(vocab.INSTITUTES), city=city, uf=uf, phone=rng.choice(phones)
