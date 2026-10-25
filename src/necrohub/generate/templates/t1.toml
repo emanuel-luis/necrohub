@@ -1,0 +1,51 @@
+# Family t1: numbered headers, list of injuries, numbered conclusion.
+# $names are filled by TemplateRealizer; {{SLOT}}, [[LABEL|...]] and <<SEC:...>> are draft markers.
+body = '''
+Laudo de Exame de Necropsia
+
+$institute - {{CITY_UF}}
+Telefone: {{PHONE}}
+Laudo nº {{REPORT_NUMBER}}
+Data do exame: {{EXAM_DATE}}
+Hora do início: $start
+Hora do término: $end
+
+Perito Médico-Legal: {{EXAMINER_NAME}} - CRM/$crm_uf {{CRM}}
+Auxiliar de necropsia: {{ASSISTANT_NAME}}
+
+<<SEC:IDENTIFICATION>>1. Identificação
+Corpo identificado como {{DECEDENT_NAME}}, sexo $sex, $age anos, cor $skin, natural de {{BIRTHPLACE}}, $child_of {{MOTHER_NAME}}, residente em {{ADDRESS}}. Identificação por familiares e documentação civil (RG nº {{RG}} e CPF nº {{CPF}}).
+
+<<SEC:HISTORY>>2. Histórico e Circunstâncias
+Histórico obtido do boletim de ocorrência nº {{POLICE_REPORT_NUMBER}}. $history
+
+<<SEC:EXTERNAL_EXAM>>3. Exame Externo
+Cadáver do sexo $sex, cor $skin, medindo $height m de estatura e pesando aproximadamente $weight kg. Rigidez cadavérica $rigor; livores $livor. Fenômenos transformativos: $decomp.
+
+Lesões observadas:
+$injuries
+
+<<SEC:INTERNAL_EXAM>>4. Exame Interno
+$internal
+
+<<SEC:COMPLEMENTARY_EXAMS>>5. Exames Complementares
+$exams
+
+<<SEC:CONCLUSION>>6. Conclusão
+6.1. Causa da morte: $cause.
+6.2. Mecanismo: $mechanism.
+6.3. Natureza da morte: $manner.
+6.4. Tempo provável de morte: entre $h_lo e $h_hi horas antes do exame.
+
+<<SEC:SIGNATURE>>{{CITY_UF}}, {{EXAM_DATE_LONG}}.
+{{EXAMINER_NAME}}
+Perito Médico-Legal - CRM/$crm_uf {{CRM}}
+'''
+injury = [
+  "* $Kind em $region$measure, com $features.",
+  "* $Kind em $region$measure, apresentando $features.",
+]
+measure = [", medindo $size cm", ", com $size cm no maior eixo"]
+no_injuries = ["* Ausência de lesões traumáticas externas.", "* Não foram observadas lesões traumáticas."]
+organ = ["$organ: $finding.", "$organ: ao exame, $finding."]
+exam = ["* $Exam."]

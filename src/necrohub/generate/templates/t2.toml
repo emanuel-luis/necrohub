@@ -1,0 +1,47 @@
+# Family t2: uppercase headers, form-style identification, prose findings.
+body = '''
+$institute de {{CITY}}
+LAUDO DE EXAME CADAVÉRICO Nº {{REPORT_NUMBER}}
+
+Em {{EXAM_DATE}}, das $start às $end, no necrotério deste Instituto, o perito médico-legista {{EXAMINER_NAME}} (CRM-$crm_uf nº {{CRM}}), auxiliado por {{ASSISTANT_NAME}}, procedeu ao exame cadavérico requisitado pela autoridade policial (B.O. nº {{POLICE_REPORT_NUMBER}}). Contato do plantão: {{PHONE}}.
+
+<<SEC:IDENTIFICATION>>IDENTIFICAÇÃO
+Nome: {{DECEDENT_NAME}}
+Filiação: {{MOTHER_NAME}}
+Sexo: $sex. Idade: $age anos. Cor: $skin.
+Naturalidade: {{BIRTHPLACE}}
+Endereço: {{ADDRESS}}
+Documentos: RG {{RG}}; CPF {{CPF}}
+
+<<SEC:HISTORY>>HISTÓRICO
+$history
+
+<<SEC:EXTERNAL_EXAM>>EXAME EXTERNO
+Estatura: $height m. Peso: $weight kg. Rigidez cadavérica $rigor. Livores $livor. Fenômenos transformativos: $decomp.
+$injuries
+
+<<SEC:INTERNAL_EXAM>>EXAME INTERNO
+$internal
+
+<<SEC:COMPLEMENTARY_EXAMS>>EXAMES COMPLEMENTARES
+$exams
+
+<<SEC:CONCLUSION>>DIAGNÓSTICO E CONCLUSÃO
+Causa mortis: $cause.
+Mecanismo da morte: $mechanism.
+Natureza jurídica da morte: $manner.
+Tempo estimado de morte: $h_lo a $h_hi horas antes do exame.
+
+<<SEC:SIGNATURE>>{{CITY_UF}}, {{EXAM_DATE_LONG}}.
+
+{{EXAMINER_NAME}}
+Médico-legista
+'''
+injury = [
+  "Apresenta $kind em $region$measure, com $features.",
+  "Presença de $kind em $region$measure, com $features.",
+]
+measure = [", medindo $size cm", " ($size cm)"]
+no_injuries = ["Não se observam lesões traumáticas externas.", "Ausência de lesões traumáticas externas."]
+organ = ["$organ - $finding.", "$organ: $finding."]
+exam = ["Solicita-se $exam.", "Requisita-se $exam."]
