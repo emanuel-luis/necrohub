@@ -6,8 +6,8 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
 ## Commands
 
 - `uv sync --locked`: install (never sync a CUDA build; the torch wheels come from the `cpu` extra).
-- `make install-ml`: `uv sync --locked --extra ml --extra cpu --extra ollama --extra genai`; needed
-  before `make type` and `make test-ml`. Without the `ollama`/`genai` extras the client tests skip.
+- `make install-ml`: `uv sync --locked --extra ml --extra cpu --extra ollama --extra genai --extra
+  pipeline` (every extra; `pipeline` is dvc); needed before `make type` and `make test-ml`. Without the `ollama`/`genai` extras the client tests skip.
 - `make lint`: `ruff check`, `ruff format --check`, `necrohub check-identifiers`.
 - `make type`: strict mypy on `src` (after `make install-ml`).
 - `make test-ml`: `ml` tests with tiny local models, `HF_HUB_OFFLINE=1`. `external` tests download real models and never run in CI.
@@ -19,15 +19,23 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
 - `make ingest` / `uv run necrohub ingest --in data/raw --out data/interim`, then `make preprocess` /
   `uv run necrohub preprocess --in data/interim --out data/processed` (`--raw` for the gold
   alignment metric, default `raw` next to `--in`). Same `--params`, `--runs-dir`, `--metrics-dir`.
+- `make build-dataset` / `uv run necrohub build-dataset --processed data/processed --raw data/raw
+  --out data/datasets`: per-task splits and the dataset card.
+- `make demo` = `uv run --locked --extra pipeline dvc repro` (all four stages; `dvc.yaml`). After a
+  change that alters data or metrics, rerun it and commit `dvc.lock` and `metrics/`: CI's demo job
+  fails when a clean Linux run does not reproduce them bit for bit. No DVC remote, no push/pull.
+  A new import in a stage needs its source in that stage's `dvc.yaml` deps
+  (`tests/unit/test_dvc_deps.py` fails otherwise).
 
 ## Repo map
 
 - `src/necrohub/ids.py`: check digits, identifier patterns, fake pool loader, leak check (PDFs
   scanned through their pypdf text).
 - `src/necrohub/data/fake_identifiers.toml`: the only identifier-shaped values allowed in the repo.
-- `src/necrohub/contracts/`: Pydantic models for spans, documents and generator gold (`gold.py`).
+- `src/necrohub/contracts/`: Pydantic models for spans, documents, generator gold (`gold.py`) and
+  dataset records (`datasets.py`).
 - `src/necrohub/params.py` + `params.yaml`: typed params sections (`seed`, `generate` with `llm`,
-  `ingest`, `preprocess`).
+  `ingest`, `preprocess`, `dataset`).
 - `src/necrohub/settings.py`: env settings (`NECROHUB_*`, `OLLAMA_HOST`, `GEMINI_API_KEY`).
 - `src/necrohub/llm/`: `base` (`ChatMessage`, `ChatLLM`, `LlmError`, `get_llm`), `ollama`, `gemini`
   (SDKs imported inside methods; never called in tests, which fake the SDK client).
@@ -45,9 +53,12 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
   `align` (`project`: difflib span projection, rejects instead of guessing), `stage`
   (`run_preprocess`: `ProcessedDocument`s, boundary checks, gold alignment metric).
   Any `DocReject` fails the ingest or preprocess run; a failed run keeps the previous out.
+- `src/necrohub/datasets/`: `split` (`assign_splits`: seeded hash rank cut by fractions, held-out
+  templates to test), `build` (pure task-record builders, `project_gold`, PII leak count), `card`
+  (dataset card from the metrics), `stage` (`run_build_dataset`).
 - `src/necrohub/embed/`: `base` (Embedder, cosine_matrix), `chunking`, `hashing`, `hf` (torch and transformers are imported inside functions and classes only).
-- `tests/unit` (`test_idempotency.py`: generate, ingest and preprocess twice give the same
-  hashes), `tests/ml`, `tests/external`, `tests/fixtures/reports`, `tests/golden`, `tests/conftest.py` (`golden` fixture).
+- `tests/unit` (`test_idempotency.py`: every stage through build-dataset twice gives the
+  same hashes), `tests/ml`, `tests/external`, `tests/fixtures/reports`, `tests/golden`, `tests/conftest.py` (`golden` fixture).
 
 ## Invariants
 

@@ -28,6 +28,7 @@ ml = ["transformers>=4.57"]
 cpu = ["torch>=2.8"]
 ollama = ["ollama>=0.4"]
 genai = ["google-genai>=1.0", "tenacity>=9"]
+pipeline = ["dvc>=3.55"]
 
 [project.scripts]
 necrohub = "necrohub.cli:app"

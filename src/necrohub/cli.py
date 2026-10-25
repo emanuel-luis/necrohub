@@ -135,3 +135,37 @@ def preprocess(
         typer.echo(str(exc), err=True)
         raise typer.Exit(1) from exc
     typer.echo(f"preprocess: {run.counts.written} documents in {out.as_posix()} (run {run.run_id})")
+
+
+@app.command("build-dataset")
+def build_dataset(
+    params: Annotated[Path, typer.Option(help="Pipeline parameters file.")] = Path("params.yaml"),
+    processed: Annotated[Path, typer.Option(help="Processed layer directory.")] = Path(
+        "data/processed"
+    ),
+    raw: Annotated[Path, typer.Option(help="Raw layer with gold/ and reports/.")] = Path(
+        "data/raw"
+    ),
+    out: Annotated[Path, typer.Option(help="Datasets layer directory to (re)write.")] = Path(
+        "data/datasets"
+    ),
+    runs_dir: Annotated[Path, typer.Option(help="Where run manifests go.")] = Path("runs"),
+    metrics_dir: Annotated[
+        Path, typer.Option(help="Where metrics/build_dataset.json goes.")
+    ] = Path("metrics"),
+) -> None:
+    """Build the per-task train/validation/test datasets and the dataset card."""
+    from necrohub.datasets.stage import run_build_dataset
+    from necrohub.params import load_params
+    from necrohub.runs import StageFailed
+
+    try:
+        run = run_build_dataset(
+            load_params(params), processed, raw, out, runs_dir=runs_dir, metrics_dir=metrics_dir
+        )
+    except StageFailed as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(1) from exc
+    typer.echo(
+        f"build-dataset: {run.counts.written} records in {out.as_posix()} (run {run.run_id})"
+    )

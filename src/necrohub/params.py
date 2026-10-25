@@ -62,6 +62,33 @@ class PreprocessParams(BaseModel):
         return self
 
 
+class SplitParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    train: float = Field(default=0.8, ge=0.0, le=1.0)
+    validation: float = Field(default=0.1, ge=0.0, le=1.0)
+    test: float = Field(default=0.1, ge=0.0, le=1.0)
+
+    @model_validator(mode="after")
+    def _sum_to_one(self) -> Self:
+        if abs(self.train + self.validation + self.test - 1.0) > 1e-9:
+            raise ValueError("dataset.splits must sum to 1")
+        return self
+
+
+class DatasetParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    splits: SplitParams = Field(default_factory=SplitParams)
+    tasks: list[Literal["ner", "sections", "extraction", "qa"]] = [
+        "ner",
+        "sections",
+        "extraction",
+        "qa",
+    ]
+    max_align_reject_fraction: float = Field(default=0.05, ge=0.0, le=1.0)
+
+
 class Params(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
@@ -69,6 +96,7 @@ class Params(BaseModel):
     generate: GenerateParams
     ingest: IngestParams = Field(default_factory=IngestParams)
     preprocess: PreprocessParams = Field(default_factory=PreprocessParams)
+    dataset: DatasetParams = Field(default_factory=DatasetParams)
 
 
 def load_params(path: Path) -> Params:

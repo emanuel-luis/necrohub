@@ -1,0 +1,13 @@
+{
+  "by_format": {
+    "pdf": 7,
+    "txt": 17
+  },
+  "interim_sha256": "9969c036ad8099420ae7210e61a2e7bfc8e0649f4af52518dc40861bcaf575d9",
+  "pdf_length_drift_max": 0.00539,
+  "pdf_length_drift_mean": 0.004901,
+  "read": 24,
+  "reject_reasons": {},
+  "rejected": 0,
+  "written": 24
+}

@@ -9,7 +9,7 @@ from pydantic import ValidationError
 from necrohub.contracts.documents import DocReject, IngestedDocument, ProcessedDocument
 from necrohub.contracts.gold import GoldRecord
 from necrohub.params import PreprocessParams
-from necrohub.preprocess.align import project
+from necrohub.preprocess.align import project, whitespace_drift
 from necrohub.preprocess.deid.base import Deidentifier
 from necrohub.preprocess.deid.regex import RegexDeidentifier
 from necrohub.preprocess.pipeline import process
@@ -81,7 +81,11 @@ def align_gold(raw: Path, docs: list[tuple[IngestedDocument, ProcessedDocument]]
         source = (raw / gold.files.txt).read_text("utf-8")
         projected, rejected = project(source, doc.text, gold.entities)
         fmt = ingested.source_format
+        drift = whitespace_drift(gold.entities, projected, rejected)
         counts["projected"] += len(projected)
+        counts["exact"] += len(projected) - drift
+        counts["whitespace_drift"] += drift
+        counts[f"{fmt}_whitespace_drift"] += drift
         counts["rejected"] += len(rejected)
         counts[f"{fmt}_projected"] += len(projected)
         counts[f"{fmt}_rejected"] += len(rejected)

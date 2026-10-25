@@ -4,7 +4,7 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from necrohub.contracts.spans import EntityLabel, Span
-from necrohub.preprocess.align import project
+from necrohub.preprocess.align import project, whitespace_drift
 from necrohub.preprocess.normalize import normalize
 
 TEXT = (
@@ -60,10 +60,19 @@ def test_line_rewrapping_outside_spans_keeps_them() -> None:
     check(target, projected)
 
 
-def test_rewrapping_inside_a_span_rejects_it() -> None:
+def test_rewrapping_inside_a_span_projects_the_target_slice() -> None:
     target = TEXT.replace("Miguel Sousa", "Miguel\nSousa")
     projected, rejected = project(TEXT, target, SPANS)
-    assert rejected == [SPANS[0]] and len(projected) == 2
+    assert rejected == [] and projected[0].text == "João Miguel\nSousa Silva"
+    check(target, projected)
+    assert whitespace_drift(SPANS, projected, rejected) == 1
+
+
+def test_dropped_space_inside_a_span_projects_the_target_slice() -> None:
+    target = TEXT.replace("Miguel Sousa", "MiguelSousa")
+    projected, _ = project(TEXT, target, SPANS)
+    assert projected[0].text == "João MiguelSousa Silva"
+    check(target, projected)
 
 
 def test_changed_character_inside_a_span_is_rejected() -> None:
@@ -192,8 +201,7 @@ def test_whitespace_only_drift_never_moves_a_span(
     ]
     projected, rejected = project(source, target, spans)
     truth = {(src_pos[i][0], src_pos[j][1]): (tgt_pos[i][0], tgt_pos[j][1]) for i, j in runs}
-    for p, s in zip(projected, [s for s in spans if s not in rejected], strict=True):
+    assert rejected == []  # changed whitespace inside a span projects the target slice
+    for p, s in zip(projected, spans, strict=True):
         assert (p.start, p.end) == truth[(s.start, s.end)]
-    for r in rejected:
-        start, end = truth[(r.start, r.end)]
-        assert target[start:end] != r.text  # only spans whose inner whitespace changed
+    check(target, projected)
