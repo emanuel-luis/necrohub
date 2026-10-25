@@ -1,0 +1,365 @@
+{
+  "schema_version": 1,
+  "case": {
+    "case_id": "c7-00004",
+    "scenario": "hanging",
+    "institute": {
+      "name": "Instituto Médico-Legal",
+      "city": "Maceió",
+      "uf": "AL",
+      "phone": "(82) 99999-1818"
+    },
+    "report": {
+      "number": "2024/4173",
+      "exam_date": "2024-06-24",
+      "start_time": "10h30",
+      "end_time": "12h15",
+      "police_report_number": "97429/2024"
+    },
+    "examiner": {
+      "name": "Pedro Henrique Sá Cavalcante",
+      "crm": "12222",
+      "crm_uf": "AL"
+    },
+    "assistant_name": "Pietra Vieira Vasconcelos",
+    "decedent": {
+      "name": "Yasmin da Luz da Rocha",
+      "sex": "feminino",
+      "age": 68,
+      "skin_color": "amarela",
+      "birthplace": "Palmas/TO",
+      "address": "Rua Joana da Mata, nº 990, Jardim das Flores",
+      "rg": "5065748",
+      "cpf": "181.826.663-65",
+      "mother_name": "Milena Gonçalves Nogueira"
+    },
+    "circumstances": {
+      "place_found": "no quarto da residência",
+      "body_position": "em suspensão completa, com laço de corda ao redor do pescoço",
+      "estimated_death_at": "2024-06-24T00:30:00"
+    },
+    "external": {
+      "height_cm": 162,
+      "weight_kg": 92,
+      "rigor": "generalizada",
+      "livor": "fixos, em regiões de declive",
+      "decomposition": "sem sinais de putrefação",
+      "injuries": [
+        {
+          "kind": "sulco de enforcamento",
+          "region": "região cervical anterior e lateral",
+          "side": null,
+          "size_cm": 0.9,
+          "features": [
+            "interrupção na região occipital, no ponto do nó",
+            "trajeto oblíquo e ascendente em direção à nuca"
+          ]
+        }
+      ]
+    },
+    "internal": [
+      {
+        "organ": "Encéfalo",
+        "finding": "de forma, volume e consistência habituais",
+        "abnormal": false
+      },
+      {
+        "organ": "Pescoço",
+        "finding": "infiltração hemorrágica dos músculos esternocleidomastóideos e fratura do corno maior esquerdo do osso hioide",
+        "abnormal": true
+      },
+      {
+        "organ": "Pulmões",
+        "finding": "congestão e edema, com petéquias subpleurais",
+        "abnormal": true
+      },
+      {
+        "organ": "Coração",
+        "finding": "petéquias subepicárdicas",
+        "abnormal": true
+      },
+      {
+        "organ": "Fígado",
+        "finding": "de forma, volume e consistência habituais",
+        "abnormal": false
+      },
+      {
+        "organ": "Baço",
+        "finding": "de aspecto habitual ao exame macroscópico",
+        "abnormal": false
+      },
+      {
+        "organ": "Rins",
+        "finding": "de forma, volume e consistência habituais",
+        "abnormal": false
+      },
+      {
+        "organ": "Estômago",
+        "finding": "de aspecto habitual ao exame macroscópico",
+        "abnormal": false
+      }
+    ],
+    "complementary_exams": [
+      "dosagem de etanol no sangue",
+      "exame histopatológico do sulco cervical"
+    ],
+    "conclusion": {
+      "cause_of_death": "Asfixia mecânica por enforcamento",
+      "mechanism": "constrição do pescoço por laço acionado pelo peso do próprio corpo",
+      "manner_of_death": "violenta (suicídio)",
+      "time_since_death_h": [
+        8,
+        12
+      ]
+    }
+  },
+  "realizer": "template",
+  "template_id": "t2",
+  "text_sha256": "2039e21fa7c4f21e9fa85851510bf518383294b796144e9396e9ff8d2d8462b4",
+  "entities": [
+    {
+      "start": 26,
+      "end": 32,
+      "label": "LOC",
+      "text": "Maceió"
+    },
+    {
+      "start": 62,
+      "end": 71,
+      "label": "DOC_NUMBER",
+      "text": "2024/4173"
+    },
+    {
+      "start": 76,
+      "end": 86,
+      "label": "DATE",
+      "text": "24/06/2024"
+    },
+    {
+      "start": 163,
+      "end": 191,
+      "label": "PER",
+      "text": "Pedro Henrique Sá Cavalcante"
+    },
+    {
+      "start": 203,
+      "end": 208,
+      "label": "CRM",
+      "text": "12222"
+    },
+    {
+      "start": 225,
+      "end": 250,
+      "label": "PER",
+      "text": "Pietra Vieira Vasconcelos"
+    },
+    {
+      "start": 327,
+      "end": 337,
+      "label": "DOC_NUMBER",
+      "text": "97429/2024"
+    },
+    {
+      "start": 360,
+      "end": 375,
+      "label": "PHONE",
+      "text": "(82) 99999-1818"
+    },
+    {
+      "start": 398,
+      "end": 420,
+      "label": "PER",
+      "text": "Yasmin da Luz da Rocha"
+    },
+    {
+      "start": 431,
+      "end": 456,
+      "label": "PER",
+      "text": "Milena Gonçalves Nogueira"
+    },
+    {
+      "start": 517,
+      "end": 526,
+      "label": "LOC",
+      "text": "Palmas/TO"
+    },
+    {
+      "start": 537,
+      "end": 581,
+      "label": "ADDRESS",
+      "text": "Rua Joana da Mata, nº 990, Jardim das Flores"
+    },
+    {
+      "start": 597,
+      "end": 604,
+      "label": "RG",
+      "text": "5065748"
+    },
+    {
+      "start": 610,
+      "end": 624,
+      "label": "CPF",
+      "text": "181.826.663-65"
+    },
+    {
+      "start": 857,
+      "end": 867,
+      "label": "DATE",
+      "text": "24/06/2024"
+    },
+    {
+      "start": 1049,
+      "end": 1070,
+      "label": "INJURY",
+      "text": "sulco de enforcamento"
+    },
+    {
+      "start": 1236,
+      "end": 1244,
+      "label": "ORGAN",
+      "text": "Encéfalo"
+    },
+    {
+      "start": 1290,
+      "end": 1297,
+      "label": "ORGAN",
+      "text": "Pescoço"
+    },
+    {
+      "start": 1300,
+      "end": 1409,
+      "label": "FINDING",
+      "text": "infiltração hemorrágica dos músculos esternocleidomastóideos e fratura do corno maior esquerdo do osso hioide"
+    },
+    {
+      "start": 1411,
+      "end": 1418,
+      "label": "ORGAN",
+      "text": "Pulmões"
+    },
+    {
+      "start": 1421,
+      "end": 1465,
+      "label": "FINDING",
+      "text": "congestão e edema, com petéquias subpleurais"
+    },
+    {
+      "start": 1467,
+      "end": 1474,
+      "label": "ORGAN",
+      "text": "Coração"
+    },
+    {
+      "start": 1477,
+      "end": 1501,
+      "label": "FINDING",
+      "text": "petéquias subepicárdicas"
+    },
+    {
+      "start": 1503,
+      "end": 1509,
+      "label": "ORGAN",
+      "text": "Fígado"
+    },
+    {
+      "start": 1554,
+      "end": 1558,
+      "label": "ORGAN",
+      "text": "Baço"
+    },
+    {
+      "start": 1603,
+      "end": 1607,
+      "label": "ORGAN",
+      "text": "Rins"
+    },
+    {
+      "start": 1652,
+      "end": 1660,
+      "label": "ORGAN",
+      "text": "Estômago"
+    },
+    {
+      "start": 1752,
+      "end": 1758,
+      "label": "SUBSTANCE",
+      "text": "etanol"
+    },
+    {
+      "start": 1863,
+      "end": 1896,
+      "label": "CAUSE_OF_DEATH",
+      "text": "Asfixia mecânica por enforcamento"
+    },
+    {
+      "start": 2014,
+      "end": 2033,
+      "label": "MANNER_OF_DEATH",
+      "text": "violenta (suicídio)"
+    },
+    {
+      "start": 2090,
+      "end": 2099,
+      "label": "LOC",
+      "text": "Maceió/AL"
+    },
+    {
+      "start": 2101,
+      "end": 2120,
+      "label": "DATE",
+      "text": "24 de junho de 2024"
+    },
+    {
+      "start": 2123,
+      "end": 2151,
+      "label": "PER",
+      "text": "Pedro Henrique Sá Cavalcante"
+    }
+  ],
+  "sections": [
+    {
+      "start": 0,
+      "end": 378,
+      "label": "PREAMBLE"
+    },
+    {
+      "start": 378,
+      "end": 626,
+      "label": "IDENTIFICATION"
+    },
+    {
+      "start": 626,
+      "end": 870,
+      "label": "HISTORY"
+    },
+    {
+      "start": 870,
+      "end": 1222,
+      "label": "EXTERNAL_EXAM"
+    },
+    {
+      "start": 1222,
+      "end": 1707,
+      "label": "INTERNAL_EXAM"
+    },
+    {
+      "start": 1707,
+      "end": 1825,
+      "label": "COMPLEMENTARY_EXAMS"
+    },
+    {
+      "start": 1825,
+      "end": 2090,
+      "label": "CONCLUSION"
+    },
+    {
+      "start": 2090,
+      "end": 2167,
+      "label": "SIGNATURE"
+    }
+  ],
+  "files": {
+    "txt": "reports/c7-00004.txt",
+    "pdf": null
+  }
+}

@@ -1,4 +1,4 @@
-.PHONY: help install install-ml lint type test test-ml test-fast leak-check format clean
+.PHONY: help install install-ml lint type test test-ml test-fast leak-check generate format clean
 
 help:           ## list the targets
 	@grep -E '^[a-zA-Z_-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-14s %s\n", $$1, $$2}'
@@ -28,6 +28,9 @@ test-fast:      ## same tests, quiet
 
 leak-check:     ## fail on identifiers that are not in the fake pool
 	uv run necrohub check-identifiers
+
+generate:       ## synthetic reports with gold labels into data/raw (params.yaml)
+	uv run necrohub generate --params params.yaml --out data/raw
 
 format:         ## apply ruff fixes and formatting
 	uv run ruff check --fix

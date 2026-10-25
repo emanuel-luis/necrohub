@@ -1,0 +1,380 @@
+{
+  "schema_version": 1,
+  "case": {
+    "case_id": "c7-00000",
+    "scenario": "firearm_homicide",
+    "institute": {
+      "name": "Instituto Médico-Legal Regional",
+      "city": "Imperatriz",
+      "uf": "MA",
+      "phone": "(99) 97777-0404"
+    },
+    "report": {
+      "number": "2025/5642",
+      "exam_date": "2025-03-14",
+      "start_time": "09h30",
+      "end_time": "11h25",
+      "police_report_number": "38258/2025"
+    },
+    "examiner": {
+      "name": "Ana Beatriz Lima Fonseca",
+      "crm": "11717",
+      "crm_uf": "MA"
+    },
+    "assistant_name": "Thomas Siqueira Rodrigues",
+    "decedent": {
+      "name": "João Miguel Sousa Silva",
+      "sex": "masculino",
+      "age": 54,
+      "skin_color": "parda",
+      "birthplace": "Maceió/AL",
+      "address": "Rua Emilly das Neves, nº 1247, Vila Esperança",
+      "rg": "3579135",
+      "cpf": "326.581.923-06",
+      "mother_name": "Bianca Campos Melo"
+    },
+    "circumstances": {
+      "place_found": "na calçada em frente a uma residência",
+      "body_position": "decúbito ventral",
+      "estimated_death_at": "2025-03-14T01:00:00"
+    },
+    "external": {
+      "height_cm": 168,
+      "weight_kg": 103,
+      "rigor": "generalizada",
+      "livor": "fixos, em regiões de declive",
+      "decomposition": "sem sinais de putrefação",
+      "injuries": [
+        {
+          "kind": "ferimento perfurocontuso de entrada",
+          "region": "região precordial",
+          "side": "esquerda",
+          "size_cm": 0.9,
+          "features": [
+            "bordas invertidas"
+          ]
+        },
+        {
+          "kind": "ferimento perfurocontuso de saída",
+          "region": "região dorsal",
+          "side": "esquerda",
+          "size_cm": 2.8,
+          "features": [
+            "ausência de orla de escoriação",
+            "bordas evertidas e irregulares"
+          ]
+        },
+        {
+          "kind": "escoriações",
+          "region": "face anterior do joelho",
+          "side": null,
+          "size_cm": 4.4,
+          "features": [
+            "forma irregular",
+            "aspecto apergaminhado"
+          ]
+        }
+      ]
+    },
+    "internal": [
+      {
+        "organ": "Encéfalo",
+        "finding": "sem alterações macroscópicas dignas de nota",
+        "abnormal": false
+      },
+      {
+        "organ": "Pulmões",
+        "finding": "lobo superior do pulmão esquerdo transfixado pelo trajeto do projétil, com hemotórax esquerdo de cerca de 1.200 mL",
+        "abnormal": true
+      },
+      {
+        "organ": "Coração",
+        "finding": "lesão transfixante do ventrículo esquerdo, com hemopericárdio",
+        "abnormal": true
+      },
+      {
+        "organ": "Fígado",
+        "finding": "de forma, volume e consistência habituais",
+        "abnormal": false
+      },
+      {
+        "organ": "Baço",
+        "finding": "de forma, volume e consistência habituais",
+        "abnormal": false
+      },
+      {
+        "organ": "Rins",
+        "finding": "sem alterações macroscópicas",
+        "abnormal": false
+      },
+      {
+        "organ": "Estômago",
+        "finding": "sem alterações macroscópicas",
+        "abnormal": false
+      }
+    ],
+    "complementary_exams": [
+      "dosagem de etanol no sangue",
+      "exame residuográfico das mãos",
+      "radiografia de tórax para pesquisa de fragmentos de projétil"
+    ],
+    "conclusion": {
+      "cause_of_death": "Choque hipovolêmico secundário a ferimento cardíaco por projétil de arma de fogo",
+      "mechanism": "hemorragia interna aguda por ação perfurocontundente",
+      "manner_of_death": "violenta (homicídio)",
+      "time_since_death_h": [
+        8,
+        12
+      ]
+    }
+  },
+  "realizer": "template",
+  "template_id": "t3",
+  "text_sha256": "f68c64f1e785a056ea9d992218ced7775159c8ce9cf3686ce9b0c0675437ba7c",
+  "entities": [
+    {
+      "start": 70,
+      "end": 83,
+      "label": "LOC",
+      "text": "Imperatriz/MA"
+    },
+    {
+      "start": 103,
+      "end": 112,
+      "label": "DOC_NUMBER",
+      "text": "2025/5642"
+    },
+    {
+      "start": 151,
+      "end": 161,
+      "label": "DOC_NUMBER",
+      "text": "38258/2025"
+    },
+    {
+      "start": 181,
+      "end": 191,
+      "label": "DATE",
+      "text": "14/03/2025"
+    },
+    {
+      "start": 232,
+      "end": 256,
+      "label": "PER",
+      "text": "Ana Beatriz Lima Fonseca"
+    },
+    {
+      "start": 262,
+      "end": 267,
+      "label": "CRM",
+      "text": "11717"
+    },
+    {
+      "start": 285,
+      "end": 310,
+      "label": "PER",
+      "text": "Thomas Siqueira Rodrigues"
+    },
+    {
+      "start": 325,
+      "end": 340,
+      "label": "PHONE",
+      "text": "(99) 97777-0404"
+    },
+    {
+      "start": 370,
+      "end": 393,
+      "label": "PER",
+      "text": "João Miguel Sousa Silva"
+    },
+    {
+      "start": 433,
+      "end": 451,
+      "label": "PER",
+      "text": "Bianca Campos Melo"
+    },
+    {
+      "start": 466,
+      "end": 475,
+      "label": "LOC",
+      "text": "Maceió/AL"
+    },
+    {
+      "start": 488,
+      "end": 533,
+      "label": "ADDRESS",
+      "text": "Rua Emilly das Neves, nº 1247, Vila Esperança"
+    },
+    {
+      "start": 540,
+      "end": 547,
+      "label": "RG",
+      "text": "3579135"
+    },
+    {
+      "start": 555,
+      "end": 569,
+      "label": "CPF",
+      "text": "326.581.923-06"
+    },
+    {
+      "start": 775,
+      "end": 785,
+      "label": "DATE",
+      "text": "14/03/2025"
+    },
+    {
+      "start": 979,
+      "end": 1014,
+      "label": "INJURY",
+      "text": "ferimento perfurocontuso de entrada"
+    },
+    {
+      "start": 1084,
+      "end": 1117,
+      "label": "INJURY",
+      "text": "ferimento perfurocontuso de saída"
+    },
+    {
+      "start": 1222,
+      "end": 1233,
+      "label": "INJURY",
+      "text": "Escoriações"
+    },
+    {
+      "start": 1338,
+      "end": 1346,
+      "label": "ORGAN",
+      "text": "Encéfalo"
+    },
+    {
+      "start": 1394,
+      "end": 1401,
+      "label": "ORGAN",
+      "text": "Pulmões"
+    },
+    {
+      "start": 1404,
+      "end": 1518,
+      "label": "FINDING",
+      "text": "lobo superior do pulmão esquerdo transfixado pelo trajeto do projétil, com hemotórax esquerdo de cerca de 1.200 mL"
+    },
+    {
+      "start": 1521,
+      "end": 1528,
+      "label": "ORGAN",
+      "text": "Coração"
+    },
+    {
+      "start": 1530,
+      "end": 1591,
+      "label": "FINDING",
+      "text": "lesão transfixante do ventrículo esquerdo, com hemopericárdio"
+    },
+    {
+      "start": 1594,
+      "end": 1600,
+      "label": "ORGAN",
+      "text": "Fígado"
+    },
+    {
+      "start": 1647,
+      "end": 1651,
+      "label": "ORGAN",
+      "text": "Baço"
+    },
+    {
+      "start": 1698,
+      "end": 1702,
+      "label": "ORGAN",
+      "text": "Rins"
+    },
+    {
+      "start": 1735,
+      "end": 1743,
+      "label": "ORGAN",
+      "text": "Estômago"
+    },
+    {
+      "start": 1826,
+      "end": 1832,
+      "label": "SUBSTANCE",
+      "text": "etanol"
+    },
+    {
+      "start": 1973,
+      "end": 2053,
+      "label": "CAUSE_OF_DEATH",
+      "text": "Choque hipovolêmico secundário a ferimento cardíaco por projétil de arma de fogo"
+    },
+    {
+      "start": 2132,
+      "end": 2152,
+      "label": "MANNER_OF_DEATH",
+      "text": "violenta (homicídio)"
+    },
+    {
+      "start": 2201,
+      "end": 2214,
+      "label": "LOC",
+      "text": "Imperatriz/MA"
+    },
+    {
+      "start": 2216,
+      "end": 2235,
+      "label": "DATE",
+      "text": "14 de março de 2025"
+    },
+    {
+      "start": 2237,
+      "end": 2261,
+      "label": "PER",
+      "text": "Ana Beatriz Lima Fonseca"
+    }
+  ],
+  "sections": [
+    {
+      "start": 0,
+      "end": 342,
+      "label": "PREAMBLE"
+    },
+    {
+      "start": 342,
+      "end": 571,
+      "label": "IDENTIFICATION"
+    },
+    {
+      "start": 571,
+      "end": 788,
+      "label": "HISTORY"
+    },
+    {
+      "start": 788,
+      "end": 1316,
+      "label": "EXTERNAL_EXAM"
+    },
+    {
+      "start": 1316,
+      "end": 1775,
+      "label": "INTERNAL_EXAM"
+    },
+    {
+      "start": 1775,
+      "end": 1939,
+      "label": "COMPLEMENTARY_EXAMS"
+    },
+    {
+      "start": 1939,
+      "end": 2201,
+      "label": "CONCLUSION"
+    },
+    {
+      "start": 2201,
+      "end": 2279,
+      "label": "SIGNATURE"
+    }
+  ],
+  "files": {
+    "txt": "reports/c7-00000.txt",
+    "pdf": null
+  }
+}
