@@ -89,6 +89,53 @@ class DatasetParams(BaseModel):
     max_align_reject_fraction: float = Field(default=0.05, ge=0.0, le=1.0)
 
 
+class TinyParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    vocab_size: int = Field(default=2000, ge=100)
+    hidden_size: int = Field(default=64, ge=2)
+    num_layers: int = Field(default=2, ge=1)
+    num_heads: int = Field(default=2, ge=1)
+    intermediate_size: int = Field(default=128, ge=1)
+
+    @model_validator(mode="after")
+    def _heads_divide_hidden(self) -> Self:
+        if self.hidden_size % self.num_heads:
+            raise ValueError("train.tiny.hidden_size must be a multiple of num_heads")
+        return self
+
+
+class TrainParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    base_model: str = "tiny-scratch"  # or a Hub id / local dir, e.g. pucpr/biobertpt-clin
+    tasks: list[Literal["ner", "sections"]] = ["ner", "sections"]
+    max_length: int = Field(default=256, ge=8)
+    stride: int = Field(default=64, ge=0)  # token overlap between windows of a long section
+    epochs: int = Field(default=8, ge=1)
+    batch_size: int = Field(default=8, ge=1)
+    learning_rate: float = Field(default=5.0e-4, gt=0)
+    weight_decay: float = Field(default=0.01, ge=0)
+    warmup_ratio: float = Field(default=0.1, ge=0.0, le=1.0)
+    fp16: bool = False
+    gradient_checkpointing: bool = False
+    save_steps: int = Field(default=200, ge=1)
+    keep_checkpoints: bool = False
+    tiny: TinyParams = Field(default_factory=TinyParams)
+
+    @model_validator(mode="after")
+    def _stride_below_length(self) -> Self:
+        if self.stride >= self.max_length - 2:
+            raise ValueError("train.stride must be smaller than train.max_length - 2")
+        return self
+
+
+class EvaluateParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    baselines: list[Literal["regex"]] = ["regex"]
+
+
 class Params(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
@@ -97,6 +144,8 @@ class Params(BaseModel):
     ingest: IngestParams = Field(default_factory=IngestParams)
     preprocess: PreprocessParams = Field(default_factory=PreprocessParams)
     dataset: DatasetParams = Field(default_factory=DatasetParams)
+    train: TrainParams = Field(default_factory=TrainParams)
+    evaluate: EvaluateParams = Field(default_factory=EvaluateParams)
 
 
 def load_params(path: Path) -> Params:

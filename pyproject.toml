@@ -24,8 +24,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-ml = ["transformers>=4.57"]
+ml = ["transformers>=4.57", "accelerate>=1.1"]
 cpu = ["torch>=2.8"]
+cu126 = ["torch>=2.8"]
 ollama = ["ollama>=0.4"]
 genai = ["google-genai>=1.0", "tenacity>=9"]
 pipeline = ["dvc>=3.55"]
@@ -47,11 +48,22 @@ dev = [
 packages = ["src/necrohub"]
 
 [tool.uv.sources]
-torch = [{ index = "pytorch-cpu", extra = "cpu" }]
+torch = [
+  { index = "pytorch-cpu", extra = "cpu" },
+  { index = "pytorch-cu126", extra = "cu126" },
+]
+
+[tool.uv]
+conflicts = [[{ extra = "cpu" }, { extra = "cu126" }]]
 
 [[tool.uv.index]]
 name = "pytorch-cpu"
 url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu126"
+url = "https://download.pytorch.org/whl/cu126"
 explicit = true
 
 [tool.ruff]
