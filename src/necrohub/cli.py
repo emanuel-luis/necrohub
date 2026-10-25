@@ -169,3 +169,28 @@ def build_dataset(
     typer.echo(
         f"build-dataset: {run.counts.written} records in {out.as_posix()} (run {run.run_id})"
     )
+
+
+@app.command("check-repro")
+def check_repro(
+    baseline_lock: Annotated[Path, typer.Option(help="A copy of the committed dvc.lock.")],
+    baseline_metrics: Annotated[Path, typer.Option(help="A copy of the committed metrics/.")],
+    lock: Annotated[Path, typer.Option(help="The dvc.lock a fresh run wrote.")] = Path("dvc.lock"),
+    metrics: Annotated[Path, typer.Option(help="The metrics/ a fresh run wrote.")] = Path(
+        "metrics"
+    ),
+    abs_tol: Annotated[float, typer.Option(help="Float tolerance, model stages.")] = 0.05,
+    rel_tol: Annotated[float, typer.Option(help="Relative float tolerance, model stages.")] = 0.05,
+) -> None:
+    """Fail unless data stages reproduce bit for bit and model stages within tolerance."""
+    from necrohub.repro import check_repro as compare
+
+    diffs = compare(
+        baseline_lock, baseline_metrics, lock, metrics, rel_tol=rel_tol, abs_tol=abs_tol
+    )
+    for diff in diffs:
+        typer.echo(diff)
+    if diffs:
+        typer.echo(f"{len(diffs)} difference(s) from the baseline", err=True)
+        raise typer.Exit(1)
+    typer.echo("reproduced: data stages identical, model stages within tolerance")
