@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.hypothesis/
+.coverage
+coverage.xml
+htmlcov/
+dist/
+build/
+*.egg-info/
+
+# Secrets and local config
+.env
+.env.*
+!.env.example
+
+# Generated data and models: never in git (DVC tracks them; the corpus is synthetic anyway)
+/data/
+/models/
+/runs/
+/mlruns/
+*.safetensors
+*.gguf
+*.bin
+*.pt
+*.onnx
+
+# DVC local state
+/.dvc/cache/
+/.dvc/tmp/
+/.dvc/config.local
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
