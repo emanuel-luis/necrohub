@@ -2,7 +2,8 @@
 
 Target design and migration map for merging `ragnosis`, `necropsy-hub` and `necropsy-llm-hub` into
 one reproducible pipeline for synthetic pt-BR forensic necropsy reports. Decisions are recorded in
-`docs/DECISIONS.md`. This plan assumes rows 1-5 and does not block on rows 6-7.
+`docs/DECISIONS.md`. Rows 6-7 were answered after the plan was written: the fine-tuning is staged
+(P4 and P6 both run) and the generator LLM is a local Ollama model, with Gemini optional.
 
 ## 1. Decisions taken in this plan
 
@@ -609,10 +610,9 @@ because the files are disjoint. P4, P5 and P6 can run in parallel after P3.
 | The hashing embedder retrieves poorly | Labelled as a mechanics-only default. The HF embedder is a param switch |
 | Faker names can match real people | Unavoidable and harmless. Stated in the data card |
 
-## 12. Open questions (user only)
+## 12. Open questions (resolved)
 
-1. Fine-tuning target (DECISIONS row 6): staged (a)+(b), recommended, or (a) only (drop P6), or
-   (b) only (P4 shrinks to the regex baseline plus the eval harness). The NER dataset is built
-   either way because the de-identification evaluation needs it.
-2. Generator LLM backend (DECISIONS row 7): Gemini or Ollama decides which `ChatLLM` P2 tests
-   first. The interface, the template realizer and the demo are the same either way.
+1. Fine-tuning target (DECISIONS row 6): staged (a)+(b). P4 and P6 both run; P6 stays a cloud
+   notebook.
+2. Generator LLM backend (DECISIONS row 7): Ollama first, with a pinned small model; Gemini is an
+   optional backend, marked `external` in tests and never called in CI.

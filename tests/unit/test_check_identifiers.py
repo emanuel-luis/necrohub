@@ -81,6 +81,19 @@ def test_bom_files_are_scanned(tmp_path: Path, codec: str) -> None:
     assert check(f)[0] == 1
 
 
+@pytest.mark.parametrize("codec", ["utf-16-le", "utf-16-be", "utf-32-le", "utf-32-be"])
+def test_bomless_wide_files_are_scanned(tmp_path: Path, codec: str) -> None:
+    f = tmp_path / "a.txt"
+    f.write_bytes(f"necropsia ação\nCPF nº {valid_cpf()}\n".encode(codec))
+    assert check(f)[0] == 1
+
+
+def test_crm_in_prose_is_not_a_finding(tmp_path: Path) -> None:
+    f = tmp_path / "a.txt"
+    f.write_text("inscrito no CRM em 2019\nregistro no CRM de 2019\n", encoding="utf-8")
+    assert check(f)[0] == 0
+
+
 def test_binary_file_is_reported_as_skipped(tmp_path: Path) -> None:
     (tmp_path / "blob.bin").write_bytes(b"\0" + valid_cpf().encode())
     code, out = check(tmp_path)

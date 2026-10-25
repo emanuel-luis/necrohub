@@ -61,6 +61,7 @@ def fake_cpf(rng: random.Random) -> str:
 # Each pattern has a `value` group: only the value is redacted, the "CPF nº" label stays.
 
 _CTX = r"(?:\s*(?:n[ºo°]\.?|:))?\s*"
+_UF = "AC|AL|AP|AM|BA|CE|DF|ES|GO|MA|MT|MS|MG|PA|PB|PR|PE|PI|RJ|RN|RS|RO|RR|SC|SP|SE|TO"
 
 
 def _compile(*patterns: str, flags: int = 0) -> tuple[re.Pattern[str], ...]:
@@ -77,10 +78,11 @@ IDENTIFIER_PATTERNS: dict[str, tuple[re.Pattern[str], ...]] = {
         rf"\bCNPJ\b{_CTX}(?P<value>\d{{14}})(?!\d)",
     ),
     "RG": _compile(rf"\bRG\b{_CTX}(?P<value>\d{{1,2}}\.?\d{{3}}\.?\d{{3}}(?:-?[0-9Xx])?)(?!\d)"),
-    # CRM, optional UF, optional context separator, then 4-6 digits with an optional thousands dot
+    # CRM in any case, an optional UF (one of the 27 codes), an optional separator, then 4-6 digits
+    # with an optional thousands dot. Only the keyword and the UF ignore case: a global flag would
+    # read "CRM em <year>" as a CRM.
     "CRM": _compile(
-        rf"\bCRM(?:[/-]?\s*[A-Z]{{2}})?{_CTX}(?P<value>\d{{1,3}}\.?\d{{3}})(?!\d)",
-        flags=re.IGNORECASE,
+        rf"\b(?i:CRM)(?:[/-]?\s*(?i:{_UF}))?{_CTX}(?P<value>\d{{1,3}}\.?\d{{3}})(?!\d)"
     ),
     # a phone needs a DDD in parentheses, +55, a nine-digit mobile with hyphen, or a phone word
     "PHONE": _compile(
@@ -88,7 +90,7 @@ IDENTIFIER_PATTERNS: dict[str, tuple[re.Pattern[str], ...]] = {
         r"(?<![\d-])(?P<value>\+55\s?\(?\d{2}\)?\s?9?\d{4}[ -]?\d{4})(?!\d)",
         r"(?<![\d/.-])(?P<value>9\d{4}-\d{4})(?!\d)",
         rf"\b(?:tel(?:efone)?|fone|cel(?:ular)?|whats(?:app)?|contato)\b\.?{_CTX}"
-        r"(?P<value>(?:\(\d{2}\)\s?)?9?\d{4}-?\d{4})(?!\d)",
+        r"(?P<value>(?:\(\d{2}\)\s?)?9?\d{4}[ -]?\d{4})(?!\d)",
         flags=re.IGNORECASE,
     ),
     "EMAIL": _compile(
@@ -232,13 +234,34 @@ _BOMS = (
 )
 
 
+# Which byte lanes (position mod 4) are NUL in mostly-Latin text without a BOM.
+_NUL_LANES = (
+    ((False, True, True, True), "utf-32-le"),
+    ((True, True, True, False), "utf-32-be"),
+    ((False, True, False, True), "utf-16-le"),
+    ((True, False, True, False), "utf-16-be"),
+)
+
+
+def _bomless_wide_codec(sample: bytes) -> str | None:
+    """utf-16/32 le/be when the NULs sit on that encoding's high-byte lanes, else None."""
+    if len(sample) < 8:
+        return None
+    share = [sample[r::4].count(0) / len(sample[r::4]) for r in range(4)]
+    if any(0.1 <= s <= 0.9 for s in share):
+        return None  # NULs scattered across lanes: a binary file
+    observed = tuple(s > 0.9 for s in share)
+    return next((codec for lanes, codec in _NUL_LANES if lanes == observed), None)
+
+
 def _decode(data: bytes) -> str | None:
-    """Text of a non-binary file (BOM, UTF-8, cp1252, latin-1), or None for a binary file."""
+    """Text of a non-binary file (BOM, BOM-less UTF-16/32, UTF-8, cp1252, latin-1), or None."""
     for bom, codec in _BOMS:
         if data.startswith(bom):
             return data.decode(codec, errors="replace")
     if b"\0" in data[:8192]:
-        return None
+        wide = _bomless_wide_codec(data[:8192])
+        return None if wide is None else data.decode(wide, errors="replace")
     try:
         return data.decode("utf-8")
     except UnicodeDecodeError:

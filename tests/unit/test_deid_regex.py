@@ -59,12 +59,22 @@ def test_crm_forms() -> None:
     four = "12" + "34"
     assert found(f"CRM nº {four}") == [("CRM", four)]
     assert found("CRM 1234567") == []
+    assert found("crm/ma 12345") == [("CRM", "12345")]
+    assert found("CRM/MA12345") == [("CRM", "12345")]
+
+
+def test_crm_needs_a_uf_code_not_any_word() -> None:
+    # only the keyword and the UF ignore case: "em"/"de" are not UF codes
+    assert found("inscrito no CRM em 2019") == []
+    assert found("registro no CRM de 2019") == []
+    assert found("CRMV 12345") == []
 
 
 def test_phone_with_space_separator() -> None:
     assert found("ligar (98) 99999 0101") == [("PHONE", "(98) 99999 0101")]
     assert found("ligar +55 98 99999 0101") == [("PHONE", "+55 98 99999 0101")]
     assert found("ligar +55 (98) 99999-0101") == [("PHONE", "+55 (98) 99999-0101")]
+    assert found("Telefone: 99999 0101") == [("PHONE", "99999 0101")]
 
 
 def test_rg_and_crm_need_their_label() -> None:
