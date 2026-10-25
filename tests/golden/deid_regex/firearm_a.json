@@ -1,0 +1,92 @@
+[
+  {
+    "label": "PER",
+    "start": 56,
+    "end": 66,
+    "text": "João Silva"
+  },
+  {
+    "label": "DOC_NUMBER",
+    "start": 90,
+    "end": 99,
+    "text": "2025/1037"
+  },
+  {
+    "label": "DATE",
+    "start": 106,
+    "end": 116,
+    "text": "06/10/2025"
+  },
+  {
+    "label": "PER",
+    "start": 194,
+    "end": 215,
+    "text": "Carlos Henrique Souza"
+  },
+  {
+    "label": "CRM",
+    "start": 225,
+    "end": 230,
+    "text": "12345"
+  },
+  {
+    "label": "PER",
+    "start": 262,
+    "end": 274,
+    "text": "José Almeida"
+  },
+  {
+    "label": "PER",
+    "start": 317,
+    "end": 338,
+    "text": "João Pereira da Costa"
+  },
+  {
+    "label": "ADDRESS",
+    "start": 401,
+    "end": 440,
+    "text": "Rua das Palmeiras, nº 45, Bairro Cohama"
+  },
+  {
+    "label": "RG",
+    "start": 498,
+    "end": 507,
+    "text": "125623240"
+  },
+  {
+    "label": "CPF",
+    "start": 524,
+    "end": 538,
+    "text": "123.456.789-00"
+  },
+  {
+    "label": "DOC_NUMBER",
+    "start": 621,
+    "end": 630,
+    "text": "2557/2025"
+  },
+  {
+    "label": "DATE",
+    "start": 835,
+    "end": 845,
+    "text": "05/10/2025"
+  },
+  {
+    "label": "DATE",
+    "start": 2401,
+    "end": 2422,
+    "text": "06 de outubro de 2025"
+  },
+  {
+    "label": "PER",
+    "start": 2428,
+    "end": 2449,
+    "text": "Carlos Henrique Souza"
+  },
+  {
+    "label": "CRM",
+    "start": 2479,
+    "end": 2484,
+    "text": "12345"
+  }
+]

@@ -1,0 +1,43 @@
+Laudo de Exame de Necropsia
+
+Instituto Médico-Legal Dr. [PER] - São Luís/MA
+Laudo nº [DOC_NUMBER]
+Data: [DATE]
+Hora do início: 08h45min
+Hora do término: 10h30min
+
+Perito Médico-Legal: Dr. [PER] - CRM/MA [CRM]
+Auxiliar: Técnico de Necropsia [PER]
+
+1. Identificação
+Corpo identificado como [PER], sexo masculino, 42 anos, natural de São Luís/MA, residente à [ADDRESS], identificado por familiares e documentação civil (RG nº [RG] SSP/MA e CPF nº [CPF]).
+
+2. Histórico e Circunstâncias
+Conforme informações do boletim de ocorrência nº [DOC_NUMBER], o cadáver foi encontrado em via pública, em decúbito dorsal, apresentando ferimento por projétil de arma de fogo na região torácica. O óbito teria ocorrido no local, por volta das 22h00 do dia anterior ([DATE]).
+
+3. Exame Externo
+O cadáver é do sexo masculino, cor parda, medindo 1,76 m de estatura, pesando aproximadamente 78 kg, apresentando rigidez cadavérica completa e início de mancha verde abdominal.
+
+Traumatismos observados:
+* Ferimento perfuro-contuso em região torácica anterior esquerda, a aproximadamente 3 cm do mamilo esquerdo, medindo 1 cm de diâmetro, bordas regulares, halo de tatuagem e esfumaçamento compatíveis com disparo de curta distância.
+* Orifício de saída na região dorsal esquerda, nível do 7º espaço intercostal, sem halo de enxugo.
+* Equimose em antebraço direito, região distal, de formato arredondado (possível defesa).
+* Ausência de outras lesões traumáticas relevantes.
+
+Sem sinais de luta corporal acentuada. Vestes íntegras e compatíveis com o evento relatado.
+
+4. Exame Interno
+Tórax: ao abrir a cavidade torácica, verifica-se hemotórax esquerdo, com aproximadamente 1.200 mL de sangue livre. O trajeto do projétil atravessa o lobo superior do pulmão esquerdo, perfura o pericárdio e o ventrículo esquerdo do coração, saindo posteriormente.
+Coração: apresenta lesão transfixante no ventrículo esquerdo, com grande quantidade de sangue coagulado no pericárdio.
+Abdome e demais órgãos: sem alterações macroscópicas significativas.
+Crânio e encéfalo: sem lesões traumáticas aparentes.
+
+5. Conclusão
+5.1. Causa da morte: Choque hipovolêmico secundário a ferimento cardíaco por projétil de arma de fogo.
+5.2. Natureza da morte: Violenta - homicídio.
+5.3. Tempo provável do óbito: cerca de 8 a 10 horas antes do exame.
+
+São Luís/MA, [DATE].
+Dr. [PER]
+Perito Médico-Legal - CRM/MA [CRM]
+Assinatura digital

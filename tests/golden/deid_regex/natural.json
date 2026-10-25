@@ -1,0 +1,74 @@
+[
+  {
+    "label": "PER",
+    "start": 56,
+    "end": 66,
+    "text": "João Silva"
+  },
+  {
+    "label": "DOC_NUMBER",
+    "start": 90,
+    "end": 99,
+    "text": "2025/2041"
+  },
+  {
+    "label": "DATE",
+    "start": 106,
+    "end": 116,
+    "text": "07/10/2025"
+  },
+  {
+    "label": "PER",
+    "start": 188,
+    "end": 203,
+    "text": "Antônio Ribeiro"
+  },
+  {
+    "label": "CRM",
+    "start": 213,
+    "end": 218,
+    "text": "22456"
+  },
+  {
+    "label": "PER",
+    "start": 250,
+    "end": 264,
+    "text": "Maria Fernanda"
+  },
+  {
+    "label": "PER",
+    "start": 311,
+    "end": 335,
+    "text": "Maria das Graças Almeida"
+  },
+  {
+    "label": "ADDRESS",
+    "start": 398,
+    "end": 424,
+    "text": "Av. dos Holandeses, nº 102"
+  },
+  {
+    "label": "RG",
+    "start": 489,
+    "end": 496,
+    "text": "7654321"
+  },
+  {
+    "label": "DATE",
+    "start": 2756,
+    "end": 2777,
+    "text": "07 de outubro de 2025"
+  },
+  {
+    "label": "PER",
+    "start": 2783,
+    "end": 2798,
+    "text": "Antônio Ribeiro"
+  },
+  {
+    "label": "CRM",
+    "start": 2828,
+    "end": 2833,
+    "text": "22456"
+  }
+]

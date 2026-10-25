@@ -1,0 +1,72 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "necrohub"
+version = "0.1.0"
+description = "Reproducible pipeline for synthetic pt-BR forensic necropsy reports: generate, de-identify, train, retrieve."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Emanuel Luis", email = "emanuel.filho08@gmail.com" }]
+dependencies = [
+  "pydantic>=2.9",
+  "pydantic-settings>=2.6",
+  "typer>=0.15",
+  "pyyaml>=6",
+  "numpy>=2.1",
+  "ftfy>=6.3",
+]
+
+[project.optional-dependencies]
+ml = ["transformers>=4.57"]
+cpu = ["torch>=2.8"]
+
+[project.scripts]
+necrohub = "necrohub.cli:app"
+
+[dependency-groups]
+dev = [
+  "ruff>=0.8",
+  "mypy>=1.13",
+  "pytest>=8.3",
+  "pytest-timeout>=2.3",
+  "hypothesis>=6.115",
+  "types-PyYAML",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/necrohub"]
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu", extra = "cpu" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+extend-select = ["BLE", "I"]
+
+[tool.mypy]
+strict = true
+files = ["src"]
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["-ra", "--strict-markers", "--strict-config", "-m", "not ml and not db and not external and not slow"]
+timeout = 120
+markers = [
+  "ml: needs ml + cpu extras; offline tiny models only",
+  "db: needs Postgres+pgvector at DATABASE_URL",
+  "external: network, real model downloads or API keys; never in CI",
+  "slow: over ~10 s",
+]
