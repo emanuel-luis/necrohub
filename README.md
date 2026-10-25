@@ -139,8 +139,11 @@ skipped.
 its txt otherwise. `preprocess` normalizes, splits sections and de-identifies each document. Each
 stage writes a manifest to `runs/<stage>/` and metrics to `metrics/<stage>.json`, and a failed
 boundary check leaves the previous layer in place. `metrics/preprocess.json` also projects the
-gold spans from each raw txt onto the processed text and counts the ones it could not map. PDF
-extraction drops blank lines and re-wraps long lines, so a span cut by a line break is rejected.
+gold spans from each raw txt onto the processed text and counts exact projections, projections
+with whitespace drift and rejects. PDF extraction drops blank lines and re-wraps long lines; a
+span cut by a line break still projects (its text becomes the processed slice, line break
+included), and only a span whose visible characters changed is rejected. At seed 7 every gold
+span projects: 765 exactly, 8 across a PDF line wrap.
 
 ### Datasets
 
@@ -155,13 +158,15 @@ projected onto the processed text, a gold PII value shows up in an extraction in
 pair, or an NER span does not match its record text. The sections of a document that lost a span
 to a projection reject are left out of `ner`. The extraction input is redacted with the projected
 gold PII spans plus the regex detections, not with the regex alone, whose recall gaps P4 measures;
-a case with a gold PII span that did not project is left out of `extraction`.
+a case with a gold PII span that did not project is left out of `extraction` (none at seed 7).
+The PII check compares with whitespace removed, so a value split by a line wrap is still caught.
 
 The stage also writes the dataset card, `data/datasets/README.md` (generated, not committed):
 provenance, the synthetic-only notice, split sizes, label histograms, the held-out template and
 the alignment reject rate. Its known limits: ETNIA, SEXO and standalone UF are not redacted in the
-extraction inputs (decision 11), template text is repetitive so scores on it are optimistic, and
-Faker names may match real people by chance. The counts and the content sha256 of the layer are
+extraction inputs (decision 11), template text is repetitive so scores on it are optimistic, a
+span whose visible characters change in extraction is rejected and its section (and, for PII, its
+case's extraction record) is dropped, and Faker names may match real people by chance. The counts and the content sha256 of the layer are
 in `metrics/build_dataset.json`.
 
 `make help` lists the other targets. On Windows without `make`, run the `uv run` commands from the

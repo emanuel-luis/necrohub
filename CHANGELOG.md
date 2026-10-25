@@ -15,10 +15,13 @@ All notable changes to this project are documented here. The format follows
   rejects over `dataset.max_align_reject_fraction` (0.05), a gold PII value in an extraction
   input, target or QA pair, or an NER span that does not match its text. Extraction inputs are
   redacted with the projected gold PII spans plus the regex detections; a case whose PII did not
-  fully project is left out of `extraction`. Contracts in
+  fully project is left out of `extraction` (none at seed 7). The PII check ignores whitespace,
+  so a value split by a line wrap is caught. Contracts in
   `contracts/datasets.py`; params in the new `dataset` section of `params.yaml`.
 - DVC pipeline (`dvc.yaml`: generate, ingest, preprocess, build_dataset) with a committed
   `dvc.lock` and `metrics/<stage>.json`; `dvc` is the new `pipeline` extra, there is no remote.
+  Each stage depends on every necrohub source it imports and on `uv.lock` (a test checks the
+  imports against `dvc.yaml`).
   `make demo` runs it; `make install-ml` now also installs the `pipeline` extra.
 - CI `demo` job: `dvc repro` on a clean runner, then fails unless `dvc status` is up to date and
   `dvc.lock` and `metrics/` match the committed files; uploads `metrics/`.
@@ -35,7 +38,9 @@ All notable changes to this project are documented here. The format follows
   entities, section labels, coverage and the gold spans projected from the raw txt onto the
   processed text or rejected.
 - `preprocess.align.project`: maps spans through PDF extraction and normalization with difflib
-  matching blocks and rejects a span it cannot map exactly.
+  matching blocks. A span whose whitespace changed inside (a PDF line wrap) is projected with the
+  target slice as its text; a span whose visible characters changed is rejected. The preprocess
+  and build-dataset metrics count exact, whitespace-drift and rejected projections.
 - `check-identifiers` scans the extracted text of PDF files; a PDF that does not parse is listed
   as skipped.
 

@@ -1,48 +1,50 @@
 {
   "alignment": {
-    "extraction_records_dropped": 6,
-    "ner_records_dropped": 8,
-    "projected": 765,
-    "reject_fraction": 0.010349,
-    "rejected": 8
+    "exact": 765,
+    "extraction_records_dropped": 0,
+    "ner_records_dropped": 0,
+    "projected": 773,
+    "reject_fraction": 0.0,
+    "rejected": 0,
+    "whitespace_drift": 8
   },
   "cases": {
     "test": 6,
     "train": 16,
     "validation": 2
   },
-  "datasets_sha256": "8fb6a3a2f1a0abf1bef05c8fe8bad0294037c21ae7ba1c4750f124cf40bf831e",
+  "datasets_sha256": "cb6e82ea0e44ae4b31f0b0cdc79917afc393e36f658822982ff2af6eb00302ec",
   "documents": 24,
   "holdout_templates": [
     "t3"
   ],
   "ner_labels": {
-    "ADDRESS": 21,
+    "ADDRESS": 24,
     "CAUSE_OF_DEATH": 24,
-    "CPF": 21,
-    "CRM": 30,
-    "DATE": 69,
-    "DOC_NUMBER": 42,
-    "FINDING": 46,
+    "CPF": 24,
+    "CRM": 33,
+    "DATE": 72,
+    "DOC_NUMBER": 48,
+    "FINDING": 52,
     "INJURY": 36,
-    "LOC": 66,
+    "LOC": 72,
     "MANNER_OF_DEATH": 24,
-    "ORGAN": 154,
-    "PER": 108,
-    "PHONE": 21,
-    "RG": 21,
+    "ORGAN": 170,
+    "PER": 120,
+    "PHONE": 24,
+    "RG": 24,
     "SUBSTANCE": 26
   },
   "records": {
     "extraction": {
-      "test": 5,
-      "train": 12,
-      "validation": 1
+      "test": 6,
+      "train": 16,
+      "validation": 2
     },
     "ner": {
-      "test": 47,
-      "train": 122,
-      "validation": 15
+      "test": 48,
+      "train": 128,
+      "validation": 16
     },
     "qa": {
       "test": 36,

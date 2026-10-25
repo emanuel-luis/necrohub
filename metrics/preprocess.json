@@ -10,13 +10,17 @@
     "RG": 24
   },
   "gold_alignment": {
-    "pdf_projected": 221,
-    "pdf_rejected": 8,
-    "projected": 765,
-    "reject_fraction": 0.010349,
-    "rejected": 8,
+    "exact": 765,
+    "pdf_projected": 229,
+    "pdf_rejected": 0,
+    "pdf_whitespace_drift": 8,
+    "projected": 773,
+    "reject_fraction": 0.0,
+    "rejected": 0,
     "txt_projected": 544,
-    "txt_rejected": 0
+    "txt_rejected": 0,
+    "txt_whitespace_drift": 0,
+    "whitespace_drift": 8
   },
   "processed_sha256": "2cd231c46405c59000b182317302e78acda7df6f487cfc1b28c193fada46321f",
   "read": 24,

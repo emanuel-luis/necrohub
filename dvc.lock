@@ -88,8 +88,8 @@ stages:
       nfiles: 56
     - path: src/necrohub/preprocess
       hash: md5
-      md5: 9d18adfb43738c1e2f214bf9c3b92938.dir
-      size: 23942
+      md5: 216e4acf71f7db1d18b8e706eb1d7fbe.dir
+      size: 24893
       nfiles: 10
     params:
       params.yaml:
@@ -114,8 +114,8 @@ stages:
       nfiles: 2
     - path: metrics/preprocess.json
       hash: md5
-      md5: b482119f0ed0d0e24a1f056c331bddc4
-      size: 782
+      md5: a5e25d0e82e00993e200c38e81c65c06
+      size: 884
   build_dataset:
     cmd: necrohub build-dataset --params params.yaml --processed data/processed 
       --raw data/raw --out data/datasets --metrics-dir metrics
@@ -132,8 +132,8 @@ stages:
       nfiles: 56
     - path: src/necrohub/datasets
       hash: md5
-      md5: 4a3223872e5318d669a53ec241c38222.dir
-      size: 17863
+      md5: 93238cbd88e38db0aa4e583110f74db8.dir
+      size: 18358
       nfiles: 5
     params:
       params.yaml:
@@ -154,10 +154,10 @@ stages:
     outs:
     - path: data/datasets
       hash: md5
-      md5: 0bca05f617400ac35b60c9785885fea3.dir
-      size: 282580
+      md5: 6dd1f1b18ff3c84489108ed8bd9dfa64.dir
+      size: 311653
       nfiles: 13
     - path: metrics/build_dataset.json
       hash: md5
-      md5: ae8f0d7c3e29f6e411fa0c8216540fba
-      size: 1260
+      md5: 320e9be0fd5918630c7bbc3825aff52a
+      size: 1300

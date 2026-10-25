@@ -24,6 +24,8 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
 - `make demo` = `uv run --locked --extra pipeline dvc repro` (all four stages; `dvc.yaml`). After a
   change that alters data or metrics, rerun it and commit `dvc.lock` and `metrics/`: CI's demo job
   fails when a clean Linux run does not reproduce them bit for bit. No DVC remote, no push/pull.
+  A new import in a stage needs its source in that stage's `dvc.yaml` deps
+  (`tests/unit/test_dvc_deps.py` fails otherwise).
 
 ## Repo map
 
