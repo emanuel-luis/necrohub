@@ -8,6 +8,18 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- `necrohub build-dataset` (`make build-dataset`): processed layer and raw gold to
+  `data/datasets/{ner,sections,extraction,qa}/{train,validation,test}.jsonl` plus a generated
+  dataset card (`README.md`). Splits are seeded and by case; held-out templates go to test only.
+  The run fails on a case in two splits, a held-out case outside test, gold span projection
+  rejects over `dataset.max_align_reject_fraction` (0.05), a gold PII value in an extraction
+  target or QA pair, or an NER span that does not match its text. Contracts in
+  `contracts/datasets.py`; params in the new `dataset` section of `params.yaml`.
+- DVC pipeline (`dvc.yaml`: generate, ingest, preprocess, build_dataset) with a committed
+  `dvc.lock` and `metrics/<stage>.json`; `dvc` is the new `pipeline` extra, there is no remote.
+  `make demo` runs it; `make install-ml` now also installs the `pipeline` extra.
+- CI `demo` job: `dvc repro` on a clean runner, then fails unless `dvc status` is up to date and
+  `dvc.lock` and `metrics/` match the committed files; uploads `metrics/`.
 - `necrohub ingest` (`make ingest`): raw layer to `data/interim/ingested.jsonl` and
   `rejects.jsonl`, one `IngestedDocument` per case. A case with a PDF is read from its text
   extracted with pypdf (new core dependency), otherwise from its txt. The run fails when a gold

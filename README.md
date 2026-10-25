@@ -16,9 +16,10 @@ Phase 3 of 8, in progress: scaffold, text normalization, section splitting, rege
 de-identification, hashing and Hugging Face embeddings, the identifier leak check, a seeded
 template generator with exact gold labels, an optional LLM realizer (local Ollama, optional
 Gemini) behind the same labelling step, PDF rendering of part of the reports, ingestion (PDF
-text extraction) and the preprocess stage are in place. The CLI has four commands:
-`check-identifiers`, `generate`, `ingest` and `preprocess`. The dataset build, the DVC pipeline,
-training, the retrieval API and the UI come in later phases. The design and the phase plan are in
+text extraction), the preprocess stage, the per-task dataset build and a DVC pipeline over all of
+them (`make demo`) are in place. The CLI has five commands: `check-identifiers`, `generate`,
+`ingest`, `preprocess` and `build-dataset`. Training, the retrieval API and the UI come in later
+phases. The design and the phase plan are in
 [docs/REFACTOR_PLAN.md](docs/REFACTOR_PLAN.md), the decisions in [docs/DECISIONS.md](docs/DECISIONS.md).
 
 ## What this demonstrates
@@ -36,14 +37,16 @@ In place now:
   identifier-shaped values outside a committed fake pool.
 - Reproducible, offline checks: a pinned `uv.lock`, golden tests on synthetic reports, property
   tests, and CI that runs tiny local models with no downloads.
-- Layered data flow: raw, interim and processed layers, each written by one stage with a run
-  manifest and boundary checks; rerunning the three stages gives byte-identical layers.
+- Layered data flow: raw, interim, processed and datasets layers, each written by one stage with
+  a run manifest and boundary checks; rerunning the stages gives byte-identical layers.
 - Gold spans carried across PDF extraction and normalization by difflib projection, with the
   spans it cannot map counted instead of guessed.
+- One-command reproducibility: `make demo` runs the DVC pipeline, and CI fails when a clean run
+  on Linux does not reproduce the committed `dvc.lock` and `metrics/` bit for bit.
 
 Planned (see the phase plan):
 
-- The datasets and serving layers, and DVC over the whole pipeline.
+- The serving layer.
 - Fine-tuning on those gold labels: exact character spans train and evaluate the NER and section
   encoders.
 
@@ -65,10 +68,18 @@ flowchart LR
 ## Tech stack
 
 Python 3.12, uv, Pydantic v2 and pydantic-settings, Typer, ftfy, NumPy, fpdf2, pypdf; Hugging Face
-Transformers and PyTorch as the optional `ml` extra (CPU wheels in CI). Planned: DVC, Postgres with
+Transformers and PyTorch as the optional `ml` extra (CPU wheels in CI); DVC as the `pipeline` extra. Planned: Postgres with
 pgvector, FastAPI, Streamlit, Docker Compose. Quality: ruff, mypy strict, pytest, Hypothesis, pip-audit and zizmor in CI.
 
 ## Quickstart
+
+```bash
+make demo   # = uv run --locked --extra pipeline dvc repro: generate -> ingest -> preprocess -> build_dataset
+```
+
+`make demo` writes `data/raw`, `data/interim`, `data/processed` and `data/datasets` (gitignored)
+and `metrics/<stage>.json` (committed). A second run does nothing; `uv run dvc status` reports the
+pipeline up to date. There is no DVC remote: the data regenerates from the seed in `params.yaml`.
 
 ```bash
 uv sync --locked
@@ -78,6 +89,7 @@ uv run necrohub check-identifiers  # fail on identifiers outside the fake pool
 uv run necrohub generate --params params.yaml --out data/raw   # or: make generate
 uv run necrohub ingest --in data/raw --out data/interim        # or: make ingest
 uv run necrohub preprocess --in data/interim --out data/processed   # or: make preprocess
+uv run necrohub build-dataset --processed data/processed --raw data/raw --out data/datasets   # or: make build-dataset
 uv run necrohub --version
 ```
 
@@ -121,6 +133,7 @@ skipped.
 | raw | `generate` | `reports/<case_id>.txt` (and `.pdf` for some cases), `gold/<case_id>.json`, `rejects.jsonl` |
 | interim | `ingest` | `ingested.jsonl` (one document per case), `rejects.jsonl` |
 | processed | `preprocess` | `documents.jsonl` (normalized text, sections, PII spans, redacted text), `rejects.jsonl` |
+| datasets | `build-dataset` | `{ner,sections,extraction,qa}/{train,validation,test}.jsonl`, `README.md` (dataset card) |
 
 `ingest` reads a case from its PDF when it has one (pypdf text extraction; decision 13) and from
 its txt otherwise. `preprocess` normalizes, splits sections and de-identifies each document. Each
@@ -129,6 +142,26 @@ boundary check leaves the previous layer in place. `metrics/preprocess.json` als
 gold spans from each raw txt onto the processed text and counts the ones it could not map. PDF
 extraction drops blank lines and re-wraps long lines, so a span cut by a line break is rejected.
 
+### Datasets
+
+`build-dataset` writes `data/datasets/<task>/{train,validation,test}.jsonl` for four tasks:
+`ner` (one record per section with gold character spans of every entity label), `sections`
+(section bodies without their header, labelled), `extraction` (redacted report text in, the
+non-PII case facts out) and `qa` (fixed pt-BR questions answered from the gold case facts).
+Splits are by case, seeded, 80/10/10 by default, and cases written with a held-out template
+(`generate.holdout_templates`) go to test only. The run fails when splits share a case, a held-out
+case leaves test, more than `dataset.max_align_reject_fraction` (0.05) of the gold spans cannot be
+projected onto the processed text, a gold PII value shows up in an extraction target or QA pair,
+or an NER span does not match its record text. The sections of a document that lost a span to a
+projection reject are left out of `ner`.
+
+The stage also writes the dataset card, `data/datasets/README.md` (generated, not committed):
+provenance, the synthetic-only notice, split sizes, label histograms, the held-out template and
+the alignment reject rate. Its known limits: ETNIA, SEXO and standalone UF are not redacted in the
+extraction inputs (decision 11), template text is repetitive so scores on it are optimistic, and
+Faker names may match real people by chance. The counts and the content sha256 of the layer are
+in `metrics/build_dataset.json`.
+
 `make help` lists the other targets. On Windows without `make`, run the `uv run` commands from the
 Makefile directly.
 
@@ -136,19 +169,21 @@ Makefile directly.
 
 ```
 src/necrohub/
-  cli.py                 Typer app (check-identifiers, generate, ingest, preprocess)
+  cli.py                 Typer app (check-identifiers, generate, ingest, preprocess, build-dataset)
   settings.py            environment settings (NECROHUB_*, OLLAMA_HOST, GEMINI_API_KEY)
   params.py              typed sections of params.yaml
   runs.py                run manifests, atomic output swaps, tree hashes, JSONL io
   ids.py                 CPF/CNPJ check digits, identifier patterns, fake pool, leak check
   data/fake_identifiers.toml
   contracts/             Span, SectionSpan, ProcessedText, IngestedDocument, ProcessedDocument,
-                         CaseFacts, GoldRecord
+                         CaseFacts, GoldRecord, dataset records (NerRecord, SectionRecord,
+                         ExtractionRecord, QaRecord)
   llm/                   ChatLLM protocol, Ollama and Gemini clients (optional extras)
   generate/              vocab, sampler, templates/*.toml, realizers, llm_realizer, prompts/,
                          fill, checks, render_pdf, stage
   ingest/                readers (txt, pdf with pypdf), stage
   preprocess/            normalize, sections, align, pipeline, stage, deid/{base,regex,hf_ner}
+  datasets/              split (seeded, by case), build (task records), card, stage
   embed/                 Embedder protocol, token windows, hashing and Hugging Face embedders
 tests/
   unit/                  offline tests
@@ -157,7 +192,9 @@ tests/
   fixtures/reports/      three synthetic reports
   golden/                expected outputs (pytest --update-golden rewrites them)
 docs/                    refactor plan and decisions
-params.yaml              pipeline parameters (seed, generate, ingest, preprocess)
+params.yaml              pipeline parameters (seed, generate, ingest, preprocess, dataset)
+dvc.yaml, dvc.lock       DVC pipeline (`make demo`) and its committed lock
+metrics/                 per-stage metrics, committed (DVC metrics, `cache: false`)
 ```
 
 ## Origin
