@@ -12,17 +12,22 @@ questions over the corpus with retrieval.
 
 ## Status
 
-Phase 1 of 8: scaffold, text normalization, section splitting, regex and Hugging Face NER
-de-identification, hashing and Hugging Face embeddings, and the identifier leak check are in
-place. They are library functions with tests; the only CLI command so far is the leak check. The
-generator, ingestion, the DVC pipeline and its data layers, training, the retrieval API and the UI
-come in later phases. The design and the phase plan are in
+Phase 2 of 8, first half: scaffold, text normalization, section splitting, regex and Hugging
+Face NER de-identification, hashing and Hugging Face embeddings, the identifier leak check, and a
+seeded template generator with exact gold labels are in place. The CLI has two commands:
+`check-identifiers` and `generate`. PDF rendering and the LLM realizer (Ollama, optional Gemini)
+finish phase 2. Ingestion, the DVC pipeline, training, the retrieval API and the UI come in later
+phases. The design and the phase plan are in
 [docs/REFACTOR_PLAN.md](docs/REFACTOR_PLAN.md), the decisions in [docs/DECISIONS.md](docs/DECISIONS.md).
 
 ## What this demonstrates
 
 In place now:
 
+- Seeded synthetic generation that samples structured case facts first and writes the report
+  second, so every name, document number, date, injury, organ finding and cause of death has an
+  exact character span. Runs are byte-identical for the same seed, every run writes a manifest,
+  and a failed boundary check keeps the previous output.
 - Typed contracts: Pydantic v2 models with `extra="forbid"` for spans, sections and processed
   text; `Span.verify` checks a span against the text it came from.
 - De-identification with a leak check in CI: context-anchored patterns that redact the value and
@@ -35,7 +40,6 @@ Planned (see the phase plan):
 
 - Layered data flow: raw, interim, processed and serving layers, each written by one stage, with
   run metadata and hash-checkable outputs under DVC.
-- Seeded synthetic generation that emits structured gold labels before the report text.
 - Fine-tuning on those gold labels: exact character spans train and evaluate the NER and section
   encoders.
 
@@ -67,6 +71,7 @@ uv sync --locked
 make test                          # offline unit tests
 make install-ml && make test-ml    # CPU torch + tiny-model tests, offline
 uv run necrohub check-identifiers  # fail on identifiers outside the fake pool
+uv run necrohub generate --params params.yaml --out data/raw   # or: make generate
 uv run necrohub --version
 ```
 
@@ -77,11 +82,14 @@ Makefile directly.
 
 ```
 src/necrohub/
-  cli.py                 Typer app (check-identifiers; stage commands come later)
+  cli.py                 Typer app (check-identifiers, generate)
   settings.py            environment settings (NECROHUB_*)
+  params.py              typed sections of params.yaml
+  runs.py                run manifests, atomic output swaps, tree hashes, JSONL io
   ids.py                 CPF/CNPJ check digits, identifier patterns, fake pool, leak check
   data/fake_identifiers.toml
-  contracts/             Span, SectionSpan, ProcessedText
+  contracts/             Span, SectionSpan, ProcessedText, CaseFacts, GoldRecord
+  generate/              vocab, sampler, templates/*.toml, realizers, fill, checks, stage
   preprocess/            normalize, sections, pipeline, deid/{base,regex,hf_ner}
   embed/                 Embedder protocol, token windows, hashing and Hugging Face embedders
 tests/
@@ -91,6 +99,7 @@ tests/
   fixtures/reports/      three synthetic reports
   golden/                expected outputs (pytest --update-golden rewrites them)
 docs/                    refactor plan and decisions
+params.yaml              pipeline parameters (seed, generate)
 ```
 
 ## Origin

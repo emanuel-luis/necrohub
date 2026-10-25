@@ -36,6 +36,23 @@ All notable changes to this project are documented here. The format follows
 - `NECROHUB_DEVICE=auto|cpu|cuda` through `resolve_device`.
 - CI job `test-ml` (tiny offline models), `make install-ml` and `make test-ml`.
 - Dependabot cooldown of 7 days; zizmor audits the whole `.github` folder.
+- Run metadata shared by stages: run manifests, atomic output directory swaps, tree hashes.
+- `params.yaml` with typed `seed` and `generate` sections; unknown sections are ignored.
+- Generator contracts: `CaseFacts`, `Draft`, `Realized`, `Reject` and `GoldRecord`, whose
+  `verify` checks the text hash, every span and that the sections tile the text.
+- Seeded case sampler over ten scenarios (firearm homicide, sharp force, traffic, fall, hanging,
+  drowning, cardiac and other natural deaths, poisoning, undetermined). Names come from Faker
+  `pt_BR` seeded per case, CPFs are checksum-invalid, and RG, CRM and phone values come from the
+  fake pool, now 30 RG, 30 CRM and 20 phone values.
+- `fill()`: turns a draft with `{{SLOT}}`, `[[LABEL|surface]]` and `<<SEC:LABEL>>` markers into
+  text with exact entity and section spans, or a typed reject.
+- Template realizer with three report families (`t1`, `t2`, `t3`) and phrase variants; every
+  family's sections equal `split_sections` and its text is latin-1 encodable.
+- `necrohub generate` and `make generate`: writes `reports/`, `gold/` and `rejects.jsonl`,
+  `metrics/generate.json` and a run manifest; boundary checks (spans, required slots, leftover
+  markers, unlabelled identifier-shaped values, reject budget) fail the run and keep the previous
+  output.
+- `faker` as a core dependency.
 
 ### Origin
 
