@@ -45,8 +45,8 @@ jobs:
         with: { persist-credentials: false }
       - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
         with: { python-version: "3.12", enable-cache: true }
-      # src imports torch and transformers, so mypy needs the extras
-      - run: uv sync --locked --extra ml --extra cpu
+      # src imports torch, transformers and the LLM SDKs lazily, so mypy needs the extras
+      - run: uv sync --locked --extra ml --extra cpu --extra ollama --extra genai
       - run: uv run mypy
 
   test-unit:
@@ -61,7 +61,8 @@ jobs:
         with: { persist-credentials: false }
       - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
         with: { python-version: "3.12", enable-cache: true }
-      - run: uv sync --locked
+      # the LLM SDKs only so the client request-shape tests run (their clients are faked)
+      - run: uv sync --locked --extra ollama --extra genai
       # ml, db, external and slow stay deselected by the pytest config
       - run: uv run pytest
 

@@ -55,6 +55,19 @@ All notable changes to this project are documented here. The format follows
   markers, unlabelled identifier-shaped values, reject budget) fail the run and keep the previous
   output.
 - `faker` as a core dependency.
+- `ChatLLM` protocol with `ChatMessage` and `LlmError`; `OllamaLLM` (`ollama` extra) and
+  `GeminiLLM` (`genai` extra, bounded retries of transient API errors only, key from
+  `GEMINI_API_KEY` and never shown). SDKs are imported lazily.
+- `LlmRealizer`: a local model writes the report draft from non-identifying case facts and slot
+  names; `fill()` inserts identifiers and labels spans as for templates. Drafts with invented
+  identifier-shaped values or non-latin-1 text are rejected per case, typographic characters are
+  transliterated and counted, rejected cases retry with a derived seed up to
+  `generate.llm.max_attempts`. Backend failures are rejects, not crashes.
+- `generate.realizer: template | llm`, `generate.llm` (`backend`, `model`, `temperature`,
+  `max_attempts`) and `generate.pdf_fraction` params; the Ollama model is pinned to
+  `qwen3:4b-instruct-2507-q4_K_M`.
+- Deterministic PDF rendering (fpdf2 core fonts, fixed creation date and producer) for a seeded
+  share of the reports; `GoldRecord.files.pdf` points at it. `fpdf2` as a core dependency.
 
 ### Origin
 

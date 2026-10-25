@@ -6,7 +6,8 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
 ## Commands
 
 - `uv sync --locked`: install (never sync a CUDA build; the torch wheels come from the `cpu` extra).
-- `make install-ml`: `uv sync --locked --extra ml --extra cpu`; needed before `make type` and `make test-ml`.
+- `make install-ml`: `uv sync --locked --extra ml --extra cpu --extra ollama --extra genai`; needed
+  before `make type` and `make test-ml`. Without the `ollama`/`genai` extras the client tests skip.
 - `make lint`: `ruff check`, `ruff format --check`, `necrohub check-identifiers`.
 - `make type`: strict mypy on `src` (after `make install-ml`).
 - `make test-ml`: `ml` tests with tiny local models, `HF_HUB_OFFLINE=1`. `external` tests download real models and never run in CI.
@@ -21,11 +22,18 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
 - `src/necrohub/ids.py`: check digits, identifier patterns, fake pool loader, leak check.
 - `src/necrohub/data/fake_identifiers.toml`: the only identifier-shaped values allowed in the repo.
 - `src/necrohub/contracts/`: Pydantic models for spans, documents and generator gold (`gold.py`).
-- `src/necrohub/params.py` + `params.yaml`: typed params sections (`seed`, `generate`).
+- `src/necrohub/params.py` + `params.yaml`: typed params sections (`seed`, `generate` with `llm`).
+- `src/necrohub/settings.py`: env settings (`NECROHUB_*`, `OLLAMA_HOST`, `GEMINI_API_KEY`).
+- `src/necrohub/llm/`: `base` (`ChatMessage`, `ChatLLM`, `LlmError`, `get_llm`), `ollama`, `gemini`
+  (SDKs imported inside methods; never called in tests, which fake the SDK client).
 - `src/necrohub/runs.py`: `stage_run`, `atomic_dir`, `sha256_tree`, JSONL io.
 - `src/necrohub/generate/`: `vocab`, `sampler` (`sample_case(seed, i)`), `templates/*.toml`,
-  `realizers` (`TextRealizer`, `TemplateRealizer`), `fill`, `checks`, `stage`. Template headers
-  must be ones `split_sections` recognizes; template text stays latin-1.
+  `realizers` (`TextRealizer`, `TemplateRealizer`), `llm_realizer` (`LlmRealizer`, prompt in
+  `prompts/llm_report.txt`, `template_id = llm:<backend>/<model>`), `fill`, `checks`,
+  `render_pdf` (fpdf2 core fonts, fixed metadata), `stage` (`realize_case`: transliterate, fill,
+  invented-identifier and latin-1 rejects, retries). Template headers must be ones
+  `split_sections` recognizes; template text stays latin-1. The txt is the span source; PDFs are
+  renderings of it.
 - `src/necrohub/preprocess/`: `normalize`, `sections`, `pipeline`, `deid/{base,regex,hf_ner}`.
 - `src/necrohub/embed/`: `base` (Embedder, cosine_matrix), `chunking`, `hashing`, `hf` (torch and transformers are imported inside functions and classes only).
 - `tests/unit`, `tests/ml`, `tests/external`, `tests/fixtures/reports`, `tests/golden`, `tests/conftest.py` (`golden` fixture).
