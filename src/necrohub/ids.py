@@ -60,7 +60,8 @@ def fake_cpf(rng: random.Random) -> str:
 # --- value patterns -------------------------------------------------------------------------
 # Each pattern has a `value` group: only the value is redacted, the "CPF nº" label stays.
 
-# the "nº" or ":" between a label and its value; the patterns that use it are case-sensitive
+# the "nº"/"Nº" or ":" between a label and its value; spelled out in both cases because only the
+# phone patterns ignore case as a whole
 _CTX = r"(?:\s*(?:[nN][ºoO°]\.?|:))?\s*"
 _UF = "AC|AL|AP|AM|BA|CE|DF|ES|GO|MA|MT|MS|MG|PA|PB|PR|PE|PI|RJ|RN|RS|RO|RR|SC|SP|SE|TO"
 
