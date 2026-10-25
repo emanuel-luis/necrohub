@@ -309,8 +309,19 @@ def _decode(data: bytes) -> str | None:
         return data.decode("latin-1")  # never fails
 
 
+def _pdf_text(data: bytes) -> str | None:
+    """The extracted text of a PDF, or None when pypdf cannot parse it."""
+    from necrohub.ingest.readers import pdf_text
+
+    try:
+        return pdf_text(data)
+    except Exception:  # noqa: BLE001 - any parse failure leaves the file unscanned (skipped)
+        return None
+
+
 def check_files(files_: Sequence[Path], root: Path) -> tuple[list[Finding], list[str]]:
-    """Scan every text file; returns the findings and the paths of the binary files skipped."""
+    """Scan every text file and the extracted text of every PDF; returns the findings and the
+    paths of the files skipped (binary, or a PDF that does not parse)."""
     findings: list[Finding] = []
     skipped: list[str] = []
     base = root.resolve()
@@ -319,7 +330,8 @@ def check_files(files_: Sequence[Path], root: Path) -> tuple[list[Finding], list
         shown = (
             resolved.relative_to(base).as_posix() if resolved.is_relative_to(base) else f.as_posix()
         )
-        text = _decode(f.read_bytes())
+        data = f.read_bytes()
+        text = _pdf_text(data) if f.suffix.lower() == ".pdf" else _decode(data)
         if text is None:
             skipped.append(shown)
         else:
