@@ -16,6 +16,8 @@ from necrohub.contracts.datasets import (
     QaRecord,
     SectionRecord,
 )
+from necrohub.contracts.documents import ProcessedDocument
+from necrohub.contracts.gold import GoldRecord
 from necrohub.contracts.spans import EntityLabel, SectionLabel, Span
 from necrohub.datasets import build, stage
 from necrohub.datasets.split import assign_splits
@@ -160,6 +162,44 @@ def test_build_writes_every_task_split_and_card(base: Path) -> None:
     assert all("[CPF]" in r.input_text for r in ext)
     card = (out / "README.md").read_text("utf-8")
     assert "Synthetic data only" in card and "t3" in card
+
+
+def test_extraction_input_redacts_gold_pii_the_regex_misses(base: Path) -> None:
+    run(base)
+    docs = {
+        d.doc_id: d for d in read_jsonl(base / "processed" / "documents.jsonl", ProcessedDocument)
+    }
+    ext = [
+        r
+        for s in SPLITS
+        for r in read_jsonl(base / "datasets" / "extraction" / f"{s}.jsonl", ExtractionRecord)
+    ]
+    templates = _gold_templates(base)
+    t2 = [r for r in ext if templates[r.doc_id] == "t2"]
+    assert t2
+    gaps = 0
+    for r in t2:
+        gold = GoldRecord.model_validate_json(
+            (base / "raw" / "gold" / f"{r.doc_id}.json").read_text("utf-8")
+        )
+        examiner = gold.case.examiner.name
+        gaps += examiner in docs[r.doc_id].redacted_text  # the regex misses "a perita ... <name>"
+        assert not any(v in r.input_text for v in build.pii_values(gold))
+        assert "[PER]" in r.input_text
+    assert gaps  # the t2 leak is reproduced on the regex-only text
+
+
+def test_pii_left_in_an_extraction_input_fails_the_check(
+    base: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def regex_only(doc, case, spans):  # type: ignore[no-untyped-def]
+        return build.extraction_record(doc, case, []).model_copy(
+            update={"input_text": doc.redacted_text}
+        )
+
+    monkeypatch.setattr(stage, "extraction_record", regex_only)
+    with pytest.raises(StageFailed, match="no_pii_in_extraction_inputs"):
+        run(base)
 
 
 def test_pii_leak_in_a_target_fails_the_check(base: Path, monkeypatch: pytest.MonkeyPatch) -> None:

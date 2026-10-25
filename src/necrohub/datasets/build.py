@@ -13,6 +13,7 @@ from necrohub.contracts.documents import ProcessedDocument
 from necrohub.contracts.gold import CaseFacts, GoldRecord
 from necrohub.contracts.spans import SectionLabel, Span
 from necrohub.preprocess.align import project
+from necrohub.preprocess.deid.base import redact
 
 _L = SectionLabel
 _NO_HEADER = frozenset({_L.PREAMBLE, _L.SIGNATURE})
@@ -20,12 +21,12 @@ _NO_HEADER = frozenset({_L.PREAMBLE, _L.SIGNATURE})
 
 def project_gold(
     gold: GoldRecord, source: str, doc: ProcessedDocument
-) -> tuple[list[Span], set[SectionLabel], int]:
-    """Gold spans projected onto the processed text, the source sections that lost a span to a
-    projection reject (their NER records would miss a label), and the number of rejects."""
+) -> tuple[list[Span], list[Span], set[SectionLabel]]:
+    """Gold spans projected onto the processed text, the rejected ones, and the source sections
+    that lost a span to a projection reject (their NER records would miss a label)."""
     projected, rejected = project(source, doc.text, gold.entities)
     lost = {s.label for r in rejected for s in gold.sections if s.start <= r.start < s.end}
-    return projected, lost, len(rejected)
+    return projected, rejected, lost
 
 
 def ner_records(
@@ -70,7 +71,12 @@ def section_records(doc: ProcessedDocument) -> list[SectionRecord]:
     return records
 
 
-def extraction_record(doc: ProcessedDocument, case: CaseFacts) -> ExtractionRecord:
+def extraction_record(
+    doc: ProcessedDocument, case: CaseFacts, gold_spans: list[Span]
+) -> ExtractionRecord:
+    """The input is the processed text redacted with the union of the projected gold PII spans
+    and the de-identifiers' detections, so a value the regex misses is still redacted."""
+    pii = [s for s in gold_spans if s.label.is_pii]
     c = case.conclusion
     target = CaseExtraction(
         scenario=case.scenario,
@@ -84,7 +90,7 @@ def extraction_record(doc: ProcessedDocument, case: CaseFacts) -> ExtractionReco
     return ExtractionRecord(
         id=f"{doc.doc_id}:extraction",
         doc_id=doc.doc_id,
-        input_text=doc.redacted_text,
+        input_text=redact(doc.text, [*pii, *doc.entities]),
         target=target,
     )
 

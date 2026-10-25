@@ -82,23 +82,28 @@ def run_build_dataset(
             }
             ner: list[NerRecord] = []
             sections: list[SectionRecord] = []
-            n_projected = n_rejected = n_dropped = leaks = 0
+            n_projected = n_rejected = n_dropped = n_ext_dropped = leaks = input_leaks = 0
             for doc, gold in pairs:
-                spans, lost, rejected = project_gold(
+                spans, rejected, lost = project_gold(
                     gold, (raw / gold.files.txt).read_text("utf-8"), doc
                 )
                 n_projected += len(spans)
-                n_rejected += rejected
+                n_rejected += len(rejected)
                 n_dropped += sum(1 for s in doc.sections if s.label in lost)
-                extraction = extraction_record(doc, gold.case)
+                extraction = extraction_record(doc, gold.case, spans)
                 qa = qa_records(doc, gold.case)
                 pii = pii_values(gold)
                 leaks += pii_leaks([extraction.target.model_dump_json()], pii)
                 leaks += pii_leaks((f"{r.question}\n{r.answer}" for r in qa), pii)
+                # a PII span that did not project could not be redacted: leave the case out
+                keep_extraction = not any(s.label.is_pii for s in rejected)
+                n_ext_dropped += not keep_extraction
+                if keep_extraction:
+                    input_leaks += pii_leaks([extraction.input_text], pii)
                 built: dict[str, list[BaseModel]] = {
                     "ner": list(ner_records(doc, gold.case.case_id, spans, lost)),
                     "sections": list(section_records(doc)),
-                    "extraction": [extraction],
+                    "extraction": [extraction] if keep_extraction else [],
                     "qa": list(qa),
                 }
                 split = split_of[gold.case.case_id]
@@ -133,6 +138,9 @@ def run_build_dataset(
                 f"reject fraction {reject_fraction}, budget {budget}",
             )
             run.check("no_pii_in_targets", not leaks, f"{leaks} extraction/QA record(s)")
+            run.check(
+                "no_pii_in_extraction_inputs", not input_leaks, f"{input_leaks} extraction input(s)"
+            )
             run.check("ner_spans_verify", not bad_spans, f"{bad_spans} NER record(s)")
 
             metrics: dict[str, Any] = {
@@ -153,6 +161,7 @@ def run_build_dataset(
                     "rejected": n_rejected,
                     "reject_fraction": reject_fraction,
                     "ner_records_dropped": n_dropped,
+                    "extraction_records_dropped": n_ext_dropped,
                 },
             }
             write_text_atomic(tmp / "README.md", render_card(metrics))

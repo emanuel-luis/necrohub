@@ -151,9 +151,11 @@ non-PII case facts out) and `qa` (fixed pt-BR questions answered from the gold c
 Splits are by case, seeded, 80/10/10 by default, and cases written with a held-out template
 (`generate.holdout_templates`) go to test only. The run fails when splits share a case, a held-out
 case leaves test, more than `dataset.max_align_reject_fraction` (0.05) of the gold spans cannot be
-projected onto the processed text, a gold PII value shows up in an extraction target or QA pair,
-or an NER span does not match its record text. The sections of a document that lost a span to a
-projection reject are left out of `ner`.
+projected onto the processed text, a gold PII value shows up in an extraction input, target or QA
+pair, or an NER span does not match its record text. The sections of a document that lost a span
+to a projection reject are left out of `ner`. The extraction input is redacted with the projected
+gold PII spans plus the regex detections, not with the regex alone, whose recall gaps P4 measures;
+a case with a gold PII span that did not project is left out of `extraction`.
 
 The stage also writes the dataset card, `data/datasets/README.md` (generated, not committed):
 provenance, the synthetic-only notice, split sizes, label histograms, the held-out template and

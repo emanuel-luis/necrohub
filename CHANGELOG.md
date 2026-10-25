@@ -13,7 +13,9 @@ All notable changes to this project are documented here. The format follows
   dataset card (`README.md`). Splits are seeded and by case; held-out templates go to test only.
   The run fails on a case in two splits, a held-out case outside test, gold span projection
   rejects over `dataset.max_align_reject_fraction` (0.05), a gold PII value in an extraction
-  target or QA pair, or an NER span that does not match its text. Contracts in
+  input, target or QA pair, or an NER span that does not match its text. Extraction inputs are
+  redacted with the projected gold PII spans plus the regex detections; a case whose PII did not
+  fully project is left out of `extraction`. Contracts in
   `contracts/datasets.py`; params in the new `dataset` section of `params.yaml`.
 - DVC pipeline (`dvc.yaml`: generate, ingest, preprocess, build_dataset) with a committed
   `dvc.lock` and `metrics/<stage>.json`; `dvc` is the new `pipeline` extra, there is no remote.
