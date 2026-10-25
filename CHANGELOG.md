@@ -8,6 +8,23 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- `necrohub ingest` (`make ingest`): raw layer to `data/interim/ingested.jsonl` and
+  `rejects.jsonl`, one `IngestedDocument` per case. A case with a PDF is read from its text
+  extracted with pypdf (new core dependency), otherwise from its txt. The run fails when a gold
+  record has no document, a doc_id repeats, a text holds U+FFFD or a PDF's text length drifts
+  more than `ingest.max_pdf_length_drift` (0.15) from its txt.
+- `necrohub preprocess` (`make preprocess`): interim to `data/processed/documents.jsonl` and
+  `rejects.jsonl`, one `ProcessedDocument` per document, with the normalize steps and
+  de-identifiers from `params.yaml` (`hf_ner` only when a model is set). The run fails on
+  unordered or overlapping sections, section coverage under 95 % of non-whitespace characters,
+  spans out of bounds or regex PII left in the redacted text. `metrics/preprocess.json` counts
+  entities, section labels, coverage and the gold spans projected from the raw txt onto the
+  processed text or rejected.
+- `preprocess.align.project`: maps spans through PDF extraction and normalization with difflib
+  matching blocks and rejects a span it cannot map exactly.
+- `check-identifiers` scans the extracted text of PDF files; a PDF that does not parse is listed
+  as skipped.
+
 - Python package scaffold: `uv` project and lock, ruff, mypy strict, pytest with markers, CI and
   security workflows, Dependabot.
 - Data contracts for entity and section spans and for processed text.

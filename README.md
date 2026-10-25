@@ -12,12 +12,13 @@ questions over the corpus with retrieval.
 
 ## Status
 
-Phase 2 of 8: scaffold, text normalization, section splitting, regex and Hugging Face NER
+Phase 3 of 8, in progress: scaffold, text normalization, section splitting, regex and Hugging Face NER
 de-identification, hashing and Hugging Face embeddings, the identifier leak check, a seeded
 template generator with exact gold labels, an optional LLM realizer (local Ollama, optional
-Gemini) behind the same labelling step, and PDF rendering of part of the reports are in place.
-The CLI has two commands: `check-identifiers` and `generate`. Ingestion, the DVC pipeline, training, the retrieval API and the UI come in later
-phases. The design and the phase plan are in
+Gemini) behind the same labelling step, PDF rendering of part of the reports, ingestion (PDF
+text extraction) and the preprocess stage are in place. The CLI has four commands:
+`check-identifiers`, `generate`, `ingest` and `preprocess`. The dataset build, the DVC pipeline,
+training, the retrieval API and the UI come in later phases. The design and the phase plan are in
 [docs/REFACTOR_PLAN.md](docs/REFACTOR_PLAN.md), the decisions in [docs/DECISIONS.md](docs/DECISIONS.md).
 
 ## What this demonstrates
@@ -35,11 +36,14 @@ In place now:
   identifier-shaped values outside a committed fake pool.
 - Reproducible, offline checks: a pinned `uv.lock`, golden tests on synthetic reports, property
   tests, and CI that runs tiny local models with no downloads.
+- Layered data flow: raw, interim and processed layers, each written by one stage with a run
+  manifest and boundary checks; rerunning the three stages gives byte-identical layers.
+- Gold spans carried across PDF extraction and normalization by difflib projection, with the
+  spans it cannot map counted instead of guessed.
 
 Planned (see the phase plan):
 
-- Layered data flow: raw, interim, processed and serving layers, each written by one stage, with
-  run metadata and hash-checkable outputs under DVC.
+- The datasets and serving layers, and DVC over the whole pipeline.
 - Fine-tuning on those gold labels: exact character spans train and evaluate the NER and section
   encoders.
 
@@ -60,7 +64,7 @@ flowchart LR
 
 ## Tech stack
 
-Python 3.12, uv, Pydantic v2 and pydantic-settings, Typer, ftfy, NumPy; Hugging Face
+Python 3.12, uv, Pydantic v2 and pydantic-settings, Typer, ftfy, NumPy, fpdf2, pypdf; Hugging Face
 Transformers and PyTorch as the optional `ml` extra (CPU wheels in CI). Planned: DVC, Postgres with
 pgvector, FastAPI, Streamlit, Docker Compose. Quality: ruff, mypy strict, pytest, Hypothesis, pip-audit and zizmor in CI.
 
@@ -72,6 +76,8 @@ make test                          # offline unit tests
 make install-ml && make test-ml    # CPU torch + tiny-model tests, offline
 uv run necrohub check-identifiers  # fail on identifiers outside the fake pool
 uv run necrohub generate --params params.yaml --out data/raw   # or: make generate
+uv run necrohub ingest --in data/raw --out data/interim        # or: make ingest
+uv run necrohub preprocess --in data/interim --out data/processed   # or: make preprocess
 uv run necrohub --version
 ```
 
@@ -104,10 +110,24 @@ so only template runs are byte-reproducible.
 
 A seeded `pdf_fraction` of the reports (default 0.25) is also rendered to
 `reports/<case_id>.pdf` with fpdf2 core fonts and fixed metadata, so the bytes repeat across
-runs, and `GoldRecord.files.pdf` points at it. The txt stays the source of the spans; from phase
-3 on, ingestion extracts the PDF text and projects the spans onto it. `check-identifiers` does
-not extract PDF text yet: their content streams are compressed, so it sees only opaque bytes
-(and lists a file as skipped when it looks binary).
+runs, and `GoldRecord.files.pdf` points at it. The txt stays the source of the spans.
+`check-identifiers` scans the text pypdf extracts from a PDF, and lists a PDF it cannot parse as
+skipped.
+
+### Layers
+
+| Layer | Written by | Files |
+| --- | --- | --- |
+| raw | `generate` | `reports/<case_id>.txt` (and `.pdf` for some cases), `gold/<case_id>.json`, `rejects.jsonl` |
+| interim | `ingest` | `ingested.jsonl` (one document per case), `rejects.jsonl` |
+| processed | `preprocess` | `documents.jsonl` (normalized text, sections, PII spans, redacted text), `rejects.jsonl` |
+
+`ingest` reads a case from its PDF when it has one (pypdf text extraction; decision 13) and from
+its txt otherwise. `preprocess` normalizes, splits sections and de-identifies each document. Each
+stage writes a manifest to `runs/<stage>/` and metrics to `metrics/<stage>.json`, and a failed
+boundary check leaves the previous layer in place. `metrics/preprocess.json` also projects the
+gold spans from each raw txt onto the processed text and counts the ones it could not map. PDF
+extraction drops blank lines and re-wraps long lines, so a span cut by a line break is rejected.
 
 `make help` lists the other targets. On Windows without `make`, run the `uv run` commands from the
 Makefile directly.
@@ -116,17 +136,19 @@ Makefile directly.
 
 ```
 src/necrohub/
-  cli.py                 Typer app (check-identifiers, generate)
+  cli.py                 Typer app (check-identifiers, generate, ingest, preprocess)
   settings.py            environment settings (NECROHUB_*, OLLAMA_HOST, GEMINI_API_KEY)
   params.py              typed sections of params.yaml
   runs.py                run manifests, atomic output swaps, tree hashes, JSONL io
   ids.py                 CPF/CNPJ check digits, identifier patterns, fake pool, leak check
   data/fake_identifiers.toml
-  contracts/             Span, SectionSpan, ProcessedText, CaseFacts, GoldRecord
+  contracts/             Span, SectionSpan, ProcessedText, IngestedDocument, ProcessedDocument,
+                         CaseFacts, GoldRecord
   llm/                   ChatLLM protocol, Ollama and Gemini clients (optional extras)
   generate/              vocab, sampler, templates/*.toml, realizers, llm_realizer, prompts/,
                          fill, checks, render_pdf, stage
-  preprocess/            normalize, sections, pipeline, deid/{base,regex,hf_ner}
+  ingest/                readers (txt, pdf with pypdf), stage
+  preprocess/            normalize, sections, align, pipeline, stage, deid/{base,regex,hf_ner}
   embed/                 Embedder protocol, token windows, hashing and Hugging Face embedders
 tests/
   unit/                  offline tests
@@ -135,7 +157,7 @@ tests/
   fixtures/reports/      three synthetic reports
   golden/                expected outputs (pytest --update-golden rewrites them)
 docs/                    refactor plan and decisions
-params.yaml              pipeline parameters (seed, generate)
+params.yaml              pipeline parameters (seed, generate, ingest, preprocess)
 ```
 
 ## Origin

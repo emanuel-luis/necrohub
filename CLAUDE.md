@@ -16,13 +16,18 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
 - `uv run necrohub check-identifiers [PATHS...]`: the identifier leak check.
 - `make generate` / `uv run necrohub generate --params params.yaml --out data/raw`: synthetic
   reports and gold (`--runs-dir`, `--metrics-dir` override `runs/` and `metrics/`).
+- `make ingest` / `uv run necrohub ingest --in data/raw --out data/interim`, then `make preprocess` /
+  `uv run necrohub preprocess --in data/interim --out data/processed` (`--raw` for the gold
+  alignment metric, default `raw` next to `--in`). Same `--params`, `--runs-dir`, `--metrics-dir`.
 
 ## Repo map
 
-- `src/necrohub/ids.py`: check digits, identifier patterns, fake pool loader, leak check.
+- `src/necrohub/ids.py`: check digits, identifier patterns, fake pool loader, leak check (PDFs
+  scanned through their pypdf text).
 - `src/necrohub/data/fake_identifiers.toml`: the only identifier-shaped values allowed in the repo.
 - `src/necrohub/contracts/`: Pydantic models for spans, documents and generator gold (`gold.py`).
-- `src/necrohub/params.py` + `params.yaml`: typed params sections (`seed`, `generate` with `llm`).
+- `src/necrohub/params.py` + `params.yaml`: typed params sections (`seed`, `generate` with `llm`,
+  `ingest`, `preprocess`).
 - `src/necrohub/settings.py`: env settings (`NECROHUB_*`, `OLLAMA_HOST`, `GEMINI_API_KEY`).
 - `src/necrohub/llm/`: `base` (`ChatMessage`, `ChatLLM`, `LlmError`, `get_llm`), `ollama`, `gemini`
   (SDKs imported inside methods; never called in tests, which fake the SDK client).
@@ -34,9 +39,15 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
   unlabeled-PII (regex de-identifier) and latin-1 rejects, retries). Template headers must be ones
   `split_sections` recognizes; template text stays latin-1. The txt is the span source; PDFs are
   renderings of it.
-- `src/necrohub/preprocess/`: `normalize`, `sections`, `pipeline`, `deid/{base,regex,hf_ner}`.
+- `src/necrohub/ingest/`: `readers` (`txt_text`, `pdf_text` with pypdf, `extractor`), `stage`
+  (`run_ingest`: one `IngestedDocument` per case, from the PDF when the case has one; decision 13).
+- `src/necrohub/preprocess/`: `normalize`, `sections`, `pipeline`, `deid/{base,regex,hf_ner}`,
+  `align` (`project`: difflib span projection, rejects instead of guessing), `stage`
+  (`run_preprocess`: `ProcessedDocument`s, boundary checks, gold alignment metric).
+  Any `DocReject` fails the ingest or preprocess run; a failed run keeps the previous out.
 - `src/necrohub/embed/`: `base` (Embedder, cosine_matrix), `chunking`, `hashing`, `hf` (torch and transformers are imported inside functions and classes only).
-- `tests/unit`, `tests/ml`, `tests/external`, `tests/fixtures/reports`, `tests/golden`, `tests/conftest.py` (`golden` fixture).
+- `tests/unit` (`test_idempotency.py`: generate, ingest and preprocess twice give the same
+  hashes), `tests/ml`, `tests/external`, `tests/fixtures/reports`, `tests/golden`, `tests/conftest.py` (`golden` fixture).
 
 ## Invariants
 
