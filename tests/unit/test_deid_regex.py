@@ -63,6 +63,14 @@ def test_crm_forms() -> None:
     assert found("CRM/MA12345") == [("CRM", "12345")]
 
 
+def test_capital_n_separator() -> None:
+    assert found("CRM Nº 12345") == [("CRM", "12345")]
+    assert found("CRM/MA Nº 22456") == [("CRM", "22456")]
+    assert found("CRM N° 33567") == [("CRM", "33567")]
+    assert found("CRM No. 44678") == [("CRM", "44678")]
+    assert found("RG Nº 1234567") == [("RG", "1234567")]
+
+
 def test_crm_needs_a_uf_code_not_any_word() -> None:
     # only the keyword and the UF ignore case: "em"/"de" are not UF codes
     assert found("inscrito no CRM em 2019") == []

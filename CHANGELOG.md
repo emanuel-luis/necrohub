@@ -12,13 +12,14 @@ All notable changes to this project are documented here. The format follows
   security workflows, Dependabot.
 - Data contracts for entity and section spans and for processed text.
 - Text normalization chain (`fix_text`, NFC, newlines, non-breaking spaces, trailing whitespace,
-  blank lines) that keeps accents, case and newlines.
+  blank lines) that keeps accents, case and newlines. It repeats until the text stops changing,
+  so normalizing twice gives the same result.
 - Section splitting for necropsy reports, accent-insensitive and tolerant of numbered headers.
 - Regex de-identification for CPF, CNPJ, RG, CRM, phone, e-mail, postal code, document numbers,
-  dates, person names and addresses. It redacts the value and keeps its label. CRM accepts a UF,
-  a `:` or `nº` separator, a thousands dot and any case; a labelled CPF may drop the dots and keep
-  the hyphen; phones accept a space between the halves. "Corpo de Delito" and "Corpo de
-  Bombeiros" are not read as names.
+  dates, person names and addresses. It redacts the value and keeps its label. Labels take a `:`
+  or a `nº`/`Nº` separator. CRM accepts one of the 27 UF codes and a thousands dot, with the
+  keyword and UF in any case; a labelled CPF may drop the dots and keep the hyphen; phones accept
+  a space between the halves. "Corpo de Delito" and "Corpo de Bombeiros" are not read as names.
 - Redaction covers the union of overlapping spans, also across detectors, so a partial overlap
   never leaves the uncovered tail readable; the record's `entities` keep the longest span.
 - `necrohub check-identifiers`: fails on checksum-valid CPF and CNPJ numbers and on RG, CRM, phone

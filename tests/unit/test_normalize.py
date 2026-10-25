@@ -41,6 +41,13 @@ def test_unknown_step_is_rejected() -> None:
         normalize("x", [*DEFAULT_STEPS, "bogus"])
 
 
+def test_idempotent_when_a_later_step_changes_ftfy_context() -> None:
+    # nbsp before a mojibake-looking pair: fix_text leaves it, the nbsp step makes it a space,
+    # and fix_text would then repair the pair on a second call
+    once = normalize("\xa0\xbb\xa2")
+    assert normalize(once) == once
+
+
 @given(st.text())
 def test_idempotent(text: str) -> None:
     once = normalize(text)
