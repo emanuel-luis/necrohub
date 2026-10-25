@@ -1,45 +1,43 @@
 # Relatório de Necropsia
 
-**Órgão:** Instituto Médico-Legal Regional (Imperatriz/MA)
-**Relatório nº:** 2025/5642
-**Requisição policial:** inquérito nº 38258/2025
-**Data do exame:** 14/03/2025, das 09h30 às 11h25
-**Médico-legista:** Ana Beatriz Lima Fonseca, CRM 11717/MA
-**Auxiliar:** Thomas Siqueira Rodrigues
-**Telefone:** (99) 97777-0404
+**Órgão:** Instituto de Medicina Legal (Maceió/AL)
+**Relatório nº:** 2025/9078
+**Requisição policial:** inquérito nº 57840/2025
+**Data do exame:** 07/01/2025, das 11h30 às 13h25
+**Médico-legista:** Ana Beatriz Lima Fonseca, CRM 10606/AL
+**Auxiliar:** Sophia Siqueira Rodrigues
+**Telefone:** (82) 99999-1818
 
 ## 1. Identificação
-- Nome: João Miguel Sousa Silva (masculino, 54 anos, cor parda)
+- Nome: João Miguel Sousa Silva (masculino, 53 anos, cor parda)
 - Mãe: Bianca Campos Melo
 - Natural de: Maceió/AL
-- Endereço: Rua Emilly das Neves, nº 1247, Vila Esperança
-- RG: 3579135 | CPF: 326.581.923-06
+- Endereço: Rua Emilly das Neves, nº 2433, Jardim América
+- RG: 7654321 | CPF: 453.265.819-50
 
 ## 2. Dados circunstanciais
-Segundo a guia policial, a vítima foi encontrada na calçada em frente a uma residência, em decúbito ventral, após relato de disparos de arma de fogo por volta das 01h00 do dia 14/03/2025.
+Segundo a guia policial, a vítima foi encontrada em via pública, em decúbito lateral direito, após relato de disparos de arma de fogo por volta das 03h00 do dia 07/01/2025.
 
 ## 3. Exame externo
-- Estatura: 1,68 m; peso: 103 kg
+- Estatura: 1,88 m; peso: 89 kg
 - Rigidez cadavérica: generalizada
 - Livores: fixos, em regiões de declive
 - Fenômenos transformativos: sem sinais de putrefação
-- Lesão: ferimento perfurocontuso de entrada em região precordial, à esquerda, 0,9 cm; bordas invertidas
-- Lesão: ferimento perfurocontuso de saída em região dorsal, à esquerda, 2,8 cm; ausência de orla de escoriação e bordas evertidas e irregulares
-- Escoriações em face anterior do joelho (4,4 cm), com forma irregular e aspecto apergaminhado
+- Lesão: ferimento perfurocontuso de entrada em região torácica anterior, à esquerda, 1,1 cm; zona de tatuagem e esfumaçamento
+- Lesão: ferimento perfurocontuso de saída em região escapular, à esquerda, 2,1 cm; ausência de orla de escoriação e bordas evertidas e irregulares
 
 ## 4. Exame interno
-- Encéfalo: sem alterações macroscópicas dignas de nota
+- Encéfalo - sem alterações macroscópicas dignas de nota
 - Pulmões - lobo superior do pulmão esquerdo transfixado pelo trajeto do projétil, com hemotórax esquerdo de cerca de 1.200 mL
 - Coração: lesão transfixante do ventrículo esquerdo, com hemopericárdio
 - Fígado - de forma, volume e consistência habituais
-- Baço - de forma, volume e consistência habituais
-- Rins: sem alterações macroscópicas
-- Estômago: sem alterações macroscópicas
+- Baço: sem alterações macroscópicas dignas de nota
+- Rins - de aspecto habitual ao exame macroscópico
+- Estômago - de aspecto habitual ao exame macroscópico
 
 ## 5. Exames complementares sugeridos
 - dosagem de etanol no sangue
 - exame residuográfico das mãos
-- radiografia de tórax para pesquisa de fragmentos de projétil
 
 ## 6. Conclusão
 - Causa da morte: Choque hipovolêmico secundário a ferimento cardíaco por projétil de arma de fogo
@@ -47,5 +45,5 @@ Segundo a guia policial, a vítima foi encontrada na calçada em frente a uma re
 - Natureza: violenta (homicídio)
 - Intervalo post mortem estimado: 8 a 12 horas
 
-Imperatriz/MA, 14 de março de 2025.
+Maceió/AL, 7 de janeiro de 2025.
 Ana Beatriz Lima Fonseca - Médico-legista

@@ -5,42 +5,42 @@
     "scenario": "hanging",
     "institute": {
       "name": "Instituto Médico-Legal",
-      "city": "Maceió",
-      "uf": "AL",
-      "phone": "(82) 99999-1818"
+      "city": "Recife",
+      "uf": "PE",
+      "phone": "(81) 99999-1010"
     },
     "report": {
-      "number": "2024/4173",
-      "exam_date": "2024-06-24",
-      "start_time": "10h30",
-      "end_time": "12h15",
-      "police_report_number": "97429/2024"
+      "number": "2025/2807",
+      "exam_date": "2025-05-04",
+      "start_time": "13h30",
+      "end_time": "15h15",
+      "police_report_number": "84119/2025"
     },
     "examiner": {
       "name": "Pedro Henrique Sá Cavalcante",
       "crm": "12222",
-      "crm_uf": "AL"
+      "crm_uf": "PE"
     },
-    "assistant_name": "Pietra Vieira Vasconcelos",
+    "assistant_name": "Rhavi Vieira Vasconcelos",
     "decedent": {
       "name": "Yasmin da Luz da Rocha",
       "sex": "feminino",
-      "age": 68,
-      "skin_color": "amarela",
+      "age": 66,
+      "skin_color": "parda",
       "birthplace": "Palmas/TO",
-      "address": "Rua Joana da Mata, nº 990, Jardim das Flores",
-      "rg": "5065748",
-      "cpf": "181.826.663-65",
+      "address": "Alameda Joana da Mata, nº 302, Bairro Novo",
+      "rg": "4056657",
+      "cpf": "418.182.666-05",
       "mother_name": "Milena Gonçalves Nogueira"
     },
     "circumstances": {
-      "place_found": "no quarto da residência",
-      "body_position": "em suspensão completa, com laço de corda ao redor do pescoço",
-      "estimated_death_at": "2024-06-24T00:30:00"
+      "place_found": "em uma árvore de um terreno próximo à residência",
+      "body_position": "em suspensão incompleta, com os pés tocando o solo e laço de tecido ao redor do pescoço",
+      "estimated_death_at": "2025-05-04T03:30:00"
     },
     "external": {
-      "height_cm": 162,
-      "weight_kg": 92,
+      "height_cm": 151,
+      "weight_kg": 54,
       "rigor": "generalizada",
       "livor": "fixos, em regiões de declive",
       "decomposition": "sem sinais de putrefação",
@@ -49,10 +49,10 @@
           "kind": "sulco de enforcamento",
           "region": "região cervical anterior e lateral",
           "side": null,
-          "size_cm": 0.9,
+          "size_cm": 1.1,
           "features": [
             "interrupção na região occipital, no ponto do nó",
-            "trajeto oblíquo e ascendente em direção à nuca"
+            "fundo apergaminhado"
           ]
         }
       ]
@@ -60,7 +60,7 @@
     "internal": [
       {
         "organ": "Encéfalo",
-        "finding": "de forma, volume e consistência habituais",
+        "finding": "de aspecto habitual ao exame macroscópico",
         "abnormal": false
       },
       {
@@ -80,12 +80,12 @@
       },
       {
         "organ": "Fígado",
-        "finding": "de forma, volume e consistência habituais",
+        "finding": "sem alterações macroscópicas",
         "abnormal": false
       },
       {
         "organ": "Baço",
-        "finding": "de aspecto habitual ao exame macroscópico",
+        "finding": "de forma, volume e consistência habituais",
         "abnormal": false
       },
       {
@@ -100,8 +100,8 @@
       }
     ],
     "complementary_exams": [
-      "dosagem de etanol no sangue",
-      "exame histopatológico do sulco cervical"
+      "exame histopatológico do sulco cervical",
+      "dosagem de etanol no sangue"
     ],
     "conclusion": {
       "cause_of_death": "Asfixia mecânica por enforcamento",
@@ -115,25 +115,25 @@
   },
   "realizer": "template",
   "template_id": "t2",
-  "text_sha256": "898ad22f99c829915b1fb4a5d0fa6b1c0377b07be5881ec7bf831e801d2ac708",
+  "text_sha256": "6d4435807d974fbda1d70a6530cc38080f2267c469207be98c8470dafedcdcb0",
   "entities": [
     {
       "start": 26,
       "end": 32,
       "label": "LOC",
-      "text": "Maceió"
+      "text": "Recife"
     },
     {
       "start": 62,
       "end": 71,
       "label": "DOC_NUMBER",
-      "text": "2024/4173"
+      "text": "2025/2807"
     },
     {
       "start": 76,
       "end": 86,
       "label": "DATE",
-      "text": "24/06/2024"
+      "text": "04/05/2025"
     },
     {
       "start": 163,
@@ -149,169 +149,169 @@
     },
     {
       "start": 225,
-      "end": 250,
+      "end": 249,
       "label": "PER",
-      "text": "Pietra Vieira Vasconcelos"
+      "text": "Rhavi Vieira Vasconcelos"
     },
     {
-      "start": 327,
-      "end": 337,
+      "start": 326,
+      "end": 336,
       "label": "DOC_NUMBER",
-      "text": "97429/2024"
+      "text": "84119/2025"
     },
     {
-      "start": 360,
-      "end": 375,
+      "start": 359,
+      "end": 374,
       "label": "PHONE",
-      "text": "(82) 99999-1818"
+      "text": "(81) 99999-1010"
     },
     {
-      "start": 398,
-      "end": 420,
+      "start": 397,
+      "end": 419,
       "label": "PER",
       "text": "Yasmin da Luz da Rocha"
     },
     {
-      "start": 431,
-      "end": 456,
+      "start": 430,
+      "end": 455,
       "label": "PER",
       "text": "Milena Gonçalves Nogueira"
     },
     {
-      "start": 517,
-      "end": 526,
+      "start": 514,
+      "end": 523,
       "label": "LOC",
       "text": "Palmas/TO"
     },
     {
-      "start": 537,
-      "end": 581,
+      "start": 534,
+      "end": 576,
       "label": "ADDRESS",
-      "text": "Rua Joana da Mata, nº 990, Jardim das Flores"
+      "text": "Alameda Joana da Mata, nº 302, Bairro Novo"
     },
     {
-      "start": 597,
-      "end": 604,
+      "start": 592,
+      "end": 599,
       "label": "RG",
-      "text": "5065748"
+      "text": "4056657"
     },
     {
-      "start": 610,
-      "end": 624,
+      "start": 605,
+      "end": 619,
       "label": "CPF",
-      "text": "181.826.663-65"
+      "text": "418.182.666-05"
     },
     {
-      "start": 857,
-      "end": 867,
+      "start": 904,
+      "end": 914,
       "label": "DATE",
-      "text": "24/06/2024"
+      "text": "04/05/2025"
     },
     {
-      "start": 1051,
-      "end": 1072,
+      "start": 1098,
+      "end": 1119,
       "label": "INJURY",
       "text": "sulco de enforcamento"
     },
     {
-      "start": 1238,
-      "end": 1246,
+      "start": 1258,
+      "end": 1266,
       "label": "ORGAN",
       "text": "Encéfalo"
     },
     {
-      "start": 1292,
-      "end": 1299,
+      "start": 1312,
+      "end": 1319,
       "label": "ORGAN",
       "text": "Pescoço"
     },
     {
-      "start": 1302,
-      "end": 1411,
+      "start": 1322,
+      "end": 1431,
       "label": "FINDING",
       "text": "infiltração hemorrágica dos músculos esternocleidomastóideos e fratura do corno maior esquerdo do osso hioide"
     },
     {
-      "start": 1413,
-      "end": 1420,
+      "start": 1433,
+      "end": 1440,
       "label": "ORGAN",
       "text": "Pulmões"
     },
     {
-      "start": 1423,
-      "end": 1467,
+      "start": 1443,
+      "end": 1487,
       "label": "FINDING",
       "text": "congestão e edema, com petéquias subpleurais"
     },
     {
-      "start": 1469,
-      "end": 1476,
+      "start": 1489,
+      "end": 1496,
       "label": "ORGAN",
       "text": "Coração"
     },
     {
-      "start": 1479,
-      "end": 1503,
+      "start": 1499,
+      "end": 1523,
       "label": "FINDING",
       "text": "petéquias subepicárdicas"
     },
     {
-      "start": 1505,
-      "end": 1511,
+      "start": 1525,
+      "end": 1531,
       "label": "ORGAN",
       "text": "Fígado"
     },
     {
-      "start": 1557,
-      "end": 1561,
+      "start": 1564,
+      "end": 1568,
       "label": "ORGAN",
       "text": "Baço"
     },
     {
-      "start": 1606,
-      "end": 1610,
+      "start": 1613,
+      "end": 1617,
       "label": "ORGAN",
       "text": "Rins"
     },
     {
-      "start": 1655,
-      "end": 1663,
+      "start": 1662,
+      "end": 1670,
       "label": "ORGAN",
       "text": "Estômago"
     },
     {
-      "start": 1754,
-      "end": 1760,
+      "start": 1814,
+      "end": 1820,
       "label": "SUBSTANCE",
       "text": "etanol"
     },
     {
-      "start": 1864,
-      "end": 1897,
+      "start": 1871,
+      "end": 1904,
       "label": "CAUSE_OF_DEATH",
       "text": "Asfixia mecânica por enforcamento"
     },
     {
-      "start": 2015,
-      "end": 2034,
+      "start": 2022,
+      "end": 2041,
       "label": "MANNER_OF_DEATH",
       "text": "violenta (suicídio)"
     },
     {
-      "start": 2091,
-      "end": 2100,
+      "start": 2098,
+      "end": 2107,
       "label": "LOC",
-      "text": "Maceió/AL"
+      "text": "Recife/PE"
     },
     {
-      "start": 2102,
-      "end": 2121,
+      "start": 2109,
+      "end": 2126,
       "label": "DATE",
-      "text": "24 de junho de 2024"
+      "text": "4 de maio de 2025"
     },
     {
-      "start": 2124,
-      "end": 2152,
+      "start": 2129,
+      "end": 2157,
       "label": "PER",
       "text": "Pedro Henrique Sá Cavalcante"
     }
@@ -319,42 +319,42 @@
   "sections": [
     {
       "start": 0,
-      "end": 378,
+      "end": 377,
       "label": "PREAMBLE"
     },
     {
-      "start": 378,
-      "end": 626,
+      "start": 377,
+      "end": 621,
       "label": "IDENTIFICATION"
     },
     {
-      "start": 626,
-      "end": 870,
+      "start": 621,
+      "end": 917,
       "label": "HISTORY"
     },
     {
-      "start": 870,
-      "end": 1224,
+      "start": 917,
+      "end": 1244,
       "label": "EXTERNAL_EXAM"
     },
     {
-      "start": 1224,
-      "end": 1709,
+      "start": 1244,
+      "end": 1716,
       "label": "INTERNAL_EXAM"
     },
     {
-      "start": 1709,
-      "end": 1826,
+      "start": 1716,
+      "end": 1833,
       "label": "COMPLEMENTARY_EXAMS"
     },
     {
-      "start": 1826,
-      "end": 2091,
+      "start": 1833,
+      "end": 2098,
       "label": "CONCLUSION"
     },
     {
-      "start": 2091,
-      "end": 2168,
+      "start": 2098,
+      "end": 2173,
       "label": "SIGNATURE"
     }
   ],

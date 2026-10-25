@@ -71,6 +71,7 @@ def sample_case(seed: int, i: int) -> CaseFacts:
     scenario = vocab.SCENARIOS[i % len(vocab.SCENARIOS)]  # round-robin: every scenario appears
     spec = vocab.SPECS[scenario]
 
+    variant = rng.choice(spec.variants)  # first: it constrains places, injuries and manner
     city, uf, ddd = rng.choice(vocab.CITIES)
     phones = [p for p in fake_values("phone") if p.startswith(f"({ddd})")]
     exam_day = _FIRST_EXAM_DAY + timedelta(days=rng.randrange(_EXAM_DAYS))
@@ -86,7 +87,6 @@ def sample_case(seed: int, i: int) -> CaseFacts:
     sex = "masculino" if rng.random() < spec.male_share else "feminino"
     tall = (160, 190) if sex == "masculino" else (150, 175)
     birth_city, birth_uf, _ = rng.choice(vocab.CITIES)
-    variant = rng.choice(spec.variants)
     optional = rng.sample(spec.optional_injuries, rng.randint(0, len(spec.optional_injuries)))
     extra_exams = rng.sample(spec.exams, rng.randint(1, len(spec.exams)))
 
@@ -122,7 +122,7 @@ def sample_case(seed: int, i: int) -> CaseFacts:
             mother_name=_person(fake, "feminino"),
         ),
         circumstances=Circumstances(
-            place_found=rng.choice(spec.places),
+            place_found=rng.choice(variant.places or spec.places),
             body_position=rng.choice(spec.positions),
             estimated_death_at=death_at,
         ),
@@ -132,7 +132,7 @@ def sample_case(seed: int, i: int) -> CaseFacts:
             rigor=state.rigor,
             livor=state.livor,
             decomposition=state.decomposition,
-            injuries=[_injury(s, rng) for s in (*spec.injuries, *optional)],
+            injuries=[_injury(s, rng) for s in (*variant.injuries, *spec.injuries, *optional)],
         ),
         internal=[
             OrganFinding(organ=organ, finding=variant.findings[organ], abnormal=True)
@@ -147,7 +147,7 @@ def sample_case(seed: int, i: int) -> CaseFacts:
         conclusion=Conclusion(
             cause_of_death=variant.cause,
             mechanism=variant.mechanism,
-            manner_of_death=rng.choice(spec.manners),
+            manner_of_death=rng.choice(variant.manners or spec.manners),
             time_since_death_h=state.hours,
         ),
     )

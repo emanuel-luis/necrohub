@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from necrohub.generate.sampler import sample_case
-from necrohub.generate.vocab import SCENARIOS
+from necrohub.generate.vocab import SCENARIOS, SPECS, variant_of
 from necrohub.ids import fake_values, is_valid_cpf
 
 
@@ -33,3 +33,26 @@ def test_death_precedes_the_exam_within_the_stated_window() -> None:
         start = case.report.exam_date.isoformat() + "T" + case.report.start_time.replace("h", ":")
         gap = datetime.fromisoformat(start) - case.circumstances.estimated_death_at
         assert lo * 3600 <= gap.total_seconds() <= hi * 3600
+
+
+def test_injuries_places_and_manner_agree_with_the_variant() -> None:
+    seen: set[tuple[str, str]] = set()
+    for i in range(400):
+        case = sample_case(3, i)
+        spec = SPECS[case.scenario]
+        variant = variant_of(case.scenario, case.conclusion.cause_of_death)
+        seen.add((case.scenario, variant.cause))
+        allowed = {
+            (s.kind, region)
+            for s in (*variant.injuries, *spec.injuries, *spec.optional_injuries)
+            for region in s.regions
+        }
+        for injury in case.external.injuries:
+            assert (injury.kind, injury.region) in allowed, (case.case_id, injury)
+        kinds = [x.kind for x in case.external.injuries]
+        assert all(s.kind in kinds for s in (*variant.injuries, *spec.injuries))
+        assert case.circumstances.place_found in (variant.places or spec.places)
+        assert case.conclusion.manner_of_death in (variant.manners or spec.manners)
+        abnormal = {o.organ: o.finding for o in case.internal if o.abnormal}
+        assert abnormal == variant.findings
+    assert seen == {(name, v.cause) for name, s in SPECS.items() for v in s.variants}

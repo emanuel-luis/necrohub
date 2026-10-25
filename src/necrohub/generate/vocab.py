@@ -5,7 +5,7 @@ texts: `$place`, `$position`, `$time` and `$substance` are filled by the realize
 `{{DEATH_DATE}}` is a draft slot.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import get_args
 
 from necrohub.contracts.gold import Scenario
@@ -126,16 +126,25 @@ class InjurySpec:
 
 @dataclass(frozen=True)
 class Variant:
-    """One coherent cause of death: its mechanism, organ findings and extra exams."""
+    """One coherent cause of death: the injuries that produce it, the organ findings they
+    explain, its mechanism and extra exams. Non-empty `places` or `manners` replace the
+    scenario's (a fall from height needs a height; an overdose is rarely a suicide)."""
 
     cause: str
     mechanism: str
     findings: dict[str, str]
     exams: tuple[str, ...] = ()
+    injuries: tuple[InjurySpec, ...] = ()
+    places: tuple[str, ...] = ()
+    manners: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
 class ScenarioSpec:
+    """`injuries` are present in every case of the scenario but cause nothing on their own
+    (maceration after drowning); `optional_injuries`
+    are incidental (defence wounds, abrasions from falling to the ground)."""
+
     places: tuple[str, ...]
     positions: tuple[str, ...]
     histories: tuple[str, ...]
@@ -146,7 +155,7 @@ class ScenarioSpec:
     ages: tuple[int, int]
     male_share: float
     injuries: tuple[InjurySpec, ...] = ()
-    optional_injuries: tuple[InjurySpec, ...] = field(default=())
+    optional_injuries: tuple[InjurySpec, ...] = ()
 
 
 _DECUBITUS = ("decúbito dorsal", "decúbito ventral", "decúbito lateral direito")
@@ -157,6 +166,46 @@ _ABRASION = InjurySpec(
     ("direita", "esquerda", None),
     (1.0, 6.0),
     ("crosta hemática", "forma irregular", "aspecto apergaminhado"),
+)
+_ENTRY_FEATURES = (
+    "orla de escoriação",
+    "orla de enxugo",
+    "zona de tatuagem e esfumaçamento",
+    "bordas invertidas",
+)
+_EXIT = InjurySpec(
+    "ferimento perfurocontuso de saída",
+    ("região dorsal", "região escapular"),
+    ("esquerda",),
+    (1.2, 3.5),
+    ("bordas evertidas e irregulares", "ausência de orla de escoriação"),
+)
+_STAB_FEATURES = (
+    "bordas regulares e lisas",
+    "ângulos agudos",
+    "cauda de escoriação em um dos ângulos",
+    "fundo com infiltração hemorrágica",
+)
+_HEAD_WOUND = InjurySpec(
+    "ferida contusa",
+    ("região frontoparietal", "região occipital", "região parietal"),
+    ("direita", "esquerda", None),
+    (2.0, 7.0),
+    ("bordas irregulares e escoriadas", "pontes de tecido no fundo da lesão"),
+)
+_TRUNK_BRUISE = InjurySpec(
+    "equimose",
+    ("região torácica lateral", "hipocôndrio", "flanco"),
+    ("direita", "esquerda"),
+    (4.0, 12.0),
+    ("coloração arroxeada", "forma irregular"),
+)
+_TRUNK_ABRASION = InjurySpec(
+    "escoriações",
+    ("região torácica lateral", "região dorsal", "flanco"),
+    ("direita", "esquerda"),
+    (3.0, 15.0),
+    ("aspecto apergaminhado", "crosta hemática", "disposição em placa"),
 )
 
 SPECS: dict[Scenario, ScenarioSpec] = {
@@ -175,6 +224,16 @@ SPECS: dict[Scenario, ScenarioSpec] = {
                     "Coração": "lesão transfixante do ventrículo esquerdo, com hemopericárdio",
                     "Pulmões": "lobo superior do pulmão esquerdo transfixado pelo trajeto do projétil, com hemotórax esquerdo de cerca de 1.200 mL",
                 },
+                injuries=(
+                    InjurySpec(
+                        "ferimento perfurocontuso de entrada",
+                        ("região precordial", "região torácica anterior"),
+                        ("esquerda",),
+                        (0.7, 1.2),
+                        _ENTRY_FEATURES,
+                    ),
+                    _EXIT,
+                ),
             ),
             Variant(
                 "Hemorragia interna aguda por lesão pulmonar causada por projétil de arma de fogo",
@@ -182,6 +241,16 @@ SPECS: dict[Scenario, ScenarioSpec] = {
                 {
                     "Pulmões": "laceração do lobo inferior do pulmão esquerdo, com hemotórax esquerdo de cerca de 1.800 mL"
                 },
+                injuries=(
+                    InjurySpec(
+                        "ferimento perfurocontuso de entrada",
+                        ("região torácica anterior", "região torácica lateral"),
+                        ("esquerda",),
+                        (0.7, 1.2),
+                        _ENTRY_FEATURES,
+                    ),
+                    _EXIT,
+                ),
             ),
         ),
         manners=("violenta (homicídio)",),
@@ -193,27 +262,6 @@ SPECS: dict[Scenario, ScenarioSpec] = {
         states=(0, 1, 2),
         ages=(16, 55),
         male_share=0.85,
-        injuries=(
-            InjurySpec(
-                "ferimento perfurocontuso de entrada",
-                ("região torácica anterior", "região precordial"),
-                ("esquerda",),
-                (0.7, 1.2),
-                (
-                    "orla de escoriação",
-                    "orla de enxugo",
-                    "zona de tatuagem e esfumaçamento",
-                    "bordas invertidas",
-                ),
-            ),
-            InjurySpec(
-                "ferimento perfurocontuso de saída",
-                ("região dorsal", "região escapular"),
-                ("esquerda",),
-                (1.2, 3.5),
-                ("bordas evertidas e irregulares", "ausência de orla de escoriação"),
-            ),
-        ),
         optional_injuries=(_ABRASION,),
     ),
     "sharp_force": ScenarioSpec(
@@ -231,11 +279,29 @@ SPECS: dict[Scenario, ScenarioSpec] = {
                     "Fígado": "laceração do lobo esquerdo, com hemoperitônio de cerca de 1.000 mL",
                     "Estômago": "perfuração da parede anterior",
                 },
+                injuries=(
+                    InjurySpec(
+                        "ferida perfuroincisa",
+                        ("região epigástrica", "hipocôndrio", "flanco", "região mesogástrica"),
+                        ("esquerda", None),
+                        (1.5, 3.5),
+                        _STAB_FEATURES,
+                    ),
+                ),
             ),
             Variant(
                 "Tamponamento cardíaco por ferimento produzido por instrumento perfurocortante",
                 "compressão cardíaca por hemopericárdio",
                 {"Coração": "ferida do ventrículo direito, com hemopericárdio de cerca de 350 mL"},
+                injuries=(
+                    InjurySpec(
+                        "ferida perfuroincisa",
+                        ("região precordial", "região torácica anterior", "região epigástrica"),
+                        ("esquerda", None),
+                        (1.5, 3.5),
+                        _STAB_FEATURES,
+                    ),
+                ),
             ),
         ),
         manners=("violenta (homicídio)",),
@@ -243,20 +309,6 @@ SPECS: dict[Scenario, ScenarioSpec] = {
         states=(0, 1, 2),
         ages=(16, 60),
         male_share=0.75,
-        injuries=(
-            InjurySpec(
-                "ferida perfuroincisa",
-                ("região epigástrica", "região torácica anterior", "hipocôndrio"),
-                ("direita", "esquerda", None),
-                (1.5, 3.5),
-                (
-                    "bordas regulares e lisas",
-                    "ângulos agudos",
-                    "cauda de escoriação em um dos ângulos",
-                    "fundo com infiltração hemorrágica",
-                ),
-            ),
-        ),
         optional_injuries=(
             InjurySpec(
                 "ferida incisa",
@@ -283,8 +335,9 @@ SPECS: dict[Scenario, ScenarioSpec] = {
                 "Traumatismo cranioencefálico",
                 "ação contundente de alta energia",
                 {
-                    "Encéfalo": "hemorragia subaracnóidea difusa e focos de contusão cortical frontal, com fratura da calota craniana"
+                    "Encéfalo": "hemorragia subaracnóidea difusa e focos de contusão cortical, com fratura da calota craniana"
                 },
+                injuries=(_HEAD_WOUND,),
             ),
             Variant(
                 "Politraumatismo com choque hemorrágico",
@@ -294,6 +347,7 @@ SPECS: dict[Scenario, ScenarioSpec] = {
                     "Fígado": "lacerações múltiplas do lobo direito",
                     "Pulmões": "contusão pulmonar bilateral",
                 },
+                injuries=(_TRUNK_BRUISE, _TRUNK_ABRASION),
             ),
         ),
         manners=("violenta (acidente de trânsito)",),
@@ -301,7 +355,7 @@ SPECS: dict[Scenario, ScenarioSpec] = {
         states=(0, 1),
         ages=(18, 70),
         male_share=0.8,
-        injuries=(
+        optional_injuries=(
             InjurySpec(
                 "escoriações",
                 ("face lateral do braço", "face anterior da coxa", "região malar"),
@@ -310,39 +364,23 @@ SPECS: dict[Scenario, ScenarioSpec] = {
                 ("aspecto apergaminhado", "crosta hemática", "disposição em placa"),
             ),
             InjurySpec(
-                "ferida contusa",
-                ("região frontoparietal", "região occipital"),
-                ("direita", "esquerda", None),
-                (2.0, 6.0),
-                ("bordas irregulares e escoriadas", "pontes de tecido no fundo da lesão"),
-            ),
-        ),
-        optional_injuries=(
-            InjurySpec(
                 "fratura exposta",
                 ("terço médio da perna",),
                 ("direita", "esquerda"),
                 None,
                 ("exposição de fragmentos ósseos da tíbia",),
             ),
-            InjurySpec(
-                "equimose",
-                ("região torácica lateral",),
-                ("direita", "esquerda"),
-                (4.0, 10.0),
-                ("coloração arroxeada",),
-            ),
         ),
     ),
     "fall": ScenarioSpec(
         places=(
-            "no pátio de um edifício residencial",
-            "em um canteiro de obras",
+            "do terraço de um edifício residencial",
+            "de um andaime em um canteiro de obras",
             "na escadaria de uma residência",
         ),
         positions=_DECUBITUS,
         histories=(
-            "Segundo relato de testemunhas registrado na guia policial, a vítima caiu de altura estimada em oito metros $place por volta das $time de {{DEATH_DATE}}, sendo encontrada em $position.",
+            "Segundo relato de testemunhas registrado na guia policial, a vítima sofreu queda $place por volta das $time de {{DEATH_DATE}}, sendo encontrada em $position.",
             "Informações da equipe de remoção indicam queda acidental $place. A vítima foi encontrada em $position, e o óbito teria ocorrido por volta das $time do dia {{DEATH_DATE}}.",
         ),
         variants=(
@@ -352,6 +390,15 @@ SPECS: dict[Scenario, ScenarioSpec] = {
                 {
                     "Encéfalo": "hematoma subdural agudo, com desvio da linha média e fratura linear do osso occipital"
                 },
+                injuries=(
+                    InjurySpec(
+                        "ferida contusa",
+                        ("região occipital", "região parieto-occipital"),
+                        ("direita", "esquerda", None),
+                        (2.0, 7.0),
+                        ("bordas irregulares e escoriadas", "pontes de tecido no fundo da lesão"),
+                    ),
+                ),
             ),
             Variant(
                 "Politraumatismo por precipitação",
@@ -360,6 +407,11 @@ SPECS: dict[Scenario, ScenarioSpec] = {
                     "Fígado": "lacerações da face diafragmática, com hemoperitônio",
                     "Pulmões": "contusões e lacerações pulmonares, com hemotórax bilateral",
                 },
+                injuries=(_TRUNK_BRUISE, _TRUNK_ABRASION),
+                places=(
+                    "do terraço de um edifício residencial",
+                    "de um andaime em um canteiro de obras",
+                ),
             ),
         ),
         manners=("violenta (acidente)",),
@@ -367,15 +419,6 @@ SPECS: dict[Scenario, ScenarioSpec] = {
         states=(0, 1, 2),
         ages=(20, 85),
         male_share=0.65,
-        injuries=(
-            InjurySpec(
-                "ferida contusa",
-                ("região occipital", "região parietal"),
-                ("direita", "esquerda", None),
-                (2.0, 7.0),
-                ("bordas irregulares e escoriadas", "pontes de tecido no fundo da lesão"),
-            ),
-        ),
         optional_injuries=(_ABRASION,),
     ),
     "hanging": ScenarioSpec(
@@ -401,6 +444,19 @@ SPECS: dict[Scenario, ScenarioSpec] = {
                     "Pulmões": "congestão e edema, com petéquias subpleurais",
                     "Coração": "petéquias subepicárdicas",
                 },
+                injuries=(
+                    InjurySpec(
+                        "sulco de enforcamento",
+                        ("região cervical anterior e lateral",),
+                        (None,),
+                        (0.5, 1.5),
+                        (
+                            "trajeto oblíquo e ascendente em direção à nuca",
+                            "interrupção na região occipital, no ponto do nó",
+                            "fundo apergaminhado",
+                        ),
+                    ),
+                ),
             ),
         ),
         manners=("violenta (suicídio)", "violenta (compatível com suicídio)"),
@@ -408,19 +464,6 @@ SPECS: dict[Scenario, ScenarioSpec] = {
         states=(0, 1, 2),
         ages=(16, 75),
         male_share=0.75,
-        injuries=(
-            InjurySpec(
-                "sulco de enforcamento",
-                ("região cervical anterior e lateral",),
-                (None,),
-                (0.5, 1.5),
-                (
-                    "trajeto oblíquo e ascendente em direção à nuca",
-                    "interrupção na região occipital, no ponto do nó",
-                    "fundo apergaminhado",
-                ),
-            ),
-        ),
     ),
     "drowning": ScenarioSpec(
         places=(
@@ -508,7 +551,7 @@ SPECS: dict[Scenario, ScenarioSpec] = {
         places=("na própria residência", "na casa de familiares"),
         positions=_DECUBITUS,
         histories=(
-            "Familiares relatam que a vítima apresentava mal-estar havia alguns dias e foi encontrada sem vida $place, em $position, por volta das $time de {{DEATH_DATE}}. Não há notícia de violência.",
+            "Familiares relatam que a vítima tinha hipertensão arterial e outras doenças crônicas e foi encontrada sem vida $place, em $position, por volta das $time de {{DEATH_DATE}}. Não há notícia de violência.",
             "A vítima, com histórico de doenças crônicas, foi encontrada $place, em $position. O óbito teria ocorrido por volta das $time do dia {{DEATH_DATE}}, sem assistência médica.",
         ),
         variants=(
@@ -549,7 +592,7 @@ SPECS: dict[Scenario, ScenarioSpec] = {
         positions=_DECUBITUS,
         histories=(
             "Familiares encontraram a vítima $place, em $position, ao lado de uma embalagem contendo $substance. O óbito teria ocorrido por volta das $time de {{DEATH_DATE}}.",
-            "Segundo a guia policial, a vítima foi encontrada $place, em $position, com vômitos e sialorreia, e havia indícios de ingestão de $substance. O óbito teria ocorrido por volta das $time do dia {{DEATH_DATE}}.",
+            "Segundo a guia policial, a vítima foi encontrada $place, em $position, e havia no local indícios de uso de $substance. O óbito teria ocorrido por volta das $time do dia {{DEATH_DATE}}.",
         ),
         variants=(
             Variant(
@@ -557,7 +600,7 @@ SPECS: dict[Scenario, ScenarioSpec] = {
                 "inibição da acetilcolinesterase com insuficiência respiratória",
                 {
                     "Estômago": "conteúdo com grânulos escuros e odor característico",
-                    "Pulmões": "edema pulmonar acentuado",
+                    "Pulmões": "edema pulmonar acentuado, com secreção abundante nas vias aéreas",
                 },
                 ("pesquisa de carbamato no conteúdo gástrico e no sangue",),
             ),
@@ -578,6 +621,8 @@ SPECS: dict[Scenario, ScenarioSpec] = {
                     "Pulmões": "congestão e edema pulmonar",
                 },
                 ("pesquisa de cocaína e metabólitos no sangue e na urina",),
+                places=("no quarto da residência", "em um imóvel abandonado"),
+                manners=("violenta (acidente)", "indeterminada"),
             ),
         ),
         manners=("violenta (suicídio)", "violenta (acidente)", "indeterminada"),
@@ -614,3 +659,8 @@ SPECS: dict[Scenario, ScenarioSpec] = {
         male_share=0.7,
     ),
 }
+
+
+def variant_of(scenario: Scenario, cause: str) -> Variant:
+    """The variant a case was sampled from (causes are unique within a scenario)."""
+    return next(v for v in SPECS[scenario].variants if v.cause == cause)
