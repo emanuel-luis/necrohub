@@ -132,8 +132,8 @@ stages:
       nfiles: 56
     - path: src/necrohub/datasets
       hash: md5
-      md5: dcb13896bbe6d7bdc3c2a0d474ee1799.dir
-      size: 16463
+      md5: 4a3223872e5318d669a53ec241c38222.dir
+      size: 17863
       nfiles: 5
     params:
       params.yaml:
@@ -154,10 +154,10 @@ stages:
     outs:
     - path: data/datasets
       hash: md5
-      md5: ca313b54ca0d9535abdc11bb736ac147.dir
-      size: 304631
+      md5: 0bca05f617400ac35b60c9785885fea3.dir
+      size: 282580
       nfiles: 13
     - path: metrics/build_dataset.json
       hash: md5
-      md5: a1e185dccab002b4a260398a75906e2b
-      size: 1223
+      md5: ae8f0d7c3e29f6e411fa0c8216540fba
+      size: 1260

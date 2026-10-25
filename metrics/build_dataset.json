@@ -1,5 +1,6 @@
 {
   "alignment": {
+    "extraction_records_dropped": 6,
     "ner_records_dropped": 8,
     "projected": 765,
     "reject_fraction": 0.010349,
@@ -10,7 +11,7 @@
     "train": 16,
     "validation": 2
   },
-  "datasets_sha256": "c308f3cebdca8d61c36a87198cade45fe62151e3b52d931a3f1c71a6a218e16a",
+  "datasets_sha256": "8fb6a3a2f1a0abf1bef05c8fe8bad0294037c21ae7ba1c4750f124cf40bf831e",
   "documents": 24,
   "holdout_templates": [
     "t3"
@@ -34,9 +35,9 @@
   },
   "records": {
     "extraction": {
-      "test": 6,
-      "train": 16,
-      "validation": 2
+      "test": 5,
+      "train": 12,
+      "validation": 1
     },
     "ner": {
       "test": 47,
