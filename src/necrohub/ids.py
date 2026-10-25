@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from functools import cache
 from importlib.resources import files
 from pathlib import Path
+from typing import Any, Literal
 
 # --- check digits ---------------------------------------------------------------------------
 
@@ -124,8 +125,20 @@ class FakePool:
 
 
 @cache
+def _raw_pool() -> dict[str, Any]:
+    return tomllib.loads(
+        files("necrohub").joinpath("data/fake_identifiers.toml").read_text("utf-8")
+    )
+
+
+def fake_values(kind: Literal["rg", "crm", "phone"]) -> tuple[str, ...]:
+    """The pool's values of one kind, as written and in file order (the generator draws these)."""
+    return tuple(_raw_pool()[kind])
+
+
+@cache
 def load_pool() -> FakePool:
-    raw = tomllib.loads(files("necrohub").joinpath("data/fake_identifiers.toml").read_text("utf-8"))
+    raw = _raw_pool()
 
     def keys(name: str) -> frozenset[str]:
         return frozenset(_key(v) for v in raw[name])

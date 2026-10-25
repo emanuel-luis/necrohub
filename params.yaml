@@ -1,0 +1,7 @@
+# Pipeline parameters (demo-sized defaults). Each stage reads its own section.
+seed: 7
+generate:
+  n_cases: 24
+  realizer: template
+  holdout_templates: [t3]
+  max_reject_fraction: 0.2
