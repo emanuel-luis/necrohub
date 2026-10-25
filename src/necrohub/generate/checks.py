@@ -7,6 +7,7 @@ from pydantic import ValidationError
 from necrohub.contracts.gold import GoldRecord, Reject
 from necrohub.contracts.spans import EntityLabel, Span
 from necrohub.ids import IDENTIFIER_PATTERNS
+from necrohub.preprocess.deid.regex import RegexDeidentifier
 from necrohub.runs import read_jsonl
 
 CheckResult = tuple[str, bool, str]
@@ -24,6 +25,23 @@ def unlabeled_identifiers(text: str, entities: list[Span]) -> list[str]:
         for m in pattern.finditer(text)
         if not any(a <= m.start("value") and m.end("value") <= b for a, b in pii)
     ]
+
+
+def unlabeled_pii(text: str, entities: list[Span]) -> list[str]:
+    """Spans the regex de-identifier finds (identifiers, names, dates, document numbers,
+    addresses, CEP) that no gold PII span contains, as "<label>@<offset>" (no values).
+
+    Catches an LLM draft that writes a PII value as literal text instead of a slot.
+    """
+    pii = [(s.start, s.end) for s in entities if s.label.is_pii]
+    return sorted(
+        {
+            f"{s.label}@{s.start}"
+            for s in RegexDeidentifier().detect(text)
+            if not any(a <= s.start and s.end <= b for a, b in pii)
+        },
+        key=lambda x: (int(x.split("@")[1]), x),
+    )
 
 
 def _missing_required(gold: GoldRecord) -> list[str]:

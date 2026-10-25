@@ -31,7 +31,7 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
   `realizers` (`TextRealizer`, `TemplateRealizer`), `llm_realizer` (`LlmRealizer`, prompt in
   `prompts/llm_report.txt`, `template_id = llm:<backend>/<model>`), `fill`, `checks`,
   `render_pdf` (fpdf2 core fonts, fixed metadata), `stage` (`realize_case`: transliterate, fill,
-  invented-identifier and latin-1 rejects, retries). Template headers must be ones
+  unlabeled-PII (regex de-identifier) and latin-1 rejects, retries). Template headers must be ones
   `split_sections` recognizes; template text stays latin-1. The txt is the span source; PDFs are
   renderings of it.
 - `src/necrohub/preprocess/`: `normalize`, `sections`, `pipeline`, `deid/{base,regex,hf_ner}`.

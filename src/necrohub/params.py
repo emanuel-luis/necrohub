@@ -14,6 +14,7 @@ class LlmParams(BaseModel):
     model: str = "qwen3:4b-instruct-2507-q4_K_M"
     temperature: float = Field(default=0.8, ge=0.0, le=2.0)
     max_attempts: int = Field(default=3, ge=1)
+    timeout_s: float = Field(default=120.0, gt=0)
 
 
 class GenerateParams(BaseModel):

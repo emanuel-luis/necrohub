@@ -22,8 +22,8 @@ def _transient(exc: BaseException) -> bool:
 
 
 class GeminiLLM:
-    def __init__(self, api_key: SecretStr, model: str) -> None:
-        self._api_key, self.model = api_key, model
+    def __init__(self, api_key: SecretStr, model: str, timeout_s: float = 120.0) -> None:
+        self._api_key, self.model, self.timeout_s = api_key, model, timeout_s
         self.name = f"gemini/{model}"
         self._client: genai.Client | None = None
 
@@ -33,8 +33,12 @@ class GeminiLLM:
     def _get_client(self) -> "genai.Client":
         if self._client is None:
             from google import genai
+            from google.genai import types
 
-            self._client = genai.Client(api_key=self._api_key.get_secret_value())
+            self._client = genai.Client(
+                api_key=self._api_key.get_secret_value(),
+                http_options=types.HttpOptions(timeout=int(self.timeout_s * 1000)),  # ms
+            )
         return self._client
 
     def complete(
@@ -45,6 +49,7 @@ class GeminiLLM:
         temperature: float = 0.2,
         seed: int | None = None,
     ) -> str:
+        import httpx
         from google.genai import errors, types
         from tenacity import Retrying, retry_if_exception, stop_after_attempt, wait_exponential
 
@@ -79,4 +84,7 @@ class GeminiLLM:
                     )
         except errors.APIError as exc:
             raise LlmError(f"{self.name}: {type(exc).__name__} {exc.code}") from exc
+        except (httpx.HTTPError, ConnectionError, TimeoutError) as exc:
+            # the type name only: transport messages can echo request details
+            raise LlmError(f"{self.name}: {type(exc).__name__}") from exc
         return response.text or ""

@@ -88,7 +88,7 @@ def test_prompt_lists_every_slot_and_facts_hold_no_slot_value() -> None:
         (lambda b: b + "[[INJURY|ferida\n", "malformed_marker"),
         (lambda b: b + "texto <<SEC:CONCLUSION>>\n", "section_not_at_line_start"),
         (lambda b: b + "fim }}\n", "malformed_marker"),
-        (lambda b: b + f"CPF {_invented_cpf()}\n", "invented_identifier"),
+        (lambda b: b + f"CPF {_invented_cpf()}\n", "unlabeled_pii"),
         (lambda b: b + "seta →\n", "not_latin1"),
     ],
 )
@@ -112,6 +112,40 @@ def test_backend_failure_is_a_reject() -> None:
 
     out = _realize(down)
     assert isinstance(out.result, Reject) and out.result.reason == "llm_error"
+    assert out.result.template_id == out.template_id == "llm:fake/model"
+
+
+def test_code_fences_are_stripped_in_any_case() -> None:
+    out = _realize(lambda c, _: "```Text \n" + good(c) + "```")
+    assert isinstance(out.result, Realized)
+    assert "```" not in out.result.text
+
+
+# obviously synthetic values written as literal text instead of a slot
+LITERAL_PII = [
+    ("PER", "Revisado pelo Dr. Fulano Beltrano"),
+    ("DATE", "Revisado em 01/02/2099."),
+    ("DOC_NUMBER", "Inquérito nº 0001/2099"),
+    ("ADDRESS", "Rua das Flores Inventadas, nº 0"),
+    ("ADDRESS", "CEP 00000-000"),  # the regex de-identifier labels a CEP as ADDRESS
+]
+
+
+@pytest.mark.parametrize(("label", "line"), LITERAL_PII, ids=["PER", "DATE", "DOC", "ADDR", "CEP"])
+def test_literal_pii_outside_a_slot_is_rejected(label: str, line: str) -> None:
+    out = _realize(lambda c, _: good(c) + line + "\n")
+    assert isinstance(out.result, Reject) and out.result.reason == "unlabeled_pii"
+    assert f"{label}@" in out.result.detail
+    value = line.split(" ", 2)[-1]
+    assert value not in out.result.detail  # labels and offsets only
+
+
+def test_template_reports_have_no_unlabeled_pii() -> None:
+    # the template budget is 0, so the unlabeled_pii check must never fire on templates
+    realizer = TemplateRealizer(holdout_templates=["t3"], holdout_fraction=0.15)
+    for i in range(120):
+        out = stage.realize_case(realizer, sample_case(SEED, i), SEED, i)
+        assert isinstance(out.result, Realized), out.result
 
 
 def test_retries_use_new_seeds_and_stop_at_max_attempts() -> None:
@@ -139,7 +173,7 @@ def _params(**llm: Any) -> Params:
 
 
 def _run(tmp: Path, params: Params, reply: Reply, monkeypatch: pytest.MonkeyPatch) -> Path:
-    monkeypatch.setattr(stage, "get_llm", lambda backend, model: FakeLLM(reply))
+    monkeypatch.setattr(stage, "get_llm", lambda backend, model, timeout_s: FakeLLM(reply))
     out = tmp / "raw"
     stage.run_generate(params, out, runs_dir=tmp / "runs", metrics_dir=tmp / "metrics")
     return out

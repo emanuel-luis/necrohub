@@ -30,7 +30,7 @@ class ChatLLM(Protocol):
     ) -> str: ...
 
 
-def get_llm(backend: Literal["ollama", "gemini"], model: str) -> ChatLLM:
+def get_llm(backend: Literal["ollama", "gemini"], model: str, timeout_s: float = 120.0) -> ChatLLM:
     """The configured backend; host and key come from the environment through Settings."""
     from necrohub.settings import Settings
 
@@ -38,9 +38,9 @@ def get_llm(backend: Literal["ollama", "gemini"], model: str) -> ChatLLM:
     if backend == "ollama":
         from necrohub.llm.ollama import OllamaLLM
 
-        return OllamaLLM(settings.ollama_host, model)
+        return OllamaLLM(settings.ollama_host, model, timeout_s)
     from necrohub.llm.gemini import GeminiLLM
 
     if settings.gemini_api_key is None:
         raise LlmError("GEMINI_API_KEY is not set")
-    return GeminiLLM(settings.gemini_api_key, model)
+    return GeminiLLM(settings.gemini_api_key, model, timeout_s)

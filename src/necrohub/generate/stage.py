@@ -15,7 +15,7 @@ from necrohub.contracts.gold import (
     Reject,
     text_sha256,
 )
-from necrohub.generate.checks import check_raw, unlabeled_identifiers
+from necrohub.generate.checks import check_raw, unlabeled_pii
 from necrohub.generate.fill import fill
 from necrohub.generate.llm_realizer import LlmRealizer, load_prompt
 from necrohub.generate.realizers import TemplateRealizer, TextRealizer
@@ -55,19 +55,20 @@ def _realize_once(realizer: TextRealizer, case: CaseFacts, seed: int) -> Outcome
     try:
         draft = realizer.realize(case, seed)
     except LlmError as exc:
+        template_id = realizer.template_id if isinstance(realizer, LlmRealizer) else realizer.name
         reject = Reject(
-            case_id=case.case_id, template_id=realizer.name, reason="llm_error", detail=str(exc)
+            case_id=case.case_id, template_id=template_id, reason="llm_error", detail=str(exc)
         )
-        return Outcome(realizer.name, reject, 1, 0)
+        return Outcome(template_id, reject, 1, 0)
     # an LLM's typographic dashes and quotes become latin-1 before fill, so spans stay exact
     body, n = transliterate(draft.body)
     draft = Draft(template_id=draft.template_id, body=body)
     result = fill(draft, case)
     if isinstance(result, Realized):
         rejected = partial(Reject, case_id=case.case_id, template_id=draft.template_id)
-        if leaks := unlabeled_identifiers(result.text, result.entities):
-            # kinds and offsets only, never the value
-            result = rejected(reason="invented_identifier", detail=", ".join(leaks[:5]))
+        if leaks := unlabeled_pii(result.text, result.entities):
+            # labels and offsets only, never the value
+            result = rejected(reason="unlabeled_pii", detail=", ".join(leaks[:5]))
         elif bad := [c for c in result.text if ord(c) > 0xFF]:
             result = rejected(reason="not_latin1", detail=f"{len(bad)} char(s), first {bad[0]!r}")
     return Outcome(draft.template_id, result, 1, n)
@@ -92,7 +93,9 @@ def realize_case(
 def build_realizer(g: GenerateParams) -> TextRealizer:
     if g.realizer == "llm":
         return LlmRealizer(
-            get_llm(g.llm.backend, g.llm.model), load_prompt(), temperature=g.llm.temperature
+            get_llm(g.llm.backend, g.llm.model, g.llm.timeout_s),
+            load_prompt(),
+            temperature=g.llm.temperature,
         )
     return TemplateRealizer(
         holdout_templates=g.holdout_templates, holdout_fraction=g.holdout_fraction

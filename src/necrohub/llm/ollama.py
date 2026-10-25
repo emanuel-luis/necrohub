@@ -10,8 +10,8 @@ if TYPE_CHECKING:
 
 
 class OllamaLLM:
-    def __init__(self, host: str, model: str) -> None:
-        self.host, self.model = host, model
+    def __init__(self, host: str, model: str, timeout_s: float = 120.0) -> None:
+        self.host, self.model, self.timeout_s = host, model, timeout_s
         self.name = f"ollama/{model}"
         self._client: ollama.Client | None = None
 
@@ -19,7 +19,7 @@ class OllamaLLM:
         if self._client is None:
             import ollama
 
-            self._client = ollama.Client(host=self.host)
+            self._client = ollama.Client(host=self.host, timeout=self.timeout_s)
         return self._client
 
     def complete(

@@ -16,7 +16,7 @@ from necrohub.contracts.gold import CaseFacts, Draft
 from necrohub.generate.fill import SLOTS
 from necrohub.llm.base import ChatLLM, ChatMessage
 
-_FENCE = re.compile(r"^```[a-z]*\n|\n?```$")
+_FENCE = re.compile(r"^```[a-z]*[ \t]*\n|\n?```$", re.IGNORECASE)
 
 
 @cache
@@ -57,6 +57,7 @@ class LlmRealizer:
 
     def __init__(self, llm: ChatLLM, prompt: str, temperature: float = 0.8) -> None:
         self.llm, self.prompt, self.temperature = llm, prompt, temperature
+        self.template_id = f"llm:{llm.name}"
 
     def messages(self, case: CaseFacts) -> list[ChatMessage]:
         facts = json.dumps(case_prompt_facts(case), ensure_ascii=False, indent=1)
@@ -71,4 +72,4 @@ class LlmRealizer:
             self.messages(case), temperature=self.temperature, seed=llm_seed(seed, case.case_id)
         )
         body = _FENCE.sub("", out.replace("\r\n", "\n").strip()).strip("\n") + "\n"
-        return Draft(template_id=f"llm:{self.llm.name}", body=body)
+        return Draft(template_id=self.template_id, body=body)

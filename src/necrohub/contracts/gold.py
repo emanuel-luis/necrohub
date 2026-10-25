@@ -134,7 +134,7 @@ RejectReason = Literal[
     "section_not_at_line_start",
     "missing_required",
     "section_mismatch",
-    "invented_identifier",
+    "unlabeled_pii",
     "not_latin1",
     "llm_error",
 ]

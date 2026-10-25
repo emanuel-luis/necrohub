@@ -12,3 +12,4 @@ generate:
     model: qwen3:4b-instruct-2507-q4_K_M
     temperature: 0.8
     max_attempts: 3
+    timeout_s: 120

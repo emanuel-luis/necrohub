@@ -81,8 +81,9 @@ The template realizer is the default and the only path in CI. For more varied te
 model writes the report body instead. It sees only non-identifying case facts and slot names and
 writes placeholders such as `{{DECEDENT_NAME}}` and `[[CAUSE_OF_DEATH|...]]`; the same `fill()`
 step then inserts the identifiers and labels the spans, so gold labels stay exact. Drafts that
-drop a required slot, use an unknown one, leave a marker broken, write an identifier-shaped value
-of their own (CPF, RG, CRM, phone, e-mail) or use characters outside latin-1 are rejected per case
+drop a required slot, use an unknown one, leave a marker broken, write a PII value as literal text
+(any CPF, RG, CRM, phone, e-mail, name, date, document number, address or CEP the regex
+de-identifier finds outside a slot) or use characters outside latin-1 are rejected per case
 into `rejects.jsonl`, retried with a new seed up to `generate.llm.max_attempts`, and the run fails
 when rejects exceed `max_reject_fraction`. Typographic dashes, quotes and ellipses are
 transliterated first and counted in `metrics/generate.json`.
