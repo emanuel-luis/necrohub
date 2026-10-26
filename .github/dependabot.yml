@@ -1,4 +1,4 @@
-# Weekly update PRs, one per ecosystem: the SHA-pinned actions and uv.lock.
+# Weekly update PRs, one per ecosystem: the SHA-pinned actions, the Dockerfile and compose digests, uv.lock.
 version: 2
 updates:
   - package-ecosystem: github-actions
@@ -7,6 +7,12 @@ updates:
     cooldown: { default-days: 7 }
     groups:
       github-actions: { patterns: ["*"] }
+  - package-ecosystem: docker
+    directory: /
+    schedule: { interval: weekly }
+    cooldown: { default-days: 7 }
+    groups:
+      docker: { patterns: ["*"] }
   - package-ecosystem: uv
     directory: /
     schedule: { interval: weekly }
@@ -19,3 +25,9 @@ updates:
       # rule when google-genai lifts the cap.
       - dependency-name: tenacity
         versions: [">=9.2.0"]
+  - package-ecosystem: docker-compose
+    directory: /
+    schedule: { interval: weekly }
+    cooldown: { default-days: 7 }
+    groups:
+      docker-compose: { patterns: ["*"] }

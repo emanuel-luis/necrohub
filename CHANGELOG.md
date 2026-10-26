@@ -8,6 +8,11 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Serving stack (P7). `Dockerfile` (multi-stage uv build, base and uv pinned by digest, non-root,
+  healthcheck), a Streamlit UI (`necrohub ui`, `ui` extra) that calls the API over HTTP, the
+  compose stack (db, loader, api, ui; profile `ollama` with ollama and ollama-pull), Makefile
+  `up`, `down`, `ui` and `smoke`, a CI `compose-smoke` job with hadolint, and Dependabot for the
+  docker and docker-compose ecosystems.
 - Generative fine-tune (P6). `necrohub export-sft` (DVC stage `export_sft`, `data/sft`,
   `metrics/export_sft.json`) writes chat-format SFT JSONL and the extraction JSON schema;
   `necrohub eval-extraction` scores raw model output (valid JSON rate, per-field accuracy, set

@@ -1,4 +1,4 @@
-.PHONY: help install install-ml install-gpu gpu-check lint type test test-ml test-fast leak-check demo generate ingest preprocess build-dataset train evaluate index index-load query serve format clean
+.PHONY: help install install-ml install-gpu gpu-check lint type test test-ml test-fast leak-check demo generate ingest preprocess build-dataset train evaluate index index-load query serve ui up down smoke format clean
 
 help:           ## list the targets
 	@grep -E '^[a-zA-Z_-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-14s %s\n", $$1, $$2}'
@@ -6,8 +6,8 @@ help:           ## list the targets
 install:        ## sync the environment from uv.lock
 	uv sync --locked
 
-install-ml:     ## sync with every extra: ml, cpu (CPU torch wheels), ollama, genai, pipeline (dvc), db, serve; needed by `make type` and `make test-ml`
-	uv sync --locked --extra ml --extra cpu --extra ollama --extra genai --extra pipeline --extra db --extra serve
+install-ml:     ## sync with every extra: ml, cpu (CPU torch wheels), ollama, genai, pipeline (dvc), db, serve, ui; needed by `make type` and `make test-ml`
+	uv sync --locked --extra ml --extra cpu --extra ollama --extra genai --extra pipeline --extra db --extra serve --extra ui
 
 install-gpu:    ## CUDA 12.6 torch + ml + pipeline extras: a multi-GB download, for local GPU training only
 	uv sync --locked --extra ml --extra cu126 --extra pipeline
@@ -69,6 +69,20 @@ query:          ## ask a question: make query Q="Qual a causa da morte no caso c
 
 serve:          ## the API on 127.0.0.1:8000 (needs the serve extra)
 	uv run necrohub serve
+
+ui:             ## the Streamlit UI on 127.0.0.1:8501 against NECROHUB_API_URL (needs the ui extra, no docker)
+	uv run necrohub ui
+
+up:             ## build and start db, loader, api and ui (docker compose; run `make demo` first)
+	@test -f data/serving/index/index.json || { echo "data/serving/index is missing: run 'make demo' first" >&2; exit 1; }
+	@test -f .env || { echo ".env is missing: copy .env.example to .env" >&2; exit 1; }
+	docker compose up -d --build --wait db loader api ui
+
+down:           ## stop the stack and delete its volumes
+	docker compose down -v
+
+smoke:          ## the CI compose checks against the running stack (`make up` first; needs curl and jq)
+	bash scripts/compose_smoke.sh
 
 format:         ## apply ruff fixes and formatting
 	uv run ruff check --fix

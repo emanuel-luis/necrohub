@@ -21,7 +21,7 @@ on the CPU in the demo) and a DVC pipeline over all of them (`make demo`) are in
 nine commands: `check-identifiers`, `generate`, `ingest`, `preprocess`, `build-dataset`, `train`,
 `evaluate`, `gpu-check` and `check-repro`, plus `index build`, `index load`, `query` and `serve`: a
 serving index over the redacted text, an in-memory and a pgvector store, an extractive (or LLM)
-answerer with citations, and a small API (`GET /healthz`, `POST /ask`). The UI comes later. The design and the phase plan are in
+answerer with citations, a small API (`GET /healthz`, `POST /ask`), a Streamlit UI (`ui`) and a compose stack. The design and the phase plan are in
 [docs/REFACTOR_PLAN.md](docs/REFACTOR_PLAN.md), the decisions in [docs/DECISIONS.md](docs/DECISIONS.md).
 
 ## What this demonstrates
@@ -74,8 +74,7 @@ flowchart LR
 ## Tech stack
 
 Python 3.12, uv, Pydantic v2 and pydantic-settings, Typer, ftfy, NumPy, fpdf2, pypdf; Hugging Face
-Transformers and PyTorch as the optional `ml` extra (CPU wheels in CI); DVC as the `pipeline` extra. Postgres with pgvector (`db` extra, compose service) and FastAPI (`serve` extra). Planned: Streamlit,
-the full Docker Compose stack. Quality: ruff, mypy strict, pytest, Hypothesis, pip-audit and zizmor in CI.
+Transformers and PyTorch as the optional `ml` extra (CPU wheels in CI); DVC as the `pipeline` extra. Postgres with pgvector (`db` extra, compose service) and FastAPI (`serve` extra). Streamlit (`ui` extra) and a Docker Compose stack (db, loader, api, ui, optional Ollama). Quality: ruff, mypy strict, pytest, Hypothesis, pip-audit and zizmor in CI.
 
 ## Quickstart
 
@@ -164,6 +163,19 @@ uv run necrohub serve             # GET /healthz, POST /ask {"question": "...", 
 cp .env.example .env && docker compose up -d --wait db   # Postgres with pgvector
 uv run necrohub index load        # needs DATABASE_URL; then NECROHUB_STORE=pgvector
 ```
+
+The whole stack runs in Docker Compose, after `make demo` has built `data/serving/index`:
+
+```bash
+cp .env.example .env              # set POSTGRES_PASSWORD
+make up                           # db, loader (index into pgvector), api, ui; waits for healthy
+# UI http://127.0.0.1:8501, API http://127.0.0.1:8000 (/healthz, /ask)
+make smoke                        # the checks CI runs (needs curl and jq)
+make down                         # stops it and deletes the volumes
+NECROHUB_LLM=ollama docker compose --profile ollama up -d --wait   # answers with a local Ollama model
+```
+
+The UI only talks to the API over HTTP (`NECROHUB_API_URL`). `make ui` runs it without Docker.
 
 The index holds only redacted text. The default answerer is extractive and deterministic: it returns
 the sentence closest to the question and cites its chunk; `NECROHUB_LLM=ollama` or `gemini` answers
