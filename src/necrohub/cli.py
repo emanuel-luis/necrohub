@@ -518,3 +518,21 @@ def serve(
         typer.echo(_error_line(exc), err=True)
         raise typer.Exit(1) from exc
     uvicorn.run(api, host=host, port=port)
+
+
+@app.command()
+def ui(
+    host: Annotated[str, typer.Option(help="Interface to bind.")] = "127.0.0.1",
+    port: Annotated[int, typer.Option(help="Port to listen on.")] = 8501,
+) -> None:
+    """Run the Streamlit UI (`ui` extra); it calls the API at NECROHUB_API_URL."""
+    import importlib.util
+    import subprocess
+    import sys
+
+    spec = importlib.util.find_spec("necrohub.serve.ui")
+    if spec is None or spec.origin is None:
+        raise typer.Exit(1)
+    argv = [sys.executable, "-m", "streamlit", "run", spec.origin]
+    argv += ["--server.address", host, "--server.port", str(port), "--server.headless", "true"]
+    raise typer.Exit(subprocess.call(argv))
