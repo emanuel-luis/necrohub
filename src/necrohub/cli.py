@@ -179,24 +179,46 @@ def check_repro(
     metrics: Annotated[Path, typer.Option(help="The metrics/ a fresh run wrote.")] = Path(
         "metrics"
     ),
-    abs_tol: Annotated[float, typer.Option(help="Float tolerance, model stages.")] = 0.05,
-    rel_tol: Annotated[float, typer.Option(help="Relative float tolerance, model stages.")] = 0.05,
+    abs_tol: Annotated[float, typer.Option(help="Float warning threshold, model stages.")] = 0.05,
+    rel_tol: Annotated[float, typer.Option(help="Relative float warning threshold.")] = 0.05,
     count_tol: Annotated[
-        int, typer.Option(help="Tolerance on tp, fp, fn and missed PII counts, model stages.")
+        int, typer.Option(help="Warning threshold on tp, fp, fn and missed PII counts.")
     ] = 2,
+    strict_models: Annotated[
+        bool,
+        typer.Option(help="Fail on model-determined drift too (for a rerun on the same machine)."),
+    ] = False,
 ) -> None:
-    """Fail unless data stages reproduce bit for bit and model stages within tolerance."""
+    """Fail unless data stages reproduce bit for bit and model stages keep their inputs, structure
+    and data-determined fields. Model-determined drift is a warning (an error with
+    --strict-models)."""
+    import os
+
     from necrohub.repro import check_repro as compare
 
-    diffs = compare(
-        baseline_lock, baseline_metrics, lock, metrics, rel_tol=rel_tol, abs_tol=abs_tol
+    result = compare(
+        baseline_lock,
+        baseline_metrics,
+        lock,
+        metrics,
+        rel_tol=rel_tol,
+        abs_tol=abs_tol,
+        count_tol=count_tol,
+        strict_models=strict_models,
     )
-    for diff in diffs:
-        typer.echo(diff)
-    if diffs:
-        typer.echo(f"{len(diffs)} difference(s) from the baseline", err=True)
+    for error in result.errors:
+        typer.echo(error)
+    actions = os.environ.get("GITHUB_ACTIONS") == "true"
+    for warning in result.warnings:
+        typer.echo(f"warning: {warning}")
+        if actions:
+            typer.echo(f"::warning::{warning}")
+    if result.warnings:
+        typer.echo(f"{len(result.warnings)} model-determined difference(s) beyond tolerance")
+    if result.errors:
+        typer.echo(f"{len(result.errors)} difference(s) from the baseline", err=True)
         raise typer.Exit(1)
-    typer.echo("reproduced: data stages identical, model stages within tolerance")
+    typer.echo("reproduced: data stages identical, model stages keep inputs and structure")
 
 
 @app.command()

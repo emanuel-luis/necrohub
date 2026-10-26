@@ -31,7 +31,8 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
 - `make demo` = `uv run --locked --extra pipeline dvc repro` (generate to evaluate; `dvc.yaml`; needs
   `make install-ml`). After a change that alters data or metrics, rerun it and commit `dvc.lock` and
   `metrics/`: CI's demo job runs `check-repro`, which needs the data stages to reproduce bit for bit
-  and the model stages (train_*, evaluate) within a numeric tolerance. No DVC remote, no push/pull.
+  and the model stages (train_*, evaluate) to keep inputs, structure and data-determined fields;
+  model-determined drift only warns (`--strict-models` fails on it). No DVC remote, no push/pull.
   A new import in a stage needs its source in that stage's `dvc.yaml` deps
   (`tests/unit/test_dvc_deps.py` fails otherwise).
 
@@ -81,7 +82,8 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
   check digits) and use `example.org` e-mail addresses.
 - `data/` and `models/` never go into git.
 - The demo gate is bit for bit for the data stages (generate, ingest, preprocess, build_dataset); model
-  stages are compared with a tolerance (decision 17). Model metrics hold no timestamps or durations.
+  stages gate inputs, structure and data-determined fields, and only warn on model-determined
+  values (decision 17). Model metrics hold no timestamps or durations.
 - `necrohub check-identifiers` must pass before every commit and in CI.
 - No network in the default tests and no model downloads. `ml`, `db`, `external` and `slow` tests
   are deselected by default.

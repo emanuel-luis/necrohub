@@ -58,41 +58,63 @@ def write_metrics(root: Path, loss: float, steps: int = 10, extra: bool = False)
         (root / name).write_text(json.dumps(body), encoding="utf-8")
 
 
-def run(tmp_path: Path, base: Path, new: Path) -> int:
+def run(
+    tmp_path: Path, base: Path, new: Path, *flags: str, env: dict[str, str] | None = None
+) -> Any:
     lock = tmp_path / "dvc.lock"
     lock.write_text(yaml.safe_dump(LOCK), encoding="utf-8")
     args = ["--baseline-lock", str(lock), "--lock", str(lock)]
-    args += ["--baseline-metrics", str(base), "--metrics", str(new)]
-    return CliRunner().invoke(app, ["check-repro", *args]).exit_code
+    args += ["--baseline-metrics", str(base), "--metrics", str(new), *flags]
+    return CliRunner().invoke(app, ["check-repro", *args], env=env)
 
 
 def test_cli_passes_within_tolerance(tmp_path: Path) -> None:
     write_metrics(tmp_path / "a", 0.500)
     write_metrics(tmp_path / "b", 0.520)
-    assert run(tmp_path, tmp_path / "a", tmp_path / "b") == 0
+    result = run(tmp_path, tmp_path / "a", tmp_path / "b")
+    assert result.exit_code == 0 and "warning:" not in result.output
 
 
-def test_cli_fails_on_float_outside_tolerance_int_or_structure(tmp_path: Path) -> None:
+def test_cli_model_drift_warns_and_exits_zero(tmp_path: Path) -> None:
     write_metrics(tmp_path / "a", 0.5)
     write_metrics(tmp_path / "far", 0.9)
+    result = run(tmp_path, tmp_path / "a", tmp_path / "far")
+    assert result.exit_code == 0
+    assert "warning: metrics/train_ner.json.loss: 0.5 != 0.9" in result.output
+    assert "model-determined difference(s) beyond tolerance" in result.output
+    assert "::warning::" not in result.output
+    on_actions = run(tmp_path, tmp_path / "a", tmp_path / "far", env={"GITHUB_ACTIONS": "true"})
+    assert "::warning::metrics/train_ner.json.loss" in on_actions.output
+
+
+def test_cli_strict_models_fails_on_drift(tmp_path: Path) -> None:
+    write_metrics(tmp_path / "a", 0.5)
+    write_metrics(tmp_path / "far", 0.9)
+    assert run(tmp_path, tmp_path / "a", tmp_path / "far", "--strict-models").exit_code == 1
+    assert run(tmp_path, tmp_path / "a", tmp_path / "a", "--strict-models").exit_code == 0
+
+
+def test_cli_fails_on_a_data_determined_field_or_structure_change(tmp_path: Path) -> None:
+    write_metrics(tmp_path / "a", 0.5)
     write_metrics(tmp_path / "steps", 0.5, steps=11)
     write_metrics(tmp_path / "keys", 0.5, extra=True)
-    for other in ("far", "steps", "keys"):
-        assert run(tmp_path, tmp_path / "a", tmp_path / other) == 1
+    for other in ("steps", "keys"):
+        assert run(tmp_path, tmp_path / "a", tmp_path / other).exit_code == 1
 
 
 def test_cli_fails_when_a_data_metric_changes_or_is_missing(tmp_path: Path) -> None:
     write_metrics(tmp_path / "a", 0.5)
     write_metrics(tmp_path / "b", 0.5)
     (tmp_path / "b" / "generate.json").write_text('{"n": 2}\n', encoding="utf-8")
-    assert run(tmp_path, tmp_path / "a", tmp_path / "b") == 1
+    assert run(tmp_path, tmp_path / "a", tmp_path / "b").exit_code == 1
     (tmp_path / "b" / "generate.json").unlink()
-    assert run(tmp_path, tmp_path / "a", tmp_path / "b") == 1
+    assert run(tmp_path, tmp_path / "a", tmp_path / "b").exit_code == 1
 
 
 def model_diffs(base: Any, new: Any, **kw: Any) -> list[str]:
     tol: dict[str, Any] = {"rel_tol": 0.05, "abs_tol": 0.05, "count_tol": 2}
-    return compare_model_metrics(base, new, "m", **{**tol, **kw})
+    got = compare_model_metrics(base, new, "m", **{**tol, **kw})
+    return got.errors + got.warnings
 
 
 LABEL = {"tp": 4, "fp": 1, "fn": 2, "precision": 0.8, "recall": 0.6667, "f1": 0.7273}

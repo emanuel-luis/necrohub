@@ -43,7 +43,8 @@ In place now:
   spans it cannot map counted instead of guessed.
 - One-command reproducibility: `make demo` runs the DVC pipeline, and CI fails when a clean run
   on Linux does not reproduce the committed `dvc.lock` and `metrics/`: bit for bit for the data
-  stages, within a numeric tolerance for the model stages (`necrohub check-repro`).
+  stages, and for the model stages on inputs, structure and data-determined fields, with a warning
+  on drifting model metrics (`necrohub check-repro`).
 - Encoder fine-tuning and evaluation: BIO-labelled NER and section classification with the
   Hugging Face `Trainer` (resumable checkpoints), a tiny model trained from scratch in the demo and
   `pucpr/biobertpt-clin` for a full local run, scored with strict and partial span F1 and PII
@@ -202,7 +203,7 @@ src/necrohub/
   embed/                 Embedder protocol, token windows, hashing and Hugging Face embedders
   train/                 labels (BIO), tiny (from-scratch BERT), encoder (Trainer, predict), gpu, stage
   evaluate/              metrics (strict and partial span P/R/F1, PII recall, sections), stage
-  repro.py               check-repro: data stages bit for bit, model stages within a tolerance
+  repro.py               check-repro: data stages bit for bit, model stages on structure, warnings on drift
 tests/
   unit/                  offline tests
   ml/                    tiny local models (marker ml), offline

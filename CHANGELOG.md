@@ -25,7 +25,8 @@ All notable changes to this project are documented here. The format follows
   torch 2.14.1 cu128 wheels (decision 15).
 - `necrohub check-repro`: the CI demo gate. Data stages must reproduce `dvc.lock` entries and
   metrics bit for bit; the model stages (train_ner, train_sections, evaluate) must keep command,
-  params and inputs, and their metrics must match within a tolerance (decision 17).
+  params, inputs, metrics structure and data-determined fields; drift in model-determined values
+  is a warning (an error with `--strict-models`; decision 17).
 - DVC stages `train_ner`, `train_sections` and `evaluate`; the CI demo job now installs the `ml`
   and `cpu` extras, runs offline and calls `check-repro`.
 - `necrohub build-dataset` (`make build-dataset`): processed layer and raw gold to
