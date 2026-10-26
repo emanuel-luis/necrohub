@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-26
+
 ### Added
 
 - Serving stack (P7). `Dockerfile` (multi-stage uv build, base and uv pinned by digest, non-root,
@@ -30,8 +32,8 @@ All notable changes to this project are documented here. The format follows
   backend with `NECROHUB_LLM`; a case id in the question restricts retrieval to that case.
 - FastAPI app (`necrohub serve`, the `serve` extra): `GET /healthz` and `POST /ask`; it refuses to
   start when the configured embedder differs from the index's.
-- `compose.yaml` with the pgvector `db` service (image pinned by digest), the `test-db` CI job, and
-  `make demo` now ends with `necrohub query`.
+- `compose.yaml` with the pgvector `db` service (image pinned by digest) and the `test-db` CI job.
+
 - `necrohub train` (`make train`): fine-tunes an encoder for NER (BIO labels over tokenizer
   offsets, windows with stride for long sections, window merge by distance from the edge) or
   section classification with the Hugging Face `Trainer`. `train.base_model` is `tiny-scratch`
@@ -51,8 +53,6 @@ All notable changes to this project are documented here. The format follows
   metrics bit for bit; the model stages (train_ner, train_sections, evaluate) must keep command,
   params, inputs, metrics structure and data-determined fields; drift in model-determined values
   is a warning (an error with `--strict-models`; decision 17).
-- DVC stages `train_ner`, `train_sections` and `evaluate`; the CI demo job now installs the `ml`
-  and `cpu` extras, runs offline and calls `check-repro`.
 - `necrohub build-dataset` (`make build-dataset`): processed layer and raw gold to
   `data/datasets/{ner,sections,extraction,qa}/{train,validation,test}.jsonl` plus a generated
   dataset card (`README.md`). Splits are seeded and by case; held-out templates go to test only.
@@ -88,7 +88,6 @@ All notable changes to this project are documented here. The format follows
   and build-dataset metrics count exact, whitespace-drift and rejected projections.
 - `check-identifiers` scans the extracted text of PDF files; a PDF that does not parse is listed
   as skipped.
-
 - Python package scaffold: `uv` project and lock, ruff, mypy strict, pytest with markers, CI and
   security workflows, Dependabot.
 - Data contracts for entity and section spans and for processed text.
@@ -118,7 +117,6 @@ All notable changes to this project are documented here. The format follows
   `merge_subwords`.
 - `NECROHUB_DEVICE=auto|cpu|cuda` through `resolve_device`.
 - CI job `test-ml` (tiny offline models), `make install-ml` and `make test-ml`.
-- Dependabot cooldown of 7 days; zizmor audits the whole `.github` folder.
 - Run metadata shared by stages: run manifests, atomic output directory swaps, tree hashes.
 - `params.yaml` with typed `seed` and `generate` sections; unknown sections are ignored.
 - Generator contracts: `CaseFacts`, `Draft`, `Realized`, `Reject` and `GoldRecord`, whose
@@ -151,7 +149,21 @@ All notable changes to this project are documented here. The format follows
 - Deterministic PDF rendering (fpdf2 core fonts, fixed creation date and producer) for a seeded
   share of the reports; `GoldRecord.files.pdf` points at it. `fpdf2` as a core dependency.
 
+### Changed
+
+- `make demo` ends with `necrohub query`.
+- `make install-ml` also installs the `pipeline` extra.
+- The CI demo job installs the `ml` and `cpu` extras, runs offline and calls `check-repro`.
+- DVC stages `train_ner`, `train_sections` and `evaluate` join the pipeline.
+
+### Security
+
+- Dependabot cooldown of 7 days; zizmor audits the whole `.github` folder.
+- Docker base image and uv pinned by digest, non-root container, hadolint in CI.
+- `necrohub check-identifiers` fails the build on checksum-valid CPF and CNPJ numbers and on RG,
+  CRM, phone and e-mail values outside the committed fake pool.
+
 ### Origin
 
-Carries over, rewritten, the useful parts of three earlier prototypes: ragnosis, necropsy-hub and
-necropsy-llm-hub. See `docs/REFACTOR_PLAN.md` for the migration map.
+Carries over, rewritten, the useful parts of three earlier prototypes. See
+`docs/REFACTOR_PLAN.md` for the migration map.
