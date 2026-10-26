@@ -85,3 +85,30 @@ def test_unmapped_groups_dropped_and_custom_map(make_model: Callable[[list[float
 
 def test_empty_text(make_model: Callable[[list[float]], str]) -> None:
     assert HfNerDeidentifier(make_model([0, 6, 0, 0, 0]), device="cpu", stride=4).detect("  ") == []
+
+
+def test_loads_a_p4_checkpoint_and_returns_only_pii_labels(p4_layers: Path, tmp_path: Path) -> None:
+    from conftest import p4_params
+
+    from necrohub.train.stage import run_train
+
+    out = tmp_path / "models" / "encoder-ner"
+    run_train(
+        "ner",
+        p4_params(),
+        p4_layers / "datasets",
+        out,
+        metrics_dir=tmp_path / "metrics",
+        runs_dir=tmp_path / "runs",
+    )
+    # our id2label names are EntityLabel values, so the default map has PER and LOC only and
+    # every clinical group is dropped; an identity map keeps all PII labels
+    pii = {label.value: label.value for label in EntityLabel if label.is_pii}
+    det = HfNerDeidentifier(str(out), threshold=0.0, device="cpu", label_map=pii, stride=8)
+    text = fixture_text("firearm_a")
+    spans = det.detect(text)
+    for s in spans:
+        assert s.label.is_pii and 0 <= s.start < s.end <= len(text)
+        s.verify(text)
+    default = HfNerDeidentifier(str(out), threshold=0.0, device="cpu", stride=8).detect(text)
+    assert {s.label for s in default} <= {EntityLabel.PER, EntityLabel.LOC}

@@ -16,10 +16,10 @@ Phase 3 of 8, in progress: scaffold, text normalization, section splitting, rege
 de-identification, hashing and Hugging Face embeddings, the identifier leak check, a seeded
 template generator with exact gold labels, an optional LLM realizer (local Ollama, optional
 Gemini) behind the same labelling step, PDF rendering of part of the reports, ingestion (PDF
-text extraction), the preprocess stage, the per-task dataset build and a DVC pipeline over all of
-them (`make demo`) are in place. The CLI has five commands: `check-identifiers`, `generate`,
-`ingest`, `preprocess` and `build-dataset`. Training, the retrieval API and the UI come in later
-phases. The design and the phase plan are in
+text extraction), the preprocess stage, the per-task dataset build, encoder fine-tuning and evaluation (a tiny model trained from scratch
+on the CPU in the demo) and a DVC pipeline over all of them (`make demo`) are in place. The CLI has
+nine commands: `check-identifiers`, `generate`, `ingest`, `preprocess`, `build-dataset`, `train`,
+`evaluate`, `gpu-check` and `check-repro`. The retrieval API and the UI come in later phases. The design and the phase plan are in
 [docs/REFACTOR_PLAN.md](docs/REFACTOR_PLAN.md), the decisions in [docs/DECISIONS.md](docs/DECISIONS.md).
 
 ## What this demonstrates
@@ -42,13 +42,18 @@ In place now:
 - Gold spans carried across PDF extraction and normalization by difflib projection, with the
   spans it cannot map counted instead of guessed.
 - One-command reproducibility: `make demo` runs the DVC pipeline, and CI fails when a clean run
-  on Linux does not reproduce the committed `dvc.lock` and `metrics/` bit for bit.
+  on Linux does not reproduce the committed `dvc.lock` and `metrics/`: bit for bit for the data
+  stages, and for the model stages on inputs, structure and data-determined fields, with a warning
+  on drifting model metrics (`necrohub check-repro`).
+- Encoder fine-tuning and evaluation: BIO-labelled NER and section classification with the
+  Hugging Face `Trainer` (resumable checkpoints), a tiny model trained from scratch in the demo and
+  `pucpr/biobertpt-clin` for a full local run, scored with strict and partial span F1 and PII
+  character recall against the regex de-identifier, on a random split and on held-out templates.
 
 Planned (see the phase plan):
 
 - The serving layer.
-- Fine-tuning on those gold labels: exact character spans train and evaluate the NER and section
-  encoders.
+- A model card with the numbers of a full GPU run (the demo model is a pipeline check, not a result).
 
 ## Architecture (target)
 
@@ -74,11 +79,12 @@ pgvector, FastAPI, Streamlit, Docker Compose. Quality: ruff, mypy strict, pytest
 ## Quickstart
 
 ```bash
-make demo   # = uv run --locked --extra pipeline dvc repro: generate -> ingest -> preprocess -> build_dataset
+make demo   # = uv run --locked --extra pipeline dvc repro: generate -> ingest -> preprocess -> build_dataset -> train_ner, train_sections -> evaluate
 ```
 
-`make demo` writes `data/raw`, `data/interim`, `data/processed` and `data/datasets` (gitignored)
-and `metrics/<stage>.json` (committed). A second run does nothing; `uv run dvc status` reports the
+`make demo` needs `make install-ml` first (CPU torch). It writes `data/raw`, `data/interim`,
+`data/processed`, `data/datasets` and `models/` (gitignored), `metrics/<stage>.json` and
+`metrics/eval.json` (committed). A second run does nothing; `uv run dvc status` reports the
 pipeline up to date. There is no DVC remote: the data regenerates from the seed in `params.yaml`.
 
 ```bash
@@ -134,6 +140,8 @@ skipped.
 | interim | `ingest` | `ingested.jsonl` (one document per case), `rejects.jsonl` |
 | processed | `preprocess` | `documents.jsonl` (normalized text, sections, PII spans, redacted text), `rejects.jsonl` |
 | datasets | `build-dataset` | `{ner,sections,extraction,qa}/{train,validation,test}.jsonl`, `README.md` (dataset card) |
+| models | `train` | `encoder-{ner,sections}/` (`save_pretrained` model, tokenizer, `necrohub_train.json`); checkpoints in `models/.checkpoints/` |
+| metrics | `train`, `evaluate` | `train_{ner,sections}.json`, `eval.json` (test split, random vs held-out templates, regex vs encoder) |
 
 `ingest` reads a case from its PDF when it has one (pypdf text extraction; decision 13) and from
 its txt otherwise. `preprocess` normalizes, splits sections and de-identifies each document. Each
@@ -176,7 +184,8 @@ Makefile directly.
 
 ```
 src/necrohub/
-  cli.py                 Typer app (check-identifiers, generate, ingest, preprocess, build-dataset)
+  cli.py                 Typer app (check-identifiers, generate, ingest, preprocess, build-dataset,
+                         train, evaluate, gpu-check, check-repro)
   settings.py            environment settings (NECROHUB_*, OLLAMA_HOST, GEMINI_API_KEY)
   params.py              typed sections of params.yaml
   runs.py                run manifests, atomic output swaps, tree hashes, JSONL io
@@ -192,6 +201,9 @@ src/necrohub/
   preprocess/            normalize, sections, align, pipeline, stage, deid/{base,regex,hf_ner}
   datasets/              split (seeded, by case), build (task records), card, stage
   embed/                 Embedder protocol, token windows, hashing and Hugging Face embedders
+  train/                 labels (BIO), tiny (from-scratch BERT), encoder (Trainer, predict), gpu, stage
+  evaluate/              metrics (strict and partial span P/R/F1, PII recall, sections), stage
+  repro.py               check-repro: data stages bit for bit, model stages on structure, warnings on drift
 tests/
   unit/                  offline tests
   ml/                    tiny local models (marker ml), offline
@@ -199,7 +211,7 @@ tests/
   fixtures/reports/      three synthetic reports
   golden/                expected outputs (pytest --update-golden rewrites them)
 docs/                    refactor plan and decisions
-params.yaml              pipeline parameters (seed, generate, ingest, preprocess, dataset)
+params.yaml              pipeline parameters (seed, generate, ingest, preprocess, dataset, train, evaluate)
 dvc.yaml, dvc.lock       DVC pipeline (`make demo`) and its committed lock
 metrics/                 per-stage metrics, committed (DVC metrics, `cache: false`)
 ```

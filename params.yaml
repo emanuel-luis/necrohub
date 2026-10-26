@@ -26,3 +26,20 @@ dataset:
   splits: {train: 0.8, validation: 0.1, test: 0.1}  # by case_id; held-out templates go to test only
   tasks: [ner, sections, extraction, qa]
   max_align_reject_fraction: 0.05  # gold spans that cannot be projected onto the processed text
+train:
+  base_model: tiny-scratch  # or a Hub id / local dir, e.g. pucpr/biobertpt-clin
+  tasks: [ner, sections]
+  max_length: 256
+  stride: 64  # token overlap between windows of a long section
+  epochs: 30  # demo; the full run overrides it
+  batch_size: 8
+  learning_rate: 2.0e-3  # tiny-scratch; the full run uses 5e-5
+  weight_decay: 0.01
+  warmup_ratio: 0.1
+  fp16: false  # needs a CUDA device
+  gradient_checkpointing: false
+  save_steps: 200
+  keep_checkpoints: false
+  tiny: {vocab_size: 2000, hidden_size: 64, num_layers: 2, num_heads: 2, intermediate_size: 128}
+evaluate:
+  baselines: [regex]

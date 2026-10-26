@@ -28,13 +28,22 @@ jobs:
         with: { persist-credentials: false }
       - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
         with: { python-version: "3.12" }
-      # every package uv.lock pins, dev group and extras included, with hashes: pip-audit resolves nothing
-      - run: uv export --frozen --all-groups --all-extras --no-emit-project -o "$RUNNER_TEMP/locked.txt"
+      # every package uv.lock pins, with hashes: pip-audit resolves nothing. The cpu and cu126
+      # extras conflict, so --all-extras fails: export the CPU set and the CUDA set separately.
+      - run: >-
+          uv export --frozen --all-groups --extra ml --extra cpu --extra ollama --extra genai
+          --extra pipeline --no-emit-project -o "$RUNNER_TEMP/locked.txt"
+      - run: >-
+          uv export --frozen --all-groups --extra ml --extra cu126 --no-emit-project
+          -o "$RUNNER_TEMP/locked-cuda.txt"
       # PYSEC-2026-2447 (CVE-2025-69872): diskcache, pulled in by dvc, unpickles its cache entries.
       # No fixed release exists; exploiting it needs write access to DVC's cache inside the user's
       # own checkout. Accepted in docs/DECISIONS.md row 14; drop the ignore once a fix ships.
       - run: >-
           uvx pip-audit==2.10.1 --disable-pip --progress-spinner off -r "$RUNNER_TEMP/locked.txt"
+          --ignore-vuln PYSEC-2026-2447
+      - run: >-
+          uvx pip-audit==2.10.1 --disable-pip --progress-spinner off -r "$RUNNER_TEMP/locked-cuda.txt"
           --ignore-vuln PYSEC-2026-2447
 
   zizmor:

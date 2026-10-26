@@ -169,3 +169,129 @@ def build_dataset(
     typer.echo(
         f"build-dataset: {run.counts.written} records in {out.as_posix()} (run {run.run_id})"
     )
+
+
+@app.command("check-repro")
+def check_repro(
+    baseline_lock: Annotated[Path, typer.Option(help="A copy of the committed dvc.lock.")],
+    baseline_metrics: Annotated[Path, typer.Option(help="A copy of the committed metrics/.")],
+    lock: Annotated[Path, typer.Option(help="The dvc.lock a fresh run wrote.")] = Path("dvc.lock"),
+    metrics: Annotated[Path, typer.Option(help="The metrics/ a fresh run wrote.")] = Path(
+        "metrics"
+    ),
+    abs_tol: Annotated[float, typer.Option(help="Float warning threshold, model stages.")] = 0.05,
+    rel_tol: Annotated[float, typer.Option(help="Relative float warning threshold.")] = 0.05,
+    count_tol: Annotated[
+        int, typer.Option(help="Warning threshold on tp, fp, fn and missed PII counts.")
+    ] = 2,
+    strict_models: Annotated[
+        bool,
+        typer.Option(help="Fail on model-determined drift too (for a rerun on the same machine)."),
+    ] = False,
+) -> None:
+    """Fail unless data stages reproduce bit for bit and model stages keep their inputs, structure
+    and data-determined fields. Model-determined drift is a warning (an error with
+    --strict-models)."""
+    import os
+
+    from necrohub.repro import check_repro as compare
+
+    result = compare(
+        baseline_lock,
+        baseline_metrics,
+        lock,
+        metrics,
+        rel_tol=rel_tol,
+        abs_tol=abs_tol,
+        count_tol=count_tol,
+        strict_models=strict_models,
+    )
+    for error in result.errors:
+        typer.echo(error)
+    actions = os.environ.get("GITHUB_ACTIONS") == "true"
+    for warning in result.warnings:
+        typer.echo(f"warning: {warning}")
+        if actions:
+            typer.echo(f"::warning::{warning}")
+    if result.warnings:
+        typer.echo(f"{len(result.warnings)} model-determined difference(s) beyond tolerance")
+    if result.errors:
+        typer.echo(f"{len(result.errors)} difference(s) from the baseline", err=True)
+        raise typer.Exit(1)
+    typer.echo("reproduced: data stages identical, model stages keep inputs and structure")
+
+
+@app.command()
+def train(
+    task: Annotated[str, typer.Option(help="ner or sections.")],
+    params: Annotated[Path, typer.Option(help="Pipeline parameters file.")] = Path("params.yaml"),
+    data: Annotated[Path, typer.Option(help="Datasets layer directory.")] = Path("data/datasets"),
+    out: Annotated[
+        Path | None, typer.Option(help="Model directory. Default models/encoder-TASK.")
+    ] = None,
+    runs_dir: Annotated[Path, typer.Option(help="Where run manifests go.")] = Path("runs"),
+    metrics_dir: Annotated[Path, typer.Option(help="Where metrics/train_TASK.json goes.")] = Path(
+        "metrics"
+    ),
+) -> None:
+    """Fine-tune the encoder (train.base_model) for one task on the train split."""
+    from necrohub.params import load_params
+    from necrohub.runs import StageFailed
+    from necrohub.train.stage import run_train
+
+    if task not in ("ner", "sections"):
+        typer.echo(f"unknown task: {task} (ner or sections)", err=True)
+        raise typer.Exit(2)
+    target = out or Path("models") / f"encoder-{task}"
+    try:
+        run = run_train(
+            task,  # type: ignore[arg-type]
+            load_params(params),
+            data,
+            target,
+            metrics_dir=metrics_dir,
+            runs_dir=runs_dir,
+        )
+    except (StageFailed, ValueError) as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(1) from exc
+    typer.echo(f"train: {task} model in {target.as_posix()} (run {run.run_id})")
+
+
+@app.command("gpu-check")
+def gpu_check() -> None:
+    """Report the torch CUDA build and fail unless it has kernels for the installed GPU."""
+    from necrohub.train.gpu import gpu_problem, gpu_report
+
+    report = gpu_report()
+    for key, value in report.items():
+        typer.echo(f"{key}: {value}")
+    problem = gpu_problem(report)
+    if problem:
+        typer.echo(problem, err=True)
+        raise typer.Exit(1)
+    typer.echo("gpu-check: ok")
+
+
+@app.command()
+def evaluate(
+    params: Annotated[Path, typer.Option(help="Pipeline parameters file.")] = Path("params.yaml"),
+    models: Annotated[
+        Path, typer.Option(help="Directory with encoder-ner and encoder-sections.")
+    ] = Path("models"),
+    data: Annotated[Path, typer.Option(help="Datasets layer directory.")] = Path("data/datasets"),
+    raw: Annotated[Path, typer.Option(help="Raw layer (gold templates).")] = Path("data/raw"),
+    out: Annotated[Path, typer.Option(help="Metrics file to write.")] = Path("metrics/eval.json"),
+    runs_dir: Annotated[Path, typer.Option(help="Where run manifests go.")] = Path("runs"),
+) -> None:
+    """Score the fine-tuned encoders and the regex baseline on the test split."""
+    from necrohub.evaluate.stage import run_evaluate
+    from necrohub.params import load_params
+    from necrohub.runs import StageFailed
+
+    try:
+        run = run_evaluate(load_params(params), models, data, raw, out, runs_dir=runs_dir)
+    except (StageFailed, OSError, ValueError) as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(1) from exc
+    typer.echo(f"evaluate: {out.as_posix()} (run {run.run_id})")

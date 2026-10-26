@@ -1,5 +1,6 @@
 # The demo pipeline: `make demo` (= `uv run dvc repro`). Stages call the necrohub CLI. Run
 # manifests go to runs/ (gitignored, not an out); metrics/<stage>.json are tracked in git.
+# Model stages (train_*, evaluate) are compared with a tolerance by `necrohub check-repro`.
 # deps list every necrohub source a stage imports (tests/unit/test_dvc_deps.py checks it) and
 # uv.lock, since faker, fpdf2, pypdf, ftfy and pydantic versions shape the outputs.
 stages:
@@ -94,4 +95,78 @@ stages:
       - data/datasets
     metrics:
       - metrics/build_dataset.json:
+          cache: false
+  train_ner:
+    cmd: >-
+      necrohub train --task ner --params params.yaml --data data/datasets
+      --out models/encoder-ner --metrics-dir metrics
+    deps:
+      - data/datasets/ner
+      - src/necrohub/train
+      - src/necrohub/contracts
+      - src/necrohub/preprocess/normalize.py
+      - src/necrohub/params.py
+      - src/necrohub/runs.py
+      - src/necrohub/settings.py
+      - src/necrohub/cli.py
+      - uv.lock
+    params:
+      - seed
+      - train
+    outs:
+      - models/encoder-ner
+    metrics:
+      - metrics/train_ner.json:
+          cache: false
+  train_sections:
+    cmd: >-
+      necrohub train --task sections --params params.yaml --data data/datasets
+      --out models/encoder-sections --metrics-dir metrics
+    deps:
+      - data/datasets/sections
+      - src/necrohub/train
+      - src/necrohub/contracts
+      - src/necrohub/preprocess/normalize.py
+      - src/necrohub/params.py
+      - src/necrohub/runs.py
+      - src/necrohub/settings.py
+      - src/necrohub/cli.py
+      - uv.lock
+    params:
+      - seed
+      - train
+    outs:
+      - models/encoder-sections
+    metrics:
+      - metrics/train_sections.json:
+          cache: false
+  evaluate:
+    cmd: >-
+      necrohub evaluate --params params.yaml --models models --data data/datasets
+      --raw data/raw --out metrics/eval.json
+    deps:
+      - models/encoder-ner
+      - models/encoder-sections
+      - data/datasets
+      - data/raw/gold  # the template of each test case
+      - src/necrohub/evaluate
+      - src/necrohub/train
+      - src/necrohub/contracts
+      - src/necrohub/preprocess/deid
+      - src/necrohub/preprocess/normalize.py
+      - src/necrohub/ingest/readers.py
+      - src/necrohub/ids.py
+      - src/necrohub/params.py
+      - src/necrohub/runs.py
+      - src/necrohub/settings.py
+      - src/necrohub/cli.py
+      - uv.lock
+    params:
+      - seed
+      - generate.holdout_templates
+      - evaluate
+      - train.max_length
+      - train.stride
+    metrics:
+      - metrics/eval.json:
           cache: false
