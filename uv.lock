@@ -1467,7 +1467,7 @@ requires-dist = [
     { name = "tenacity", marker = "extra == 'genai'", specifier = ">=9" },
     { name = "torch", marker = "extra == 'cpu'", specifier = ">=2.8", index = "https://download.pytorch.org/whl/cpu", conflict = { package = "necrohub", extra = "cpu" } },
     { name = "torch", marker = "extra == 'cu126'", specifier = ">=2.8", index = "https://download.pytorch.org/whl/cu126", conflict = { package = "necrohub", extra = "cu126" } },
-    { name = "transformers", marker = "extra == 'ml'", specifier = ">=4.57" },
+    { name = "transformers", marker = "extra == 'ml'", specifier = ">=5" },
     { name = "typer", specifier = ">=0.15" },
 ]
 provides-extras = ["ml", "cpu", "cu126", "ollama", "genai", "pipeline"]

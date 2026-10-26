@@ -24,8 +24,8 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
 - `make train` / `uv run necrohub train --task ner|sections --data data/datasets --out models/encoder-<task>`:
   fine-tune the encoder (`train.base_model`: `tiny-scratch` or a Hub id). `make evaluate` /
   `uv run necrohub evaluate --models models --data data/datasets --raw data/raw --out metrics/eval.json`.
-- `make install-gpu` (`--extra cu126`, multi-GB) then `make gpu-check` (`necrohub gpu-check`: the torch
-  CUDA build has kernels for the installed GPU). Never sync it on the shared machine.
+- `make install-gpu` (`--extra cu126`, a multi-GB download; only for local GPU training) then `make gpu-check` (`necrohub gpu-check`: the torch
+  CUDA build has kernels for the installed GPU).
 - `necrohub check-repro --baseline-lock <copy> --baseline-metrics <copy>`: compares a fresh
   `dvc.lock` and `metrics/` with copies taken before the run.
 - `make demo` = `uv run --locked --extra pipeline dvc repro` (generate to evaluate; `dvc.yaml`; needs
