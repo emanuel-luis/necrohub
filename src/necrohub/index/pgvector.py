@@ -129,6 +129,15 @@ class PgVectorStore:
             for r in rows
         ]
 
+    def index_embedder_id(self, index_version: str) -> str | None:
+        """The embedder id recorded when the version was loaded, or None if it was never loaded."""
+        with self._connect() as conn:
+            row = conn.execute(
+                "SELECT embedder_id FROM index_versions WHERE index_version = %s",
+                (index_version,),
+            ).fetchone()
+        return str(row[0]) if row else None
+
     def count(self, index_version: str) -> int:
         with self._connect() as conn:
             row = conn.execute(

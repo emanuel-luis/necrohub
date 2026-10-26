@@ -76,3 +76,21 @@ def test_the_dsn_is_not_in_the_repr() -> None:
 
     store = PgVectorStore(SecretStr("postgresql://u:hunter2@h/db"))
     assert "hunter2" not in repr(store._dsn)
+
+
+def test_serving_refuses_a_missing_or_foreign_version(
+    pg: "PgVectorStore", serving_layers: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from necrohub.serve.runtime import ConfigError, open_store
+    from necrohub.settings import Settings
+
+    monkeypatch.setenv("DATABASE_URL", os.environ["DATABASE_URL"])
+    info, _, _ = load_index_dir(serving_layers / "index")
+    _clean(pg, info.index_version)
+    settings = Settings(index_dir=serving_layers / "index", store="pgvector")
+    with pytest.raises(ConfigError, match="not loaded"):
+        open_store(settings, "hashing-256")
+    run_index_load(serving_layers / "index", pg, runs_dir=tmp_path)
+    assert open_store(settings, "hashing-256")[1] == info.index_version
+    with pytest.raises(ConfigError, match="differs"):
+        open_store(settings, "hashing-64")
