@@ -148,3 +148,25 @@ def test_cli_train_and_evaluate(p4_layers: Path, tmp_path: Path) -> None:
     assert runner.invoke(app, ["train", "--task", "qa", *common]).exit_code == 2
     shutil.rmtree(tmp_path / "models" / "encoder-ner")
     assert runner.invoke(app, args).exit_code != 0
+
+
+def test_fingerprint_covers_code_and_library_versions(
+    p4_layers: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from importlib import metadata
+
+    from necrohub.train import stage
+
+    params = p4_params()
+    base = stage.fingerprint("ner", params, "a" * 64)
+    assert base == stage.fingerprint("ner", params, "a" * 64) and len(base) == 16
+    assert base != stage.fingerprint("sections", params, "a" * 64)
+    assert base != stage.fingerprint("ner", params, "b" * 64)
+    monkeypatch.setattr(stage, "_code_sha256", lambda: "changed")
+    assert base != stage.fingerprint("ner", params, "a" * 64)
+    monkeypatch.undo()
+    real = metadata.version
+    monkeypatch.setattr(
+        stage.metadata, "version", lambda n: "0.0" if n == "transformers" else real(n)
+    )
+    assert base != stage.fingerprint("ner", params, "a" * 64)

@@ -2,6 +2,7 @@
 
 import hashlib
 import shutil
+from importlib import metadata
 from pathlib import Path
 from typing import Any, Literal
 
@@ -14,6 +15,7 @@ from necrohub.runs import (
     StageFailed,
     atomic_dir,
     canonical_json,
+    file_sha256,
     read_jsonl,
     sha256_tree,
     stage_run,
@@ -26,14 +28,27 @@ from necrohub.train.labels import NER_LABELS, SECTION_LABELS
 Task = Literal["ner", "sections"]
 
 
+def _code_sha256() -> str:
+    """Hash of the training sources, so a code change never resumes stale weights."""
+    h = hashlib.sha256()
+    root = Path(__file__).parent
+    for f in sorted(root.glob("*.py")):
+        h.update(f"{f.name}\0{file_sha256(f)}\n".encode())
+    return h.hexdigest()
+
+
 def fingerprint(task: str, params: Params, dataset_sha256: str) -> str:
-    """16 hex characters over everything that decides the trained weights."""
+    """16 hex characters over everything that decides the trained weights: task, params, seed,
+    dataset, the training code and the torch and transformers versions."""
     payload = {
         "task": task,
         "train": params.train.model_dump(),
         "base_model": params.train.base_model,
         "seed": params.seed,
         "dataset_sha256": dataset_sha256,
+        "code_sha256": _code_sha256(),
+        "torch": metadata.version("torch"),
+        "transformers": metadata.version("transformers"),
     }
     return hashlib.sha256(canonical_json(payload).encode("utf-8")).hexdigest()[:16]
 
