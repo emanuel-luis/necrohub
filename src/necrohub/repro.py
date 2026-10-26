@@ -52,6 +52,7 @@ _EXACT = frozenset(
         "seed",
         "schema_version",
         "resumed_from_step",
+        "regex",  # the regex baseline's scores: deterministic code over the dataset text
     }
 )
 _COUNTS = frozenset({"tp", "fp", "fn", "pii_spans_missed"})

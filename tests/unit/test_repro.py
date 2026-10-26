@@ -129,6 +129,13 @@ def test_data_determined_fields_are_exact() -> None:
     assert model_diffs(nested, {"n_records": {"train": 6, "validation": 1}})
 
 
+def test_regex_baseline_scores_are_exact() -> None:
+    base = {"regex": {"strict": {"f1": 0.7458}, "pii_spans_missed": 3}}
+    drift = {"regex": {"strict": {"f1": 0.7459}, "pii_spans_missed": 3}}
+    got = compare_model_metrics(base, drift, "m", rel_tol=0.05, abs_tol=0.05, count_tol=2)
+    assert got.errors and not got.warnings
+
+
 def test_model_determined_values_use_the_tolerances() -> None:
     base = {"train_loss": 1.0, "pii_spans_missed": 10, "per_label": {"A": LABEL}}
     close = {"train_loss": 1.04, "pii_spans_missed": 12, "per_label": {"A": {**LABEL, "fp": 3}}}
