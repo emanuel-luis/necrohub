@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+import pytest
 import yaml
 from typer.testing import CliRunner
 
@@ -75,7 +76,10 @@ def test_cli_passes_within_tolerance(tmp_path: Path) -> None:
     assert result.exit_code == 0 and "warning:" not in result.output
 
 
-def test_cli_model_drift_warns_and_exits_zero(tmp_path: Path) -> None:
+def test_cli_model_drift_warns_and_exits_zero(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.delenv("GITHUB_ACTIONS", raising=False)  # CI sets it; the plain form comes first
     write_metrics(tmp_path / "a", 0.5)
     write_metrics(tmp_path / "far", 0.9)
     result = run(tmp_path, tmp_path / "a", tmp_path / "far")
