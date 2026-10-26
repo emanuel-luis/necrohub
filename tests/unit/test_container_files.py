@@ -30,8 +30,8 @@ def test_dockerfile_is_pinned_non_root_with_a_healthcheck() -> None:
 def test_dockerfile_gives_the_app_user_a_home_and_a_writable_runs_dir() -> None:
     text = (ROOT / "Dockerfile").read_text("utf-8")
     assert "--create-home necrohub" in text
-    runs = text.index("mkdir /app/runs && chown necrohub:necrohub /app/runs")
-    assert runs < text.index("USER necrohub")
+    runs = text.index("mkdir /app/runs && chown 10001:10001 /app/runs")
+    assert runs < text.index("USER 10001:10001")
     assert "# hadolint ignore=SC2086" in text
 
 

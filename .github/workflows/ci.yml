@@ -160,6 +160,11 @@ jobs:
         with: { persist-credentials: false }
       - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
         with: { python-version: "3.12", enable-cache: true }
+      # a throwaway test value, not a secret; first, so the logs and down steps can always
+      # interpolate compose.yaml even when an earlier step fails
+      - run: |
+          cp .env.example .env
+          sed -i 's/^POSTGRES_PASSWORD=.*/POSTGRES_PASSWORD=ci-only-not-a-secret/' .env
       # hadolint/hadolint:latest-debian, pinned by the digest of its multi-arch index
       - run: >-
           docker run --rm -i
@@ -168,10 +173,6 @@ jobs:
       # only the data stages up to the index (hashing embedder, no torch)
       - run: uv sync --locked --extra pipeline
       - run: uv run dvc repro index
-      # a throwaway test value, not a secret
-      - run: |
-          cp .env.example .env
-          sed -i 's/^POSTGRES_PASSWORD=.*/POSTGRES_PASSWORD=ci-only-not-a-secret/' .env
       - run: docker compose build
       - run: docker compose up -d --wait db loader api ui
       - run: bash scripts/compose_smoke.sh

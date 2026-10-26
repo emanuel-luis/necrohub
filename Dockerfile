@@ -16,11 +16,11 @@ FROM python:3.12-slim-bookworm@sha256:6a0e06f5ba0b373d051aabd3fffb9b873f27f9a2a3
 RUN groupadd --gid 10001 necrohub && useradd --uid 10001 --gid 10001 --create-home necrohub
 WORKDIR /app
 # stage_run writes runs/<stage>/<id>.json under the working directory
-RUN mkdir /app/runs && chown necrohub:necrohub /app/runs
+RUN mkdir /app/runs && chown 10001:10001 /app/runs
 COPY --from=builder /app/.venv /app/.venv
 COPY params.yaml ./
 ENV PATH="/app/.venv/bin:$PATH" PYTHONUNBUFFERED=1 NECROHUB_PARAMS=/app/params.yaml
-USER necrohub
+USER 10001:10001
 EXPOSE 8000
 # the ui and loader services override this in compose.yaml
 HEALTHCHECK --interval=10s --timeout=5s --start-period=20s --retries=5 \
