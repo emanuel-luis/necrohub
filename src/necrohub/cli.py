@@ -370,9 +370,12 @@ def query(
         Path | None, typer.Option(help="Index directory. Default: NECROHUB_INDEX_DIR.")
     ] = None,
     k: Annotated[int, typer.Option(min=1, max=20, help="Chunks to retrieve.")] = 4,
-    params: Annotated[Path, typer.Option(help="Pipeline parameters file (embed).")] = Path(
-        "params.yaml"
-    ),
+    params: Annotated[
+        Path | None,
+        typer.Option(
+            help="Pipeline parameters file (embed). Default: NECROHUB_PARAMS or params.yaml."
+        ),
+    ] = None,
 ) -> None:
     """Answer a question from the serving index and print the answer with its citations."""
     from necrohub.embed.factory import build_embedder
@@ -385,12 +388,23 @@ def query(
     if store not in (None, "memory", "pgvector"):
         typer.echo(f"unknown store: {store} (memory or pgvector)", err=True)
         raise typer.Exit(2)
-    overrides: dict[str, object] = {"params_path": params}
+    overrides: dict[str, object] = {}
+    if params:
+        overrides["params_path"] = params
     if store:
         overrides["store"] = store
     if index:
         overrides["index_dir"] = index
     settings = Settings(**overrides)  # type: ignore[arg-type]
+    db_errors: tuple[type[Exception], ...] = ()
+    if settings.store == "pgvector":
+        try:
+            import psycopg
+
+            db_errors = (psycopg.Error,)
+        except ImportError:
+            pass
+    caught: tuple[type[Exception], ...] = (ConfigError, LlmError, ValueError, OSError, *db_errors)
     try:
         embedder = build_embedder(load_params(settings.params_path).embed)
         vector_store, version, _ = open_store(settings, embedder.id)
@@ -408,7 +422,7 @@ def query(
                 version, embedder.embed([question])[0], k, doc_id=case_id_in(question)
             )
         }
-    except (ConfigError, LlmError, ValueError, OSError) as exc:
+    except caught as exc:
         typer.echo(f"{type(exc).__name__}: {exc}", err=True)
         raise typer.Exit(1) from exc
     typer.echo(f"Pergunta: {result.question}")

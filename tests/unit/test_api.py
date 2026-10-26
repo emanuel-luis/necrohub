@@ -1,4 +1,4 @@
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from pathlib import Path
 
 import pytest
@@ -95,3 +95,72 @@ def test_pgvector_store_needs_a_dsn(serving_layers: Path, monkeypatch: pytest.Mo
     settings = Settings(index_dir=serving_layers / "index", store="pgvector")
     with pytest.raises(ConfigError, match="DATABASE_URL"):
         create_app(settings, embedder=HashingEmbedder(256))
+
+
+def _params_file(path: Path, dim: int) -> Path:
+    path.write_text(
+        "seed: 7\n"
+        "generate: {n_cases: 1, realizer: template, holdout_templates: [], max_reject_fraction: 0.2}\n"
+        f"embed: {{backend: hashing, dim: {dim}}}\n",
+        encoding="utf-8",
+    )
+    return path
+
+
+def test_numbered_env_var_selects_the_params_file(
+    serving_layers: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    wrong = _params_file(tmp_path / "p.yaml", 64)
+    monkeypatch.setenv("NECROHUB_PARAMS", str(wrong))
+    settings = Settings(index_dir=serving_layers / "index")
+    assert settings.params_path == wrong
+    with pytest.raises(ConfigError, match="hashing-64"):  # the embedder comes from that file
+        create_app(settings)
+    monkeypatch.delenv("NECROHUB_PARAMS")
+    assert Settings(params_path=wrong).params_path == wrong  # the field name still works
+
+
+def test_query_uses_necrohub_params(
+    serving_layers: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from typer.testing import CliRunner
+
+    from necrohub.cli import app as cli_app
+
+    monkeypatch.setenv("NECROHUB_PARAMS", str(_params_file(tmp_path / "p.yaml", 64)))
+    result = CliRunner().invoke(
+        cli_app, ["query", QUESTION, "--index", str(serving_layers / "index")]
+    )
+    assert result.exit_code == 1 and "hashing-64" in result.output
+
+
+def _fake_pg(stored: str | None) -> Callable[[object, str], str | None]:
+    return lambda _store, _version: stored
+
+
+@pytest.mark.parametrize(
+    ("stored", "message"),
+    [(None, "not loaded"), ("hashing-64", "differs")],
+)
+def test_pgvector_checks_the_stored_embedder(
+    serving_layers: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    stored: str | None,
+    message: str,
+) -> None:
+    monkeypatch.setenv("DATABASE_URL", "postgresql://u:pw@localhost/db")
+    monkeypatch.setattr("necrohub.index.pgvector.PgVectorStore.index_embedder_id", _fake_pg(stored))
+    settings = Settings(index_dir=serving_layers / "index", store="pgvector")
+    with pytest.raises(ConfigError, match=message):
+        create_app(settings, embedder=HashingEmbedder(256))
+
+
+def test_pgvector_accepts_a_matching_embedder(
+    serving_layers: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("DATABASE_URL", "postgresql://u:pw@localhost/db")
+    monkeypatch.setattr(
+        "necrohub.index.pgvector.PgVectorStore.index_embedder_id", _fake_pg("hashing-256")
+    )
+    settings = Settings(index_dir=serving_layers / "index", store="pgvector")
+    assert create_app(settings, embedder=HashingEmbedder(256)).title == "necrohub"
