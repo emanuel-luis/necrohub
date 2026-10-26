@@ -331,3 +331,30 @@ def index_build(
         typer.echo(str(exc), err=True)
         raise typer.Exit(1) from exc
     typer.echo(f"index build: {run.counts.written} chunks in {out.as_posix()} (run {run.run_id})")
+
+
+@index_app.command("load")
+def index_load(
+    in_: Annotated[Path, typer.Option("--in", help="Index directory.")] = Path(
+        "data/serving/index"
+    ),
+    runs_dir: Annotated[Path, typer.Option(help="Where run manifests go.")] = Path("runs"),
+) -> None:
+    """Upsert the index into pgvector (DATABASE_URL), keyed by its index_version."""
+    import psycopg
+
+    from necrohub.index.load import run_index_load
+    from necrohub.index.pgvector import PgVectorStore
+    from necrohub.runs import StageFailed
+    from necrohub.settings import Settings
+
+    dsn = Settings().database_url
+    if dsn is None:
+        typer.echo("DATABASE_URL is not set", err=True)
+        raise typer.Exit(1)
+    try:
+        run = run_index_load(in_, PgVectorStore(dsn), runs_dir=runs_dir)
+    except (StageFailed, ValueError, OSError, psycopg.Error) as exc:
+        typer.echo(f"{type(exc).__name__}: {exc}", err=True)
+        raise typer.Exit(1) from exc
+    typer.echo(f"index load: {run.counts.written} chunks stored (run {run.run_id})")
