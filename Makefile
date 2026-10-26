@@ -6,8 +6,8 @@ help:           ## list the targets
 install:        ## sync the environment from uv.lock
 	uv sync --locked
 
-install-ml:     ## sync with every extra: ml, cpu (CPU torch wheels), ollama, genai, pipeline (dvc); needed by `make type` and `make test-ml`
-	uv sync --locked --extra ml --extra cpu --extra ollama --extra genai --extra pipeline
+install-ml:     ## sync with every extra: ml, cpu (CPU torch wheels), ollama, genai, pipeline (dvc), db, serve; needed by `make type` and `make test-ml`
+	uv sync --locked --extra ml --extra cpu --extra ollama --extra genai --extra pipeline --extra db --extra serve
 
 install-gpu:    ## CUDA 12.6 torch + ml + pipeline extras: a multi-GB download, for local GPU training only
 	uv sync --locked --extra ml --extra cu126 --extra pipeline

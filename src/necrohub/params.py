@@ -136,6 +136,36 @@ class EvaluateParams(BaseModel):
     baselines: list[Literal["regex"]] = ["regex"]
 
 
+class HfEmbedParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    model: str = "pucpr/biobertpt-clin"
+    layer_weighting: Literal["last", "linear_decay"] = "last"
+    max_length: int = Field(default=512, ge=8)
+    stride: int = Field(default=64, ge=0)  # token overlap between windows of a long text
+
+
+class EmbedParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    backend: Literal["hashing", "hf"] = "hashing"
+    dim: int = Field(default=256, ge=1)  # hashing only; hf takes the model's hidden size
+    hf: HfEmbedParams = Field(default_factory=HfEmbedParams)
+
+
+class IndexParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    chunk_tokens: int = Field(default=128, ge=2)
+    chunk_stride: int = Field(default=32, ge=0)
+
+    @model_validator(mode="after")
+    def _stride_below_tokens(self) -> Self:
+        if self.chunk_stride >= self.chunk_tokens:
+            raise ValueError("index.chunk_stride must be smaller than index.chunk_tokens")
+        return self
+
+
 class Params(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
@@ -146,6 +176,8 @@ class Params(BaseModel):
     dataset: DatasetParams = Field(default_factory=DatasetParams)
     train: TrainParams = Field(default_factory=TrainParams)
     evaluate: EvaluateParams = Field(default_factory=EvaluateParams)
+    embed: EmbedParams = Field(default_factory=EmbedParams)
+    index: IndexParams = Field(default_factory=IndexParams)
 
 
 def load_params(path: Path) -> Params:

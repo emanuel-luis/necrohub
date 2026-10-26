@@ -43,3 +43,10 @@ train:
   tiny: {vocab_size: 2000, hidden_size: 64, num_layers: 2, num_heads: 2, intermediate_size: 128}
 evaluate:
   baselines: [regex]
+embed:
+  backend: hashing  # or hf (needs the ml extra and the model on disk or the Hub)
+  dim: 256  # hashing only
+  hf: {model: pucpr/biobertpt-clin, layer_weighting: last, max_length: 512, stride: 64}
+index:
+  chunk_tokens: 128  # word and punctuation tokens per chunk
+  chunk_stride: 32  # tokens shared by consecutive chunks of a section

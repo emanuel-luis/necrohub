@@ -8,6 +8,10 @@ from necrohub import __version__
 app = typer.Typer(
     no_args_is_help=True, add_completion=False, help="Synthetic necropsy report pipeline."
 )
+index_app = typer.Typer(
+    no_args_is_help=True, help="Build the serving index or load it into pgvector."
+)
+app.add_typer(index_app, name="index")
 
 
 def _version(value: bool) -> None:
@@ -295,3 +299,35 @@ def evaluate(
         typer.echo(str(exc), err=True)
         raise typer.Exit(1) from exc
     typer.echo(f"evaluate: {out.as_posix()} (run {run.run_id})")
+
+
+@index_app.command("build")
+def index_build(
+    params: Annotated[Path, typer.Option(help="Pipeline parameters file.")] = Path("params.yaml"),
+    in_: Annotated[Path, typer.Option("--in", help="Processed layer directory.")] = Path(
+        "data/processed"
+    ),
+    gold: Annotated[Path, typer.Option(help="Raw gold records (the leak metric only).")] = Path(
+        "data/raw/gold"
+    ),
+    out: Annotated[Path, typer.Option(help="Index directory to (re)write.")] = Path(
+        "data/serving/index"
+    ),
+    runs_dir: Annotated[Path, typer.Option(help="Where run manifests go.")] = Path("runs"),
+    metrics_dir: Annotated[Path, typer.Option(help="Where metrics/index.json goes.")] = Path(
+        "metrics"
+    ),
+) -> None:
+    """Chunk the redacted text of the processed layer, embed it and write the index files."""
+    from necrohub.index.build import run_index_build
+    from necrohub.params import load_params
+    from necrohub.runs import StageFailed
+
+    try:
+        run = run_index_build(
+            load_params(params), in_, gold, out, runs_dir=runs_dir, metrics_dir=metrics_dir
+        )
+    except (StageFailed, ValueError) as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(1) from exc
+    typer.echo(f"index build: {run.counts.written} chunks in {out.as_posix()} (run {run.run_id})")
