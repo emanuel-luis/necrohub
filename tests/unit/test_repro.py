@@ -7,7 +7,7 @@ import yaml
 from typer.testing import CliRunner
 
 from necrohub.cli import app
-from necrohub.repro import DATA_STAGES, MODEL_STAGES, compare_lock
+from necrohub.repro import DATA_STAGES, MODEL_STAGES, compare_lock, compare_model_metrics
 
 LOCK: dict[str, Any] = {
     "schema": "2.0",
@@ -88,3 +88,52 @@ def test_cli_fails_when_a_data_metric_changes_or_is_missing(tmp_path: Path) -> N
     assert run(tmp_path, tmp_path / "a", tmp_path / "b") == 1
     (tmp_path / "b" / "generate.json").unlink()
     assert run(tmp_path, tmp_path / "a", tmp_path / "b") == 1
+
+
+def model_diffs(base: Any, new: Any, **kw: Any) -> list[str]:
+    tol: dict[str, Any] = {"rel_tol": 0.05, "abs_tol": 0.05, "count_tol": 2}
+    return compare_model_metrics(base, new, "m", **{**tol, **kw})
+
+
+LABEL = {"tp": 4, "fp": 1, "fn": 2, "precision": 0.8, "recall": 0.6667, "f1": 0.7273}
+
+
+def test_data_determined_fields_are_exact() -> None:
+    base = {"n_records": 10, "n_steps": 100, "dataset_sha256": "a", "base_model": "x"}
+    assert model_diffs(base, dict(base)) == []
+    for key, other in (("n_records", 11), ("n_steps", 101), ("dataset_sha256", "b")):
+        assert model_diffs(base, {**base, key: other}), key
+    nested = {"n_records": {"train": 5, "validation": 1}}
+    assert model_diffs(nested, {"n_records": {"train": 6, "validation": 1}})
+
+
+def test_model_determined_values_use_the_tolerances() -> None:
+    base = {"train_loss": 1.0, "pii_spans_missed": 10, "per_label": {"A": LABEL}}
+    close = {"train_loss": 1.04, "pii_spans_missed": 12, "per_label": {"A": {**LABEL, "fp": 3}}}
+    assert model_diffs(base, close) == []
+    assert model_diffs(base, {**close, "train_loss": 1.2})
+    assert model_diffs(base, {**close, "pii_spans_missed": 13})
+    assert model_diffs(base, close, count_tol=0)
+
+
+def test_gold_support_is_exact_even_when_tp_and_fn_move() -> None:
+    base = {"per_label": {"A": LABEL}}
+    moved = {"per_label": {"A": {**LABEL, "tp": 5, "fn": 1, "precision": 0.8333}}}  # support 6
+    assert model_diffs(base, moved, rel_tol=0.5, abs_tol=0.5) == []
+    lost = {"per_label": {"A": {**LABEL, "fn": 1}}}  # support 5: the data changed
+    assert any("gold support" in d for d in model_diffs(base, lost, rel_tol=0.5, abs_tol=0.5))
+
+
+def test_a_label_missing_on_one_side_counts_as_zeros() -> None:
+    predicted_only = {"tp": 0, "fp": 1, "fn": 0, "precision": 0.0, "recall": 0.0, "f1": 0.0}
+    base = {"per_label": {"A": LABEL}}
+    new = {"per_label": {"A": LABEL, "B": predicted_only}}
+    assert model_diffs(base, new) == []  # a stray false positive is within count_tol
+    with_support = {"per_label": {"A": LABEL, "B": {**predicted_only, "tp": 1, "fp": 0}}}
+    assert any("gold support" in d for d in model_diffs(base, with_support))
+
+
+def test_structure_and_type_changes_are_reported() -> None:
+    assert model_diffs({"a": 1.0}, {"b": 1.0})
+    assert model_diffs({"val_loss": None}, {"val_loss": 1.0})
+    assert model_diffs({"x": [1.0, 2.0]}, {"x": [1.0]})

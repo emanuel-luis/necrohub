@@ -181,6 +181,9 @@ def check_repro(
     ),
     abs_tol: Annotated[float, typer.Option(help="Float tolerance, model stages.")] = 0.05,
     rel_tol: Annotated[float, typer.Option(help="Relative float tolerance, model stages.")] = 0.05,
+    count_tol: Annotated[
+        int, typer.Option(help="Tolerance on tp, fp, fn and missed PII counts, model stages.")
+    ] = 2,
 ) -> None:
     """Fail unless data stages reproduce bit for bit and model stages within tolerance."""
     from necrohub.repro import check_repro as compare

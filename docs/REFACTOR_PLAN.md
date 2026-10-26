@@ -558,6 +558,11 @@ P4 as built (P4a; the GPU run and the model card numbers are P4b):
   outside the DVC out and are deleted after a successful run (decision 16).
 - The demo gate is bit for bit for the data stages and tolerant for the model stages, through
   `necrohub check-repro` (decision 17).
+  Model stages: counts, steps, dataset hashes and the gold support of each label (tp + fn) must
+  match exactly; P/R/F1, accuracy, losses (rel and abs 0.05) and tp, fp, fn and missed PII spans
+  (count tolerance 2) are compared with tolerance; a label missing on one side counts as zeros.
+  Measured on Linux (WSL) against the Windows baseline: data stages and the NER model identical;
+  the sections model (near chance on 16 training cases) drifts beyond these tolerances.
 - `metrics/eval.json` has two scopes, `random` and `heldout_templates`, chosen by the gold
   template of each test case. The regex baseline is scored on PII labels only; the encoder on
   every label. Regex detections are merged with `merge_spans` (longest wins), as the pipeline does.
