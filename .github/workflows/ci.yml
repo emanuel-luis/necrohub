@@ -46,7 +46,7 @@ jobs:
       - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
         with: { python-version: "3.12", enable-cache: true }
       # src imports torch, transformers and the LLM SDKs lazily, so mypy needs the extras
-      - run: uv sync --locked --extra ml --extra cpu --extra ollama --extra genai --extra db --extra serve
+      - run: uv sync --locked --extra ml --extra cpu --extra ollama --extra genai --extra db --extra serve --extra ui
       - run: uv run mypy
 
   test-unit:
@@ -147,3 +147,36 @@ jobs:
           name: metrics
           path: metrics/
           if-no-files-found: error
+
+  compose-smoke:
+    name: compose-smoke (db, loader, api, ui)
+    runs-on: ubuntu-latest
+    needs: test-unit
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { persist-credentials: false }
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with: { python-version: "3.12", enable-cache: true }
+      # a throwaway test value, not a secret; first, so the logs and down steps can always
+      # interpolate compose.yaml even when an earlier step fails
+      - run: |
+          cp .env.example .env
+          sed -i 's/^POSTGRES_PASSWORD=.*/POSTGRES_PASSWORD=ci-only-not-a-secret/' .env
+      # hadolint/hadolint:latest-debian, pinned by the digest of its multi-arch index
+      - run: >-
+          docker run --rm -i
+          hadolint/hadolint@sha256:9a3944b7fddcb947d1ffd90829ac1a6e5c30479223358f249d8b96c7d0019e27
+          < Dockerfile
+      # only the data stages up to the index (hashing embedder, no torch)
+      - run: uv sync --locked --extra pipeline
+      - run: uv run dvc repro index
+      - run: docker compose build
+      - run: docker compose up -d --wait db loader api ui
+      - run: bash scripts/compose_smoke.sh
+      - run: docker compose logs --no-color
+        if: failure()
+      - run: docker compose down -v
+        if: always()

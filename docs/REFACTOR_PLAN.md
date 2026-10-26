@@ -626,6 +626,14 @@ Files: `serve/ui.py` (Streamlit over HTTP to the api), `Dockerfile`, `.dockerign
 Done when `make demo && make up` serves the UI, and `docker compose --profile ollama up` switches
 answering to Ollama.
 
+**P7 as built.** The UI is `serve/ui.py`, run by `necrohub ui` (`streamlit run` on that file; a
+guarded call at the bottom renders only inside Streamlit). The image has no torch: the index uses the
+hashing embedder. Compose has db, loader, api, ui and, in profile `ollama`, ollama and ollama-pull;
+the api depends on ollama-pull with `required: false`, so the profile switch is
+`NECROHUB_LLM=ollama docker compose --profile ollama up -d --wait`. `make smoke` and CI run
+`scripts/compose_smoke.sh` (curl and jq). Not exercised locally: the image build and the stack only
+run in CI's `compose-smoke`. See decisions 24 and 25.
+
 ### P8: docs and CI polish
 
 Deliverables:

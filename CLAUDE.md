@@ -7,7 +7,7 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
 
 - `uv sync --locked`: install (never sync a CUDA build; the torch wheels come from the `cpu` extra).
 - `make install-ml`: `uv sync --locked --extra ml --extra cpu --extra ollama --extra genai --extra
-  pipeline --extra db --extra serve` (every extra; `pipeline` is dvc); needed before `make type` and `make test-ml`. Without the `ollama`/`genai` extras the client tests skip.
+  pipeline --extra db --extra serve --extra ui` (every extra; `pipeline` is dvc); needed before `make type` and `make test-ml`. Without the `ollama`/`genai` extras the client tests skip.
 - `make lint`: `ruff check`, `ruff format --check`, `necrohub check-identifiers`.
 - `make type`: strict mypy on `src` (after `make install-ml`).
 - `make test-ml`: `ml` tests with tiny local models, `HF_HUB_OFFLINE=1`. `external` tests download real models and never run in CI.
@@ -35,9 +35,9 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
 - `make index` / `necrohub index build --in data/processed --gold data/raw/gold --out data/serving/index`:
   redacted chunks, vectors and `index.json`. `necrohub index load` upserts them into pgvector
   (`DATABASE_URL`); `necrohub query "<question>" [--store memory|pgvector] [--index DIR] [--k 4]`;
-  `necrohub serve` (`GET /healthz`, `POST /ask`; `NECROHUB_STORE`, `NECROHUB_INDEX_DIR`,
-  `NECROHUB_INDEX_VERSION`, `NECROHUB_LLM`, `NECROHUB_PARAMS`). `docker compose up -d --wait db` starts
-  Postgres (copy `.env.example` to `.env`); `pytest -m db` needs `DATABASE_URL` and skips without it.
+  `necrohub ui [--port 8501]` (Streamlit over HTTP to the API, `NECROHUB_API_URL`; `ui` extra); `necrohub serve` (`GET /healthz`, `POST /ask`; `NECROHUB_STORE`, `NECROHUB_INDEX_DIR`,
+  `NECROHUB_INDEX_VERSION`, `NECROHUB_LLM`, `NECROHUB_PARAMS`). `make up` (after `make demo`) builds the `Dockerfile` and starts db, loader, api and ui
+  with compose (copy `.env.example` to `.env`; `make smoke`, `make down`; `NECROHUB_LLM=ollama docker compose --profile ollama up -d --wait` adds Ollama); `pytest -m db` needs `DATABASE_URL` and skips without it.
 - `make demo` = `uv run --locked --extra pipeline dvc repro` (generate to index; `dvc.yaml`) then
   `necrohub query` (needs
   `make install-ml`). After a change that alters data or metrics, rerun it and commit `dvc.lock` and
@@ -82,7 +82,8 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
   (`PgVectorStore`, lazy psycopg), `load` (`run_index_load`). `contracts/serving.py`: `Chunk`,
   `RetrievedChunk`, `Answer`, `IndexInfo`.
 - `src/necrohub/serve/`: `rag` (`answer`, extractive or LLM, case-id filter), `runtime` (`open_store`,
-  embedder check), `api` (`create_app`), `prompts/rag_system.txt`.
+  embedder check), `api` (`create_app`), `ui` (Streamlit page, pure helpers), `prompts/rag_system.txt`. `Dockerfile`,
+  `compose.yaml`, `scripts/compose_smoke.sh`: the container stack.
 - `src/necrohub/train/`: `labels` (pure BIO encode/decode, `merge_windows`), `tiny` (WordPiece + BERT
   from scratch, offline), `encoder` (Trainer wrapper `train_task`, `predict_ner`, `predict_sections`),
   `gpu`, `stage` (`run_train`; checkpoints under `models/.checkpoints/<task>/<fingerprint>`).

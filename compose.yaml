@@ -1,6 +1,22 @@
-# Local stack. P7 adds api, ui and ollama; for now only the database that `necrohub index load` fills.
-# Copy .env.example to .env first: compose reads POSTGRES_* from it.
+# The local stack: db, loader (index into pgvector), api, ui; profile `ollama` adds a local LLM.
+# Copy .env.example to .env first: compose reads POSTGRES_* from it. `make demo` builds the index
+# in data/serving/index; `make up` starts everything. Ollama:
+#   NECROHUB_LLM=ollama docker compose --profile ollama up -d --wait
+# GPU for ollama is an override, not the default: add `deploy.resources.reservations.devices`
+# (driver nvidia, count all, capabilities [gpu]) to the ollama service in a compose.override.yaml.
 name: necrohub
+
+x-app: &app
+  image: necrohub:local
+  pull_policy: never
+  environment: &app-env
+    NECROHUB_STORE: pgvector
+    NECROHUB_INDEX_DIR: /data/serving/index
+    NECROHUB_LLM: ${NECROHUB_LLM:-extractive}
+    NECROHUB_LLM_MODEL: ${NECROHUB_LLM_MODEL:-qwen3:4b-instruct-2507-q4_K_M}
+    OLLAMA_HOST: http://ollama:11434
+    # assembled here from POSTGRES_*; keep URL-unsafe characters out of the password
+    DATABASE_URL: postgresql://${POSTGRES_USER:-necrohub}:${POSTGRES_PASSWORD:?copy .env.example to .env and set POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-necrohub}
 
 services:
   db:
@@ -20,5 +36,75 @@ services:
       timeout: 5s
       retries: 10
 
+  loader:
+    <<: *app
+    command: ["necrohub", "index", "load", "--in", "/data/serving/index"]
+    volumes:
+      - ./data/serving:/data/serving:ro
+    restart: "no"
+    healthcheck:
+      disable: true
+    depends_on:
+      db: { condition: service_healthy }
+
+  api:
+    <<: *app
+    build: .
+    command: ["necrohub", "serve", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./data/serving:/data/serving:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:8000/healthz', timeout=4)"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+    depends_on:
+      db: { condition: service_healthy }
+      loader: { condition: service_completed_successfully }
+      # only with the ollama profile; otherwise the entry is ignored
+      ollama-pull: { condition: service_completed_successfully, required: false }
+
+  ui:
+    <<: *app
+    command: ["necrohub", "ui", "--host", "0.0.0.0", "--port", "8501"]
+    environment:
+      NECROHUB_API_URL: http://api:8000
+    ports:
+      - "127.0.0.1:8501:8501"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:8501/_stcore/health', timeout=4)"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+    depends_on:
+      api: { condition: service_healthy }
+
+  ollama:
+    # ollama/ollama:latest, pinned by the digest of its multi-arch index
+    image: ollama/ollama:latest@sha256:dea72d1e22270fe095b68fdf756d2b489d615643c5a2eaebbc5f569181e322d8
+    profiles: [ollama]
+    volumes:
+      - ollama:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  ollama-pull:
+    image: ollama/ollama:latest@sha256:dea72d1e22270fe095b68fdf756d2b489d615643c5a2eaebbc5f569181e322d8
+    profiles: [ollama]
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    command: ["pull", "${NECROHUB_LLM_MODEL:-qwen3:4b-instruct-2507-q4_K_M}"]
+    restart: "no"
+    depends_on:
+      ollama: { condition: service_healthy }
+
 volumes:
   pgdata:
+  ollama:
