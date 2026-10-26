@@ -8,6 +8,26 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- `necrohub train` (`make train`): fine-tunes an encoder for NER (BIO labels over tokenizer
+  offsets, windows with stride for long sections, window merge by distance from the edge) or
+  section classification with the Hugging Face `Trainer`. `train.base_model` is `tiny-scratch`
+  (a WordPiece tokenizer and a small BERT trained on the train split, offline; the demo) or a Hub
+  id or local directory. Seeded and deterministic on one machine; resumable checkpoints under
+  `models/.checkpoints/<task>/<fingerprint>`, removed after a good run. Out: `models/encoder-<task>`
+  with `necrohub_train.json`; metrics in `metrics/train_<task>.json`. New `train` params section;
+  `accelerate` joins the `ml` extra.
+- `necrohub evaluate` (`make evaluate`): strict and partial span precision, recall and F1 per label,
+  micro, macro and micro_pii, PII character recall and missed PII spans, for the regex
+  de-identifier and the encoder, and section accuracy and macro-F1, on the test split, split into
+  random and held-out-template scopes (`metrics/eval.json`).
+- `necrohub gpu-check` and the `cu126` extra (`make install-gpu`, `make gpu-check`): checks that
+  the CUDA torch build has kernels for the installed GPU. `cu126`, not `cu128`: there are no
+  torch 2.14.1 cu128 wheels (decision 15).
+- `necrohub check-repro`: the CI demo gate. Data stages must reproduce `dvc.lock` entries and
+  metrics bit for bit; the model stages (train_ner, train_sections, evaluate) must keep command,
+  params and inputs, and their metrics must match within a tolerance (decision 17).
+- DVC stages `train_ner`, `train_sections` and `evaluate`; the CI demo job now installs the `ml`
+  and `cpu` extras, runs offline and calls `check-repro`.
 - `necrohub build-dataset` (`make build-dataset`): processed layer and raw gold to
   `data/datasets/{ner,sections,extraction,qa}/{train,validation,test}.jsonl` plus a generated
   dataset card (`README.md`). Splits are seeded and by case; held-out templates go to test only.

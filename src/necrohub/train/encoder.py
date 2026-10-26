@@ -17,6 +17,7 @@ from transformers import (
     DataCollatorWithPadding,
     PreTrainedModel,
     PreTrainedTokenizerBase,
+    PrinterCallback,
     Trainer,
     TrainingArguments,
     set_seed,
@@ -211,6 +212,7 @@ def train_task(
         data_collator=collator,
         processing_class=tokenizer,
     )
+    trainer.remove_callback(PrinterCallback)  # one dict per step on stdout; the metrics file has it
     last = get_last_checkpoint(str(ckpt_dir)) if ckpt_dir.is_dir() else None  # type: ignore[no-untyped-call]
     trainer.train(resume_from_checkpoint=last)
     val_loss = float(trainer.evaluate()["eval_loss"]) if val_rows else None

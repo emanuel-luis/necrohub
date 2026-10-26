@@ -31,9 +31,9 @@ train:
   tasks: [ner, sections]
   max_length: 256
   stride: 64  # token overlap between windows of a long section
-  epochs: 8  # demo; the full run overrides it
+  epochs: 30  # demo; the full run overrides it
   batch_size: 8
-  learning_rate: 5.0e-4  # tiny-scratch; the full run uses 5e-5
+  learning_rate: 2.0e-3  # tiny-scratch; the full run uses 5e-5
   weight_decay: 0.01
   warmup_ratio: 0.1
   fp16: false  # needs a CUDA device

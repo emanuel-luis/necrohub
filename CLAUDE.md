@@ -21,9 +21,17 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
   alignment metric, default `raw` next to `--in`). Same `--params`, `--runs-dir`, `--metrics-dir`.
 - `make build-dataset` / `uv run necrohub build-dataset --processed data/processed --raw data/raw
   --out data/datasets`: per-task splits and the dataset card.
-- `make demo` = `uv run --locked --extra pipeline dvc repro` (all four stages; `dvc.yaml`). After a
-  change that alters data or metrics, rerun it and commit `dvc.lock` and `metrics/`: CI's demo job
-  fails when a clean Linux run does not reproduce them bit for bit. No DVC remote, no push/pull.
+- `make train` / `uv run necrohub train --task ner|sections --data data/datasets --out models/encoder-<task>`:
+  fine-tune the encoder (`train.base_model`: `tiny-scratch` or a Hub id). `make evaluate` /
+  `uv run necrohub evaluate --models models --data data/datasets --raw data/raw --out metrics/eval.json`.
+- `make install-gpu` (`--extra cu126`, multi-GB) then `make gpu-check` (`necrohub gpu-check`: the torch
+  CUDA build has kernels for the installed GPU). Never sync it on the shared machine.
+- `necrohub check-repro --baseline-lock <copy> --baseline-metrics <copy>`: compares a fresh
+  `dvc.lock` and `metrics/` with copies taken before the run.
+- `make demo` = `uv run --locked --extra pipeline dvc repro` (generate to evaluate; `dvc.yaml`; needs
+  `make install-ml`). After a change that alters data or metrics, rerun it and commit `dvc.lock` and
+  `metrics/`: CI's demo job runs `check-repro`, which needs the data stages to reproduce bit for bit
+  and the model stages (train_*, evaluate) within a numeric tolerance. No DVC remote, no push/pull.
   A new import in a stage needs its source in that stage's `dvc.yaml` deps
   (`tests/unit/test_dvc_deps.py` fails otherwise).
 
@@ -35,7 +43,7 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
 - `src/necrohub/contracts/`: Pydantic models for spans, documents, generator gold (`gold.py`) and
   dataset records (`datasets.py`).
 - `src/necrohub/params.py` + `params.yaml`: typed params sections (`seed`, `generate` with `llm`,
-  `ingest`, `preprocess`, `dataset`).
+  `ingest`, `preprocess`, `dataset`, `train` with `tiny`, `evaluate`).
 - `src/necrohub/settings.py`: env settings (`NECROHUB_*`, `OLLAMA_HOST`, `GEMINI_API_KEY`).
 - `src/necrohub/llm/`: `base` (`ChatMessage`, `ChatLLM`, `LlmError`, `get_llm`), `ollama`, `gemini`
   (SDKs imported inside methods; never called in tests, which fake the SDK client).
@@ -57,6 +65,12 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
   templates to test), `build` (pure task-record builders, `project_gold`, PII leak count), `card`
   (dataset card from the metrics), `stage` (`run_build_dataset`).
 - `src/necrohub/embed/`: `base` (Embedder, cosine_matrix), `chunking`, `hashing`, `hf` (torch and transformers are imported inside functions and classes only).
+- `src/necrohub/train/`: `labels` (pure BIO encode/decode, `merge_windows`), `tiny` (WordPiece + BERT
+  from scratch, offline), `encoder` (Trainer wrapper `train_task`, `predict_ner`, `predict_sections`),
+  `gpu`, `stage` (`run_train`; checkpoints under `models/.checkpoints/<task>/<fingerprint>`).
+- `src/necrohub/evaluate/`: `metrics` (pure span and section scores), `stage` (`run_evaluate`: test
+  split, scopes `random` and `heldout_templates`, regex vs encoder).
+- `src/necrohub/repro.py`: the `check-repro` comparison.
 - `tests/unit` (`test_idempotency.py`: every stage through build-dataset twice gives the
   same hashes), `tests/ml`, `tests/external`, `tests/fixtures/reports`, `tests/golden`, `tests/conftest.py` (`golden` fixture).
 
@@ -66,6 +80,8 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
 - Never write a real-looking identifier as a literal. Build it at runtime in the test (compute the
   check digits) and use `example.org` e-mail addresses.
 - `data/` and `models/` never go into git.
+- The demo gate is bit for bit for the data stages (generate, ingest, preprocess, build_dataset); model
+  stages are compared with a tolerance (decision 17). Model metrics hold no timestamps or durations.
 - `necrohub check-identifiers` must pass before every commit and in CI.
 - No network in the default tests and no model downloads. `ml`, `db`, `external` and `slow` tests
   are deselected by default.

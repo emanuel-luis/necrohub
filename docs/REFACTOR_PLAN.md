@@ -550,6 +550,23 @@ dvc exp run -S generate.n_cases=1500 -S train.base_model=pucpr/biobertpt-clin -S
 GTX 1650 settings: batch 8, max_length 256, gradient checkpointing. The model card draft holds the
 real numbers. Local training holds the heavy lock.
 
+P4 as built (P4a; the GPU run and the model card numbers are P4b):
+
+- GPU extra is `cu126`, not `cu128` (no torch 2.14.1 cu128 wheels; decision 15). `sm_75` is
+  checked at runtime by `necrohub gpu-check`, and the train stage runs the same check on CUDA.
+- Training uses the transformers `Trainer`; checkpoints live in `models/.checkpoints/<task>/<fingerprint>`
+  outside the DVC out and are deleted after a successful run (decision 16).
+- The demo gate is bit for bit for the data stages and tolerant for the model stages, through
+  `necrohub check-repro` (decision 17).
+- `metrics/eval.json` has two scopes, `random` and `heldout_templates`, chosen by the gold
+  template of each test case. The regex baseline is scored on PII labels only; the encoder on
+  every label. Regex detections are merged with `merge_spans` (longest wins), as the pipeline does.
+- The demo trains 30 epochs at 2e-3 (the first sketch said 8 and 5e-4, which left the tiny model
+  predicting only the majority class). The demo model is a pipeline check, not a result: its F1 is
+  low next to the regex baseline, and the dataset has 16 training cases.
+- `necrohub_train.json` is written by the stage (it knows the dataset hash), not by `train_task`.
+- transformers 5: `warmup_ratio` is gone, `warmup_steps` below 1 is the share of the steps.
+
 ### P5: index and RAG API (after P3; parallel with P4)
 
 Files: `embed` integration, `index/*`, `serve/{rag,api}.py`, `necrohub query`.
