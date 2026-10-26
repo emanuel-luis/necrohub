@@ -6,8 +6,8 @@ stages:
     deps:
     - path: src/necrohub/cli.py
       hash: md5
-      md5: e4f3be608f3b69d5767a3d298ba00079
-      size: 6264
+      md5: 4c722926a1998d6ace27c41c27cc2518
+      size: 10540
     - path: src/necrohub/contracts
       hash: md5
       md5: ea971bc9f11183e1e1e741936259c402.dir
@@ -38,8 +38,8 @@ stages:
       nfiles: 4
     - path: src/necrohub/params.py
       hash: md5
-      md5: 9c70b361fc1aa73a44da05f36c9e0e98
-      size: 3395
+      md5: c39e60ebd9218ee21e14efbc51f40e6a
+      size: 5274
     - path: src/necrohub/preprocess/deid
       hash: md5
       md5: 27fe7b5d71bc991edcc6c3416908ad96.dir
@@ -63,8 +63,8 @@ stages:
       size: 1099
     - path: uv.lock
       hash: md5
-      md5: 3c995549fb40d320e49e79761568689e
-      size: 273767
+      md5: 8c300ab60dbd7f13c5f1c2dd08d0f5c2
+      size: 341522
     params:
       params.yaml:
         generate:
@@ -103,8 +103,8 @@ stages:
       nfiles: 56
     - path: src/necrohub/cli.py
       hash: md5
-      md5: e4f3be608f3b69d5767a3d298ba00079
-      size: 6264
+      md5: 4c722926a1998d6ace27c41c27cc2518
+      size: 10540
     - path: src/necrohub/contracts
       hash: md5
       md5: ea971bc9f11183e1e1e741936259c402.dir
@@ -117,8 +117,8 @@ stages:
       nfiles: 3
     - path: src/necrohub/params.py
       hash: md5
-      md5: 9c70b361fc1aa73a44da05f36c9e0e98
-      size: 3395
+      md5: c39e60ebd9218ee21e14efbc51f40e6a
+      size: 5274
     - path: src/necrohub/preprocess/normalize.py
       hash: md5
       md5: a6b2fd9868def86e1116636dcb6e783c
@@ -129,8 +129,8 @@ stages:
       size: 6545
     - path: uv.lock
       hash: md5
-      md5: 3c995549fb40d320e49e79761568689e
-      size: 273767
+      md5: 8c300ab60dbd7f13c5f1c2dd08d0f5c2
+      size: 341522
     params:
       params.yaml:
         ingest:
@@ -164,8 +164,8 @@ stages:
       nfiles: 56
     - path: src/necrohub/cli.py
       hash: md5
-      md5: e4f3be608f3b69d5767a3d298ba00079
-      size: 6264
+      md5: 4c722926a1998d6ace27c41c27cc2518
+      size: 10540
     - path: src/necrohub/contracts
       hash: md5
       md5: ea971bc9f11183e1e1e741936259c402.dir
@@ -186,8 +186,8 @@ stages:
       size: 807
     - path: src/necrohub/params.py
       hash: md5
-      md5: 9c70b361fc1aa73a44da05f36c9e0e98
-      size: 3395
+      md5: c39e60ebd9218ee21e14efbc51f40e6a
+      size: 5274
     - path: src/necrohub/preprocess
       hash: md5
       md5: 216e4acf71f7db1d18b8e706eb1d7fbe.dir
@@ -203,8 +203,8 @@ stages:
       size: 1099
     - path: uv.lock
       hash: md5
-      md5: 3c995549fb40d320e49e79761568689e
-      size: 273767
+      md5: 8c300ab60dbd7f13c5f1c2dd08d0f5c2
+      size: 341522
     params:
       params.yaml:
         preprocess:
@@ -246,8 +246,8 @@ stages:
       nfiles: 56
     - path: src/necrohub/cli.py
       hash: md5
-      md5: e4f3be608f3b69d5767a3d298ba00079
-      size: 6264
+      md5: 4c722926a1998d6ace27c41c27cc2518
+      size: 10540
     - path: src/necrohub/contracts
       hash: md5
       md5: ea971bc9f11183e1e1e741936259c402.dir
@@ -260,8 +260,8 @@ stages:
       nfiles: 5
     - path: src/necrohub/params.py
       hash: md5
-      md5: 9c70b361fc1aa73a44da05f36c9e0e98
-      size: 3395
+      md5: c39e60ebd9218ee21e14efbc51f40e6a
+      size: 5274
     - path: src/necrohub/preprocess/align.py
       hash: md5
       md5: 3d5c12ca6f0dd0a95dafa10417eca70e
@@ -281,8 +281,8 @@ stages:
       size: 6545
     - path: uv.lock
       hash: md5
-      md5: 3c995549fb40d320e49e79761568689e
-      size: 273767
+      md5: 8c300ab60dbd7f13c5f1c2dd08d0f5c2
+      size: 341522
     params:
       params.yaml:
         dataset:
@@ -309,3 +309,250 @@ stages:
       hash: md5
       md5: 69a47a6ff738ec81d190cf6d2a476f4d
       size: 1300
+  train_ner:
+    cmd: necrohub train --task ner --params params.yaml --data data/datasets 
+      --out models/encoder-ner --metrics-dir metrics
+    deps:
+    - path: data/datasets/ner
+      hash: md5
+      md5: 559f09c26cac4b19baa50e009dccd4f5.dir
+      size: 132178
+      nfiles: 3
+    - path: src/necrohub/cli.py
+      hash: md5
+      md5: 4c722926a1998d6ace27c41c27cc2518
+      size: 10540
+    - path: src/necrohub/contracts
+      hash: md5
+      md5: ea971bc9f11183e1e1e741936259c402.dir
+      size: 9628
+      nfiles: 5
+    - path: src/necrohub/params.py
+      hash: md5
+      md5: c39e60ebd9218ee21e14efbc51f40e6a
+      size: 5274
+    - path: src/necrohub/preprocess/normalize.py
+      hash: md5
+      md5: a6b2fd9868def86e1116636dcb6e783c
+      size: 1282
+    - path: src/necrohub/runs.py
+      hash: md5
+      md5: f96461f2ddea410ce9894eccbbd53b5e
+      size: 6545
+    - path: src/necrohub/settings.py
+      hash: md5
+      md5: 257a16eb5bb1bce0352980034ef885e5
+      size: 1099
+    - path: src/necrohub/train
+      hash: md5
+      md5: 1d1fdf7cad1005d733df01c4901440d6.dir
+      size: 23384
+      nfiles: 6
+    - path: uv.lock
+      hash: md5
+      md5: 8c300ab60dbd7f13c5f1c2dd08d0f5c2
+      size: 341522
+    params:
+      params.yaml:
+        seed: 7
+        train:
+          base_model: tiny-scratch
+          tasks:
+          - ner
+          - sections
+          max_length: 256
+          stride: 64
+          epochs: 30
+          batch_size: 8
+          learning_rate: 0.002
+          weight_decay: 0.01
+          warmup_ratio: 0.1
+          fp16: false
+          gradient_checkpointing: false
+          save_steps: 200
+          keep_checkpoints: false
+          tiny:
+            vocab_size: 2000
+            hidden_size: 64
+            num_layers: 2
+            num_heads: 2
+            intermediate_size: 128
+    outs:
+    - path: metrics/train_ner.json
+      hash: md5
+      md5: 34106b285935ea285645a3936029b6af
+      size: 311
+    - path: models/encoder-ner
+      hash: md5
+      md5: ed4e70876f47c62c2e7251bfa0fa4109.dir
+      size: 421234
+      nfiles: 5
+  train_sections:
+    cmd: necrohub train --task sections --params params.yaml --data 
+      data/datasets --out models/encoder-sections --metrics-dir metrics
+    deps:
+    - path: data/datasets/sections
+      hash: md5
+      md5: e2588e251890c2f75756c44a503dbe97.dir
+      size: 70068
+      nfiles: 3
+    - path: src/necrohub/cli.py
+      hash: md5
+      md5: 4c722926a1998d6ace27c41c27cc2518
+      size: 10540
+    - path: src/necrohub/contracts
+      hash: md5
+      md5: ea971bc9f11183e1e1e741936259c402.dir
+      size: 9628
+      nfiles: 5
+    - path: src/necrohub/params.py
+      hash: md5
+      md5: c39e60ebd9218ee21e14efbc51f40e6a
+      size: 5274
+    - path: src/necrohub/preprocess/normalize.py
+      hash: md5
+      md5: a6b2fd9868def86e1116636dcb6e783c
+      size: 1282
+    - path: src/necrohub/runs.py
+      hash: md5
+      md5: f96461f2ddea410ce9894eccbbd53b5e
+      size: 6545
+    - path: src/necrohub/settings.py
+      hash: md5
+      md5: 257a16eb5bb1bce0352980034ef885e5
+      size: 1099
+    - path: src/necrohub/train
+      hash: md5
+      md5: 1d1fdf7cad1005d733df01c4901440d6.dir
+      size: 23384
+      nfiles: 6
+    - path: uv.lock
+      hash: md5
+      md5: 8c300ab60dbd7f13c5f1c2dd08d0f5c2
+      size: 341522
+    params:
+      params.yaml:
+        seed: 7
+        train:
+          base_model: tiny-scratch
+          tasks:
+          - ner
+          - sections
+          max_length: 256
+          stride: 64
+          epochs: 30
+          batch_size: 8
+          learning_rate: 0.002
+          weight_decay: 0.01
+          warmup_ratio: 0.1
+          fp16: false
+          gradient_checkpointing: false
+          save_steps: 200
+          keep_checkpoints: false
+          tiny:
+            vocab_size: 2000
+            hidden_size: 64
+            num_layers: 2
+            num_heads: 2
+            intermediate_size: 128
+    outs:
+    - path: metrics/train_sections.json
+      hash: md5
+      md5: 47107ca4dfad0e20394aa82f41ea5bcb
+      size: 316
+    - path: models/encoder-sections
+      hash: md5
+      md5: 16de04a916dceb5628125ee46073e931.dir
+      size: 429561
+      nfiles: 5
+  evaluate:
+    cmd: necrohub evaluate --params params.yaml --models models --data 
+      data/datasets --raw data/raw --out metrics/eval.json
+    deps:
+    - path: data/datasets
+      hash: md5
+      md5: fac40659303c741ed0fedb0e2cd45c70.dir
+      size: 311910
+      nfiles: 13
+    - path: data/raw/gold
+      hash: md5
+      md5: 5a8eb40d1fc4a1fb4ece57bcaadb6f92.dir
+      size: 183849
+      nfiles: 24
+    - path: models/encoder-ner
+      hash: md5
+      md5: ed4e70876f47c62c2e7251bfa0fa4109.dir
+      size: 421234
+      nfiles: 5
+    - path: models/encoder-sections
+      hash: md5
+      md5: 16de04a916dceb5628125ee46073e931.dir
+      size: 429561
+      nfiles: 5
+    - path: src/necrohub/cli.py
+      hash: md5
+      md5: 4c722926a1998d6ace27c41c27cc2518
+      size: 10540
+    - path: src/necrohub/contracts
+      hash: md5
+      md5: ea971bc9f11183e1e1e741936259c402.dir
+      size: 9628
+      nfiles: 5
+    - path: src/necrohub/evaluate
+      hash: md5
+      md5: a6f52604286a2d4cffa4503c6e8b98df.dir
+      size: 11205
+      nfiles: 3
+    - path: src/necrohub/ids.py
+      hash: md5
+      md5: c04069efcee97a776a698f8c554a6d51
+      size: 12035
+    - path: src/necrohub/ingest/readers.py
+      hash: md5
+      md5: c6309598b3eeb465e874580353a420cf
+      size: 807
+    - path: src/necrohub/params.py
+      hash: md5
+      md5: c39e60ebd9218ee21e14efbc51f40e6a
+      size: 5274
+    - path: src/necrohub/preprocess/deid
+      hash: md5
+      md5: 27fe7b5d71bc991edcc6c3416908ad96.dir
+      size: 8548
+      nfiles: 4
+    - path: src/necrohub/preprocess/normalize.py
+      hash: md5
+      md5: a6b2fd9868def86e1116636dcb6e783c
+      size: 1282
+    - path: src/necrohub/runs.py
+      hash: md5
+      md5: f96461f2ddea410ce9894eccbbd53b5e
+      size: 6545
+    - path: src/necrohub/settings.py
+      hash: md5
+      md5: 257a16eb5bb1bce0352980034ef885e5
+      size: 1099
+    - path: src/necrohub/train
+      hash: md5
+      md5: 1d1fdf7cad1005d733df01c4901440d6.dir
+      size: 23384
+      nfiles: 6
+    - path: uv.lock
+      hash: md5
+      md5: 8c300ab60dbd7f13c5f1c2dd08d0f5c2
+      size: 341522
+    params:
+      params.yaml:
+        evaluate:
+          baselines:
+          - regex
+        generate.holdout_templates:
+        - t3
+        seed: 7
+        train.max_length: 256
+        train.stride: 64
+    outs:
+    - path: metrics/eval.json
+      hash: md5
+      md5: 9701a262b035c3ef92fbf2abc9fb92da
+      size: 27038

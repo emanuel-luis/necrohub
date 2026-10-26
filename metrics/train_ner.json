@@ -1,0 +1,14 @@
+{
+  "base_model": "tiny-scratch",
+  "dataset_sha256": "a69145b3699f445260ac4a4f1884c1e5b03c28ccc4d3f5c034f8cc880881d4b5",
+  "n_records": {
+    "train": 128,
+    "validation": 16
+  },
+  "n_steps": 480,
+  "n_windows": 128,
+  "resumed_from_step": 0,
+  "task": "ner",
+  "train_loss": 1.0773,
+  "val_loss": 0.8714
+}
