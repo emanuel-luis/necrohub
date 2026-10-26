@@ -535,4 +535,5 @@ def ui(
         raise typer.Exit(1)
     argv = [sys.executable, "-m", "streamlit", "run", spec.origin]
     argv += ["--server.address", host, "--server.port", str(port), "--server.headless", "true"]
+    argv += ["--browser.gatherUsageStats", "false"]
     raise typer.Exit(subprocess.call(argv))

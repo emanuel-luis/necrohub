@@ -27,6 +27,14 @@ def test_dockerfile_is_pinned_non_root_with_a_healthcheck() -> None:
     assert not any(ln.startswith("ENV") and "PASSWORD" in ln for ln in lines)
 
 
+def test_dockerfile_gives_the_app_user_a_home_and_a_writable_runs_dir() -> None:
+    text = (ROOT / "Dockerfile").read_text("utf-8")
+    assert "--create-home necrohub" in text
+    runs = text.index("mkdir /app/runs && chown necrohub:necrohub /app/runs")
+    assert runs < text.index("USER necrohub")
+    assert "# hadolint ignore=SC2086" in text
+
+
 def test_compose_services_have_healthchecks_or_are_one_shot(compose: dict[str, Any]) -> None:
     services = compose["services"]
     assert set(services) == {"db", "loader", "api", "ui", "ollama", "ollama-pull"}

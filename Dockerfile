@@ -8,12 +8,15 @@ ARG EXTRAS="--extra serve --extra db --extra ui --extra ollama"
 WORKDIR /app
 COPY pyproject.toml uv.lock README.md LICENSE ./
 COPY src ./src
+# hadolint ignore=SC2086 - EXTRAS is a list of flags, word splitting is intended
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-dev --no-editable ${EXTRAS}
 
 FROM python:3.12-slim-bookworm@sha256:6a0e06f5ba0b373d051aabd3fffb9b873f27f9a2a3a14bcbe37dee6f0e3bbc70
-RUN groupadd --gid 10001 necrohub && useradd --uid 10001 --gid 10001 --no-create-home necrohub
+RUN groupadd --gid 10001 necrohub && useradd --uid 10001 --gid 10001 --create-home necrohub
 WORKDIR /app
+# stage_run writes runs/<stage>/<id>.json under the working directory
+RUN mkdir /app/runs && chown necrohub:necrohub /app/runs
 COPY --from=builder /app/.venv /app/.venv
 COPY params.yaml ./
 ENV PATH="/app/.venv/bin:$PATH" PYTHONUNBUFFERED=1 NECROHUB_PARAMS=/app/params.yaml

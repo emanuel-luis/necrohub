@@ -77,4 +77,6 @@ def test_ui_command_runs_streamlit(monkeypatch: pytest.MonkeyPatch) -> None:
         "9000",
         "--server.headless",
         "true",
+        "--browser.gatherUsageStats",
+        "false",
     ]
