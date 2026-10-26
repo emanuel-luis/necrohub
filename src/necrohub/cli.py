@@ -333,6 +333,26 @@ def index_build(
     typer.echo(f"index build: {run.counts.written} chunks in {out.as_posix()} (run {run.run_id})")
 
 
+def _error_line(exc: BaseException) -> str:
+    """One line for the user. A psycopg error repeats the bad part of a malformed DSN (password
+    included), so only its class and SQLSTATE are shown."""
+    if type(exc).__module__.split(".")[0] == "psycopg":
+        sqlstate = getattr(exc, "sqlstate", None) or "none"
+        return (
+            f"{type(exc).__name__} (sqlstate {sqlstate}): database error; check DATABASE_URL "
+            "and that Postgres is reachable"
+        )
+    return f"{type(exc).__name__}: {exc}"
+
+
+def _db_errors() -> tuple[type[Exception], ...]:
+    try:
+        import psycopg
+    except ImportError:
+        return ()
+    return (psycopg.Error,)
+
+
 @index_app.command("load")
 def index_load(
     in_: Annotated[Path, typer.Option("--in", help="Index directory.")] = Path(
@@ -355,7 +375,7 @@ def index_load(
     try:
         run = run_index_load(in_, PgVectorStore(dsn), runs_dir=runs_dir)
     except (StageFailed, ValueError, OSError, psycopg.Error) as exc:
-        typer.echo(f"{type(exc).__name__}: {exc}", err=True)
+        typer.echo(_error_line(exc), err=True)
         raise typer.Exit(1) from exc
     typer.echo(f"index load: {run.counts.written} chunks stored (run {run.run_id})")
 
@@ -396,15 +416,8 @@ def query(
     if index:
         overrides["index_dir"] = index
     settings = Settings(**overrides)  # type: ignore[arg-type]
-    db_errors: tuple[type[Exception], ...] = ()
-    if settings.store == "pgvector":
-        try:
-            import psycopg
-
-            db_errors = (psycopg.Error,)
-        except ImportError:
-            pass
-    caught: tuple[type[Exception], ...] = (ConfigError, LlmError, ValueError, OSError, *db_errors)
+    caught: tuple[type[Exception], ...] = (ConfigError, LlmError, ValueError, OSError)
+    caught += _db_errors()
     try:
         embedder = build_embedder(load_params(settings.params_path).embed)
         vector_store, version, _ = open_store(settings, embedder.id)
@@ -423,7 +436,7 @@ def query(
             )
         }
     except caught as exc:
-        typer.echo(f"{type(exc).__name__}: {exc}", err=True)
+        typer.echo(_error_line(exc), err=True)
         raise typer.Exit(1) from exc
     typer.echo(f"Pergunta: {result.question}")
     typer.echo(f"Resposta ({result.backend}): {result.answer}")
@@ -449,9 +462,11 @@ def serve(
     from necrohub.serve.runtime import ConfigError
     from necrohub.settings import Settings
 
+    caught: tuple[type[Exception], ...] = (ConfigError, LlmError, ValueError, OSError)
+    caught += _db_errors()
     try:
         api = create_app(Settings())
-    except (ConfigError, LlmError, ValueError, OSError) as exc:
-        typer.echo(f"{type(exc).__name__}: {exc}", err=True)
+    except caught as exc:
+        typer.echo(_error_line(exc), err=True)
         raise typer.Exit(1) from exc
     uvicorn.run(api, host=host, port=port)

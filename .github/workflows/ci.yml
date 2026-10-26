@@ -63,7 +63,7 @@ jobs:
         with: { python-version: "3.12", enable-cache: true }
       # the LLM SDKs only so the client request-shape tests run (their clients are faked)
       # serve so the API tests run (with the memory store)
-      - run: uv sync --locked --extra ollama --extra genai --extra serve
+      - run: uv sync --locked --extra ollama --extra genai --extra serve --extra db
       # ml, db, external and slow stay deselected by the pytest config
       - run: uv run pytest
 
