@@ -40,7 +40,7 @@ The first release carries over, rewritten, the useful parts of three earlier pri
   `necrohub gpu-check` with the `cu126` extra (decision 15).
 - Serving: `necrohub index build`, in-memory and pgvector stores, an extractive or LLM answerer
   with citations (`necrohub query`), a FastAPI app (`necrohub serve`) and a Streamlit UI
-  (`necrohub ui`).
+  (`necrohub ui`; a `?q=` link opens it with the question answered).
 - Container stack: a `Dockerfile` (multi-stage uv build, base and uv pinned by digest, non-root,
   healthcheck), `compose.yaml` (db, loader, api, ui, and an `ollama` profile), Makefile `up`,
   `down`, `ui` and `smoke`, and CI jobs `test-db` and `compose-smoke` with hadolint.

@@ -141,7 +141,9 @@ uv run necrohub query "Qual a causa da morte no caso c7-00003?" --k 4   # answer
 uv run necrohub serve             # GET /healthz, POST /ask {"question": "...", "k": 4}
 ```
 
-Both use the in-memory store over `data/serving/index` by default. The compose stack has four services: db (pgvector), loader (loads the index into pgvector), api and ui. `make smoke` runs the checks CI runs (needs curl and jq). The UI only talks to the API over HTTP (`NECROHUB_API_URL`), and `make ui` runs it without Docker.
+Both use the in-memory store over `data/serving/index` by default. The compose stack has four services: db (pgvector), loader (loads the index into pgvector), api and ui. `make smoke` runs the checks CI runs (needs curl and jq). The UI only talks to the API over HTTP (`NECROHUB_API_URL`), and `make ui` runs it without Docker. A link with `?q=<question>` opens the page with that question already answered.
+
+![The UI answering "Qual a causa da morte no caso c7-00003?" from the demo index, with the cited CONCLUSION chunk and the API health in the sidebar](docs/assets/ui.png)
 
 To run `query` or `serve` against pgvector outside compose, start the database and set the variables yourself, because `necrohub` does not read `.env` (only compose does). The database listens on 127.0.0.1:5432; use the password from your `.env`.
 
