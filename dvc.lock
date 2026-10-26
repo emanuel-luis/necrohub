@@ -6,8 +6,8 @@ stages:
     deps:
     - path: src/necrohub/cli.py
       hash: md5
-      md5: 8a725f76d8f2b5629cb396374e9a457d
-      size: 10672
+      md5: bd25e6b9bbb3cd1a7276c79cfecca4c8
+      size: 11422
     - path: src/necrohub/contracts
       hash: md5
       md5: ea971bc9f11183e1e1e741936259c402.dir
@@ -103,8 +103,8 @@ stages:
       nfiles: 56
     - path: src/necrohub/cli.py
       hash: md5
-      md5: 8a725f76d8f2b5629cb396374e9a457d
-      size: 10672
+      md5: bd25e6b9bbb3cd1a7276c79cfecca4c8
+      size: 11422
     - path: src/necrohub/contracts
       hash: md5
       md5: ea971bc9f11183e1e1e741936259c402.dir
@@ -164,8 +164,8 @@ stages:
       nfiles: 56
     - path: src/necrohub/cli.py
       hash: md5
-      md5: 8a725f76d8f2b5629cb396374e9a457d
-      size: 10672
+      md5: bd25e6b9bbb3cd1a7276c79cfecca4c8
+      size: 11422
     - path: src/necrohub/contracts
       hash: md5
       md5: ea971bc9f11183e1e1e741936259c402.dir
@@ -246,8 +246,8 @@ stages:
       nfiles: 56
     - path: src/necrohub/cli.py
       hash: md5
-      md5: 8a725f76d8f2b5629cb396374e9a457d
-      size: 10672
+      md5: bd25e6b9bbb3cd1a7276c79cfecca4c8
+      size: 11422
     - path: src/necrohub/contracts
       hash: md5
       md5: ea971bc9f11183e1e1e741936259c402.dir
@@ -320,8 +320,8 @@ stages:
       nfiles: 3
     - path: src/necrohub/cli.py
       hash: md5
-      md5: 8a725f76d8f2b5629cb396374e9a457d
-      size: 10672
+      md5: bd25e6b9bbb3cd1a7276c79cfecca4c8
+      size: 11422
     - path: src/necrohub/contracts
       hash: md5
       md5: ea971bc9f11183e1e1e741936259c402.dir
@@ -398,8 +398,8 @@ stages:
       nfiles: 3
     - path: src/necrohub/cli.py
       hash: md5
-      md5: 8a725f76d8f2b5629cb396374e9a457d
-      size: 10672
+      md5: bd25e6b9bbb3cd1a7276c79cfecca4c8
+      size: 11422
     - path: src/necrohub/contracts
       hash: md5
       md5: ea971bc9f11183e1e1e741936259c402.dir
@@ -491,8 +491,8 @@ stages:
       nfiles: 5
     - path: src/necrohub/cli.py
       hash: md5
-      md5: 8a725f76d8f2b5629cb396374e9a457d
-      size: 10672
+      md5: bd25e6b9bbb3cd1a7276c79cfecca4c8
+      size: 11422
     - path: src/necrohub/contracts
       hash: md5
       md5: ea971bc9f11183e1e1e741936259c402.dir
