@@ -75,6 +75,18 @@ class RunManifest(BaseModel):
             raise StageFailed(f"{self.stage}: failed check(s): {', '.join(failed)}")
 
 
+def error_line(exc: BaseException) -> str:
+    """One line for a terminal or a run manifest. A psycopg error repeats the bad part of a
+    malformed DSN (password included), so only its class and SQLSTATE are kept."""
+    if type(exc).__module__.split(".")[0] == "psycopg":
+        sqlstate = getattr(exc, "sqlstate", None) or "none"
+        return (
+            f"{type(exc).__name__} (sqlstate {sqlstate}): database error; check DATABASE_URL "
+            "and that Postgres is reachable"
+        )
+    return f"{type(exc).__name__}: {exc}"
+
+
 def utc_now() -> str:
     """The current UTC time as ISO-8601 with a Z suffix (manifests only, never data)."""
     return datetime.now(UTC).isoformat(timespec="seconds").replace("+00:00", "Z")
@@ -190,7 +202,7 @@ def stage_run(
         yield manifest
     except BaseException as exc:
         manifest.status = "failed"
-        manifest.error = f"{type(exc).__name__}: {exc}"
+        manifest.error = error_line(exc)
         raise
     else:
         manifest.status = "failed" if any(not c.passed for c in manifest.checks) else "succeeded"

@@ -26,6 +26,24 @@ def test_error_line_keeps_other_messages() -> None:
     assert _error_line(ValueError("bad k")) == "ValueError: bad k"
 
 
+def test_index_load_keeps_a_malformed_dsn_out_of_the_output_and_the_manifest(
+    serving_layers: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("DATABASE_URL", BAD_DSN)
+    runs = tmp_path / "runs"
+    args = ["index", "load", "--in", str(serving_layers / "index"), "--runs-dir", str(runs)]
+    result = CliRunner().invoke(app, args)
+    assert isinstance(result.exception, SystemExit)
+    assert result.exit_code == 1
+    assert FAKE_PASSWORD not in result.output
+    manifests = list(runs.rglob("*.json"))
+    assert manifests  # the failed run is still recorded
+    for manifest in manifests:
+        text = manifest.read_text("utf-8")
+        assert FAKE_PASSWORD not in text
+        assert '"status": "failed"' in text
+
+
 @pytest.mark.parametrize("args", [["query", "Qual a causa da morte?"], ["serve"]])
 def test_commands_do_not_print_a_malformed_dsn(
     args: list[str], tmp_path: Path, monkeypatch: pytest.MonkeyPatch

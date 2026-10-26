@@ -334,15 +334,9 @@ def index_build(
 
 
 def _error_line(exc: BaseException) -> str:
-    """One line for the user. A psycopg error repeats the bad part of a malformed DSN (password
-    included), so only its class and SQLSTATE are shown."""
-    if type(exc).__module__.split(".")[0] == "psycopg":
-        sqlstate = getattr(exc, "sqlstate", None) or "none"
-        return (
-            f"{type(exc).__name__} (sqlstate {sqlstate}): database error; check DATABASE_URL "
-            "and that Postgres is reachable"
-        )
-    return f"{type(exc).__name__}: {exc}"
+    from necrohub.runs import error_line
+
+    return error_line(exc)
 
 
 def _db_errors() -> tuple[type[Exception], ...]:
