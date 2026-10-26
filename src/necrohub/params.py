@@ -166,6 +166,12 @@ class IndexParams(BaseModel):
         return self
 
 
+class SftParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    tasks: list[Literal["extraction", "qa"]] = ["extraction", "qa"]
+
+
 class Params(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
@@ -178,6 +184,7 @@ class Params(BaseModel):
     evaluate: EvaluateParams = Field(default_factory=EvaluateParams)
     embed: EmbedParams = Field(default_factory=EmbedParams)
     index: IndexParams = Field(default_factory=IndexParams)
+    sft: SftParams = Field(default_factory=SftParams)
 
 
 def load_params(path: Path) -> Params:

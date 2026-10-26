@@ -96,6 +96,33 @@ stages:
     metrics:
       - metrics/build_dataset.json:
           cache: false
+  export_sft:
+    cmd: >-
+      necrohub export-sft --params params.yaml --data data/datasets --out data/sft
+      --metrics-dir metrics
+    deps:
+      - data/datasets/extraction
+      - data/datasets/qa
+      - src/necrohub/sft
+      - src/necrohub/contracts
+      - src/necrohub/datasets/split.py
+      - src/necrohub/preprocess/deid
+      - src/necrohub/preprocess/normalize.py
+      - src/necrohub/ids.py
+      - src/necrohub/data
+      - src/necrohub/ingest/readers.py
+      - src/necrohub/settings.py
+      - src/necrohub/params.py
+      - src/necrohub/runs.py
+      - src/necrohub/cli.py
+      - uv.lock
+    params:
+      - sft
+    outs:
+      - data/sft
+    metrics:
+      - metrics/export_sft.json:
+          cache: false
   train_ner:
     cmd: >-
       necrohub train --task ner --params params.yaml --data data/datasets
