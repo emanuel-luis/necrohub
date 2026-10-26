@@ -6,8 +6,8 @@ stages:
     deps:
     - path: src/necrohub/cli.py
       hash: md5
-      md5: 9841d253a94939c8f5dc7ddc6487eb7b
-      size: 17236
+      md5: 693d9f22abfa6bb9e36023488a6c4680
+      size: 17609
     - path: src/necrohub/contracts
       hash: md5
       md5: 3cbaba87dad584ddf30a2de9a3d41438.dir
@@ -59,8 +59,8 @@ stages:
       size: 6545
     - path: src/necrohub/settings.py
       hash: md5
-      md5: 89ada38a20fe7a5547a0ad0d7a1f5f00
-      size: 1660
+      md5: 8e239dc4ac03dcbe01eb18d3afa9e26a
+      size: 1792
     - path: uv.lock
       hash: md5
       md5: 56bedafe6a75b188b2d79032d6b6696e
@@ -103,8 +103,8 @@ stages:
       nfiles: 56
     - path: src/necrohub/cli.py
       hash: md5
-      md5: 9841d253a94939c8f5dc7ddc6487eb7b
-      size: 17236
+      md5: 693d9f22abfa6bb9e36023488a6c4680
+      size: 17609
     - path: src/necrohub/contracts
       hash: md5
       md5: 3cbaba87dad584ddf30a2de9a3d41438.dir
@@ -164,8 +164,8 @@ stages:
       nfiles: 56
     - path: src/necrohub/cli.py
       hash: md5
-      md5: 9841d253a94939c8f5dc7ddc6487eb7b
-      size: 17236
+      md5: 693d9f22abfa6bb9e36023488a6c4680
+      size: 17609
     - path: src/necrohub/contracts
       hash: md5
       md5: 3cbaba87dad584ddf30a2de9a3d41438.dir
@@ -199,8 +199,8 @@ stages:
       size: 6545
     - path: src/necrohub/settings.py
       hash: md5
-      md5: 89ada38a20fe7a5547a0ad0d7a1f5f00
-      size: 1660
+      md5: 8e239dc4ac03dcbe01eb18d3afa9e26a
+      size: 1792
     - path: uv.lock
       hash: md5
       md5: 56bedafe6a75b188b2d79032d6b6696e
@@ -246,8 +246,8 @@ stages:
       nfiles: 56
     - path: src/necrohub/cli.py
       hash: md5
-      md5: 9841d253a94939c8f5dc7ddc6487eb7b
-      size: 17236
+      md5: 693d9f22abfa6bb9e36023488a6c4680
+      size: 17609
     - path: src/necrohub/contracts
       hash: md5
       md5: 3cbaba87dad584ddf30a2de9a3d41438.dir
@@ -320,8 +320,8 @@ stages:
       nfiles: 3
     - path: src/necrohub/cli.py
       hash: md5
-      md5: 9841d253a94939c8f5dc7ddc6487eb7b
-      size: 17236
+      md5: 693d9f22abfa6bb9e36023488a6c4680
+      size: 17609
     - path: src/necrohub/contracts
       hash: md5
       md5: 3cbaba87dad584ddf30a2de9a3d41438.dir
@@ -341,8 +341,8 @@ stages:
       size: 6545
     - path: src/necrohub/settings.py
       hash: md5
-      md5: 89ada38a20fe7a5547a0ad0d7a1f5f00
-      size: 1660
+      md5: 8e239dc4ac03dcbe01eb18d3afa9e26a
+      size: 1792
     - path: src/necrohub/train
       hash: md5
       md5: 89ff4c4e5b64cbfd2ed4543aed8cfa10.dir
@@ -398,8 +398,8 @@ stages:
       nfiles: 3
     - path: src/necrohub/cli.py
       hash: md5
-      md5: 9841d253a94939c8f5dc7ddc6487eb7b
-      size: 17236
+      md5: 693d9f22abfa6bb9e36023488a6c4680
+      size: 17609
     - path: src/necrohub/contracts
       hash: md5
       md5: 3cbaba87dad584ddf30a2de9a3d41438.dir
@@ -419,8 +419,8 @@ stages:
       size: 6545
     - path: src/necrohub/settings.py
       hash: md5
-      md5: 89ada38a20fe7a5547a0ad0d7a1f5f00
-      size: 1660
+      md5: 8e239dc4ac03dcbe01eb18d3afa9e26a
+      size: 1792
     - path: src/necrohub/train
       hash: md5
       md5: 89ff4c4e5b64cbfd2ed4543aed8cfa10.dir
@@ -491,8 +491,8 @@ stages:
       nfiles: 5
     - path: src/necrohub/cli.py
       hash: md5
-      md5: 9841d253a94939c8f5dc7ddc6487eb7b
-      size: 17236
+      md5: 693d9f22abfa6bb9e36023488a6c4680
+      size: 17609
     - path: src/necrohub/contracts
       hash: md5
       md5: 3cbaba87dad584ddf30a2de9a3d41438.dir
@@ -530,8 +530,8 @@ stages:
       size: 6545
     - path: src/necrohub/settings.py
       hash: md5
-      md5: 89ada38a20fe7a5547a0ad0d7a1f5f00
-      size: 1660
+      md5: 8e239dc4ac03dcbe01eb18d3afa9e26a
+      size: 1792
     - path: src/necrohub/train
       hash: md5
       md5: 89ff4c4e5b64cbfd2ed4543aed8cfa10.dir
@@ -572,8 +572,8 @@ stages:
       nfiles: 24
     - path: src/necrohub/cli.py
       hash: md5
-      md5: 9841d253a94939c8f5dc7ddc6487eb7b
-      size: 17236
+      md5: 693d9f22abfa6bb9e36023488a6c4680
+      size: 17609
     - path: src/necrohub/contracts
       hash: md5
       md5: 3cbaba87dad584ddf30a2de9a3d41438.dir
@@ -595,8 +595,8 @@ stages:
       size: 12035
     - path: src/necrohub/index
       hash: md5
-      md5: e6ca11a85364cdc09ef9ae06b213f156.dir
-      size: 18106
+      md5: 829d87558aca7ec40cd5458ff5819c7c.dir
+      size: 18530
       nfiles: 6
     - path: src/necrohub/ingest/readers.py
       hash: md5
@@ -621,8 +621,8 @@ stages:
       size: 6545
     - path: src/necrohub/settings.py
       hash: md5
-      md5: 89ada38a20fe7a5547a0ad0d7a1f5f00
-      size: 1660
+      md5: 8e239dc4ac03dcbe01eb18d3afa9e26a
+      size: 1792
     - path: uv.lock
       hash: md5
       md5: 56bedafe6a75b188b2d79032d6b6696e
