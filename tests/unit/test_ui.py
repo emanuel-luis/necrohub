@@ -28,6 +28,12 @@ ANSWER: dict[str, Any] = {
 }
 
 
+def test_initial_question_from_a_q_link() -> None:
+    assert ui.initial_question({}) == ""
+    assert ui.initial_question({"q": "  Qual a causa da morte?  "}) == "Qual a causa da morte?"
+    assert len(ui.initial_question({"q": "x" * 5000})) == 1000
+
+
 def test_ask_payload_trims_and_clamps_k() -> None:
     assert ui.ask_payload("  hi ", 99) == {"question": "hi", "k": 20}
     assert ui.ask_payload("hi", 0)["k"] == 1
@@ -79,4 +85,6 @@ def test_ui_command_runs_streamlit(monkeypatch: pytest.MonkeyPatch) -> None:
         "true",
         "--browser.gatherUsageStats",
         "false",
+        "--client.toolbarMode",
+        "minimal",
     ]
