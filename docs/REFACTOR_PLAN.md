@@ -611,6 +611,13 @@ Done when:
 
 Publishing weights to the Hugging Face Hub needs the user's OK.
 
+**P6 as built.** `necrohub export-sft` writes to `data/sft` (not `data/datasets/sft`, see
+decision 23) as DVC stage `export_sft`, a data stage in `repro.py`. `necrohub eval-extraction` and the
+pure scorer live in `evaluate/extraction.py`. The notebook, the Modelfile and
+`docs/results/full-corpus.json` ship; the notebook was not run by us, so no fine-tuned numbers exist
+until the owner copies `results/qlora_extraction.json` to `docs/results/`. Base model Qwen3-4B-Instruct-2507
+(decision 22), not Qwen3-1.7B as the candidate above.
+
 ### P7: serving, UI, compose (after P5)
 
 Files: `serve/ui.py` (Streamlit over HTTP to the api), `Dockerfile`, `.dockerignore`,

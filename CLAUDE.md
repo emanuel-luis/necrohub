@@ -21,6 +21,10 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
   alignment metric, default `raw` next to `--in`). Same `--params`, `--runs-dir`, `--metrics-dir`.
 - `make build-dataset` / `uv run necrohub build-dataset --processed data/processed --raw data/raw
   --out data/datasets`: per-task splits and the dataset card.
+- `necrohub export-sft --data data/datasets --out data/sft`: chat-format SFT JSONL and
+  `extraction.schema.json`. `necrohub eval-extraction --predictions preds.jsonl [--split test]
+  [--out results.json]` scores raw extraction output. `notebooks/qlora_extraction.ipynb` is the
+  cloud QLoRA run (no outputs committed, never run by us); `deploy/ollama/Modelfile` serves its GGUF.
 - `make train` / `uv run necrohub train --task ner|sections --data data/datasets --out models/encoder-<task>`:
   fine-tune the encoder (`train.base_model`: `tiny-scratch` or a Hub id). `make evaluate` /
   `uv run necrohub evaluate --models models --data data/datasets --raw data/raw --out metrics/eval.json`.
@@ -51,7 +55,7 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
 - `src/necrohub/contracts/`: Pydantic models for spans, documents, generator gold (`gold.py`) and
   dataset records (`datasets.py`).
 - `src/necrohub/params.py` + `params.yaml`: typed params sections (`seed`, `generate` with `llm`,
-  `ingest`, `preprocess`, `dataset`, `train` with `tiny`, `evaluate`, `embed` with `hf`, `index`).
+  `ingest`, `preprocess`, `dataset`, `train` with `tiny`, `evaluate`, `embed` with `hf`, `index`, `sft`).
 - `src/necrohub/settings.py`: env settings (`NECROHUB_*`, `OLLAMA_HOST`, `GEMINI_API_KEY`).
 - `src/necrohub/llm/`: `base` (`ChatMessage`, `ChatLLM`, `LlmError`, `get_llm`), `ollama`, `gemini`
   (SDKs imported inside methods; never called in tests, which fake the SDK client).
@@ -84,6 +88,10 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
   `gpu`, `stage` (`run_train`; checkpoints under `models/.checkpoints/<task>/<fingerprint>`).
 - `src/necrohub/evaluate/`: `metrics` (pure span and section scores), `stage` (`run_evaluate`: test
   split, scopes `random` and `heldout_templates`, regex vs encoder).
+- `src/necrohub/sft/`: `export` (`extraction_messages`, `qa_messages`, `run_export_sft`),
+  `prompts/{extraction,qa}_system.txt`. `evaluate/extraction.py`: pure `parse_extraction`,
+  `score_extraction`. `deploy/ollama/`, `notebooks/`, `docs/results/full-corpus.json` (reference
+  corpus hashes the notebook asserts).
 - `src/necrohub/repro.py`: the `check-repro` comparison.
 - `tests/unit` (`test_idempotency.py`: every stage through build-dataset twice gives the
   same hashes), `tests/ml`, `tests/external`, `tests/fixtures/reports`, `tests/golden`, `tests/conftest.py` (`golden` fixture).

@@ -8,6 +8,12 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Generative fine-tune (P6). `necrohub export-sft` (DVC stage `export_sft`, `data/sft`,
+  `metrics/export_sft.json`) writes chat-format SFT JSONL and the extraction JSON schema;
+  `necrohub eval-extraction` scores raw model output (valid JSON rate, per-field accuracy, set
+  F1 for injuries and organ findings). `notebooks/qlora_extraction.ipynb` runs QLoRA on a free
+  cloud T4, `deploy/ollama/Modelfile` serves the GGUF, and `docs/results/full-corpus.json` pins
+  the 1500-case reference corpus. Decisions 22 and 23.
 - Serving layer (P5). `necrohub index build` (DVC stage `index`, `make index`) chunks the redacted
   text of each section, embeds it (`embed` params: hashing, or a Hugging Face model) and writes
   `data/serving/index/{chunks.jsonl,embeddings.npy,index.json}` byte for byte reproducibly, with a

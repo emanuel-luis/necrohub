@@ -195,6 +195,26 @@ span whose visible characters change in extraction is rejected and its section (
 case's extraction record) is dropped, and Faker names may match real people by chance. The counts and the content sha256 of the layer are
 in `metrics/build_dataset.json`.
 
+### Generative fine-tune (optional, free cloud GPU)
+
+`necrohub export-sft` (DVC stage `export_sft`, `data/sft`) turns the `extraction` and `qa` records
+into chat-format JSONL (`{"messages": [...], "task", "id", "doc_id"}` per split, system prompts in
+pt-BR) plus `extraction.schema.json`, the JSON schema of the extraction target. It fails when a test
+case reaches train or validation, an assistant answer is not a valid `CaseExtraction`, or the regex
+de-identifier finds PII in a message. `necrohub eval-extraction --data data/datasets --split test
+--predictions preds.jsonl --out results.json` scores raw model output (`{"id", "text"}` per line):
+valid JSON rate, exact accuracy per scalar field, set precision, recall and F1 for injuries and
+organ findings, and the rate of cases with every field right.
+
+`notebooks/qlora_extraction.ipynb` (committed without outputs, never run in CI) regenerates the
+1500-case corpus from the seed on a free T4, asserts its sha256 against
+`docs/results/full-corpus.json`, scores the base model, QLoRA-tunes `Qwen/Qwen3-4B-Instruct-2507`
+(decisions 22 and 23), scores it again with the same scorer, exports a Q4_K_M GGUF and writes
+`results/qlora_extraction.json` with scores, versions and wall times. After an owner run, copy that
+file to `docs/results/`; until then there are no fine-tuned numbers. `deploy/ollama/Modelfile`
+serves the GGUF with `ollama create necrohub-extract -f deploy/ollama/Modelfile`. The model is a
+demonstration, not for clinical or forensic use.
+
 `make help` lists the other targets. On Windows without `make`, run the `uv run` commands from the
 Makefile directly.
 

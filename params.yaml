@@ -50,3 +50,5 @@ embed:
 index:
   chunk_tokens: 128  # word and punctuation tokens per chunk
   chunk_stride: 32  # tokens shared by consecutive chunks of a section
+sft:
+  tasks: [extraction, qa]  # chat-format SFT examples exported for the cloud QLoRA notebook

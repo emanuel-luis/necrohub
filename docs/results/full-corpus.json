@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "params_override": {
+    "generate.n_cases": 1500
+  },
+  "seed": 7,
+  "produced_at_commit": "d7a71aa",
+  "datasets_sha256": "a01707932159cdfb75ade2dd2c065a7e13c617668782be4235b20a5188e7dec6",
+  "raw_sha256": "350f2100fd5c03ff4076d93d6172ee920bd5d448f8a99ac79e848b807cd7cad3",
+  "documents": 1500,
+  "pdfs": 397,
+  "cases": {
+    "train": 1020,
+    "validation": 128,
+    "test": 352
+  },
+  "records": {
+    "extraction": {
+      "train": 1020,
+      "validation": 128,
+      "test": 352
+    },
+    "ner": {
+      "train": 8160,
+      "validation": 1024,
+      "test": 2816
+    },
+    "qa": {
+      "train": 6120,
+      "validation": 768,
+      "test": 2112
+    },
+    "sections": {
+      "train": 8160,
+      "validation": 1024,
+      "test": 2816
+    }
+  },
+  "alignment": {
+    "projected": 47425,
+    "exact": 47022,
+    "whitespace_drift": 403,
+    "rejected": 0
+  }
+}

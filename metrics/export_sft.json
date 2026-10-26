@@ -1,0 +1,28 @@
+{
+  "chars": {
+    "max": 4614,
+    "mean": 2595.86
+  },
+  "examples": {
+    "test": {
+      "extraction": 6,
+      "qa": 36
+    },
+    "train": {
+      "extraction": 16,
+      "qa": 96
+    },
+    "validation": {
+      "extraction": 2,
+      "qa": 12
+    }
+  },
+  "rejects": {
+    "qa_without_context": 0
+  },
+  "sft_sha256": "bb21cc3e294784b78847ce27bff3e79bb001068f8c661842d865c2c2d4947743",
+  "tasks": [
+    "extraction",
+    "qa"
+  ]
+}

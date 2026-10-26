@@ -175,6 +175,60 @@ def build_dataset(
     )
 
 
+@app.command("export-sft")
+def export_sft(
+    params: Annotated[Path, typer.Option(help="Pipeline parameters file.")] = Path("params.yaml"),
+    data: Annotated[Path, typer.Option(help="Datasets layer directory.")] = Path("data/datasets"),
+    out: Annotated[Path, typer.Option(help="SFT directory to (re)write.")] = Path("data/sft"),
+    runs_dir: Annotated[Path, typer.Option(help="Where run manifests go.")] = Path("runs"),
+    metrics_dir: Annotated[Path, typer.Option(help="Where metrics/export_sft.json goes.")] = Path(
+        "metrics"
+    ),
+) -> None:
+    """Export chat-format SFT examples and the extraction JSON schema."""
+    from necrohub.params import load_params
+    from necrohub.runs import StageFailed
+    from necrohub.sft.export import run_export_sft
+
+    try:
+        run = run_export_sft(
+            load_params(params), data, out, runs_dir=runs_dir, metrics_dir=metrics_dir
+        )
+    except (StageFailed, OSError, ValueError) as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(1) from exc
+    typer.echo(
+        f"export-sft: {run.counts.written} examples in {out.as_posix()} "
+        f"({run.counts.rejected} rejected, run {run.run_id})"
+    )
+
+
+@app.command("eval-extraction")
+def eval_extraction(
+    predictions: Annotated[
+        Path, typer.Option(help='JSONL of {"id", "text"}: the raw model output per record.')
+    ],
+    data: Annotated[Path, typer.Option(help="Datasets layer directory.")] = Path("data/datasets"),
+    split: Annotated[str, typer.Option(help="train, validation or test.")] = "test",
+    out: Annotated[Path, typer.Option(help="Results file to write.")] = Path("results.json"),
+) -> None:
+    """Score raw model output against the extraction gold of a split."""
+    from necrohub.evaluate.extraction import score_predictions_file
+
+    if split not in ("train", "validation", "test"):
+        typer.echo(f"unknown split: {split}", err=True)
+        raise typer.Exit(2)
+    try:
+        scores = score_predictions_file(data, split, predictions, out)
+    except (OSError, ValueError, KeyError) as exc:
+        typer.echo(f"{type(exc).__name__}: {exc}", err=True)
+        raise typer.Exit(1) from exc
+    typer.echo(
+        f"eval-extraction: {scores['n']} records, valid {scores['valid_json_rate']}, "
+        f"all fields exact {scores['all_fields_exact']} ({out.as_posix()})"
+    )
+
+
 @app.command("check-repro")
 def check_repro(
     baseline_lock: Annotated[Path, typer.Option(help="A copy of the committed dvc.lock.")],

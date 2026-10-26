@@ -31,6 +31,7 @@ DATA_STAGES: dict[str, str] = {
     "ingest": "ingest.json",
     "preprocess": "preprocess.json",
     "build_dataset": "build_dataset.json",
+    "export_sft": "export_sft.json",
     "index": "index.json",
 }
 MODEL_STAGES: dict[str, str] = {

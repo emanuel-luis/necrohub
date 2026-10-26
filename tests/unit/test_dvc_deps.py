@@ -14,6 +14,7 @@ ENTRY = {
     "ingest": "necrohub.ingest.stage",
     "preprocess": "necrohub.preprocess.stage",
     "build_dataset": "necrohub.datasets.stage",
+    "export_sft": "necrohub.sft.export",
     "index": "necrohub.index.build",
     "train_ner": "necrohub.train.stage",
     "train_sections": "necrohub.train.stage",
