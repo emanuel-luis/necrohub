@@ -7,7 +7,7 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
 
 - `uv sync --locked`: install (never sync a CUDA build; the torch wheels come from the `cpu` extra).
 - `make install-ml`: `uv sync --locked --extra ml --extra cpu --extra ollama --extra genai --extra
-  pipeline` (every extra; `pipeline` is dvc); needed before `make type` and `make test-ml`. Without the `ollama`/`genai` extras the client tests skip.
+  pipeline --extra db --extra serve` (every extra; `pipeline` is dvc); needed before `make type` and `make test-ml`. Without the `ollama`/`genai` extras the client tests skip.
 - `make lint`: `ruff check`, `ruff format --check`, `necrohub check-identifiers`.
 - `make type`: strict mypy on `src` (after `make install-ml`).
 - `make test-ml`: `ml` tests with tiny local models, `HF_HUB_OFFLINE=1`. `external` tests download real models and never run in CI.
@@ -28,7 +28,14 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
   CUDA build has kernels for the installed GPU).
 - `necrohub check-repro --baseline-lock <copy> --baseline-metrics <copy>`: compares a fresh
   `dvc.lock` and `metrics/` with copies taken before the run.
-- `make demo` = `uv run --locked --extra pipeline dvc repro` (generate to evaluate; `dvc.yaml`; needs
+- `make index` / `necrohub index build --in data/processed --gold data/raw/gold --out data/serving/index`:
+  redacted chunks, vectors and `index.json`. `necrohub index load` upserts them into pgvector
+  (`DATABASE_URL`); `necrohub query "<question>" [--store memory|pgvector] [--index DIR] [--k 4]`;
+  `necrohub serve` (`GET /healthz`, `POST /ask`; `NECROHUB_STORE`, `NECROHUB_INDEX_DIR`,
+  `NECROHUB_INDEX_VERSION`, `NECROHUB_LLM`, `NECROHUB_PARAMS`). `docker compose up -d --wait db` starts
+  Postgres (copy `.env.example` to `.env`); `pytest -m db` needs `DATABASE_URL` and skips without it.
+- `make demo` = `uv run --locked --extra pipeline dvc repro` (generate to index; `dvc.yaml`) then
+  `necrohub query` (needs
   `make install-ml`). After a change that alters data or metrics, rerun it and commit `dvc.lock` and
   `metrics/`: CI's demo job runs `check-repro`, which needs the data stages to reproduce bit for bit
   and the model stages (train_*, evaluate) to keep inputs, structure and data-determined fields;
@@ -44,7 +51,7 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
 - `src/necrohub/contracts/`: Pydantic models for spans, documents, generator gold (`gold.py`) and
   dataset records (`datasets.py`).
 - `src/necrohub/params.py` + `params.yaml`: typed params sections (`seed`, `generate` with `llm`,
-  `ingest`, `preprocess`, `dataset`, `train` with `tiny`, `evaluate`).
+  `ingest`, `preprocess`, `dataset`, `train` with `tiny`, `evaluate`, `embed` with `hf`, `index`).
 - `src/necrohub/settings.py`: env settings (`NECROHUB_*`, `OLLAMA_HOST`, `GEMINI_API_KEY`).
 - `src/necrohub/llm/`: `base` (`ChatMessage`, `ChatLLM`, `LlmError`, `get_llm`), `ollama`, `gemini`
   (SDKs imported inside methods; never called in tests, which fake the SDK client).
@@ -66,6 +73,12 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
   templates to test), `build` (pure task-record builders, `project_gold`, PII leak count), `card`
   (dataset card from the metrics), `stage` (`run_build_dataset`).
 - `src/necrohub/embed/`: `base` (Embedder, cosine_matrix), `chunking`, `hashing`, `hf` (torch and transformers are imported inside functions and classes only).
+- `src/necrohub/index/`: `build` (`run_index_build`, `document_chunks`: per-section redaction, windows),
+  `store` (`VectorStore`, `index_checks`, `load_index_dir`, content-derived version), `memory`, `pgvector`
+  (`PgVectorStore`, lazy psycopg), `load` (`run_index_load`). `contracts/serving.py`: `Chunk`,
+  `RetrievedChunk`, `Answer`, `IndexInfo`.
+- `src/necrohub/serve/`: `rag` (`answer`, extractive or LLM, case-id filter), `runtime` (`open_store`,
+  embedder check), `api` (`create_app`), `prompts/rag_system.txt`.
 - `src/necrohub/train/`: `labels` (pure BIO encode/decode, `merge_windows`), `tiny` (WordPiece + BERT
   from scratch, offline), `encoder` (Trainer wrapper `train_task`, `predict_ner`, `predict_sections`),
   `gpu`, `stage` (`run_train`; checkpoints under `models/.checkpoints/<task>/<fingerprint>`).
@@ -81,7 +94,7 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
 - Never write a real-looking identifier as a literal. Build it at runtime in the test (compute the
   check digits) and use `example.org` e-mail addresses.
 - `data/` and `models/` never go into git.
-- The demo gate is bit for bit for the data stages (generate, ingest, preprocess, build_dataset); model
+- The demo gate is bit for bit for the data stages (generate, ingest, preprocess, build_dataset, index); model
   stages gate inputs, structure and data-determined fields, and only warn on model-determined
   values (decision 17). Model metrics hold no timestamps or durations.
 - `necrohub check-identifiers` must pass before every commit and in CI.

@@ -583,6 +583,21 @@ Done when:
   count check.
 - `/healthz` and `/ask` pass with the in-memory store.
 
+P5 as built:
+
+- `index` is a data stage in the demo gate (bit for bit). Per section, the slice of the document
+  text is redacted with the document entities that fall inside it (clipped to the slice), then cut
+  with `text_windows(chunk_tokens, chunk_stride)`; ordinals count windows per section label across
+  the document. `gold_pii_strings_in_chunks` is 72 of 194 chunks at seed 7: the regex misses names
+  without a cue (for example the examiner's name in the signature section).
+- `index_version` is content-derived (decision 18). `index build` takes `--gold` (default
+  `data/raw/gold`) for the leak metric.
+- `VectorStore.search` takes an optional `doc_id`; the case id in the question sets it (decision 19).
+- The API reads the embedder from `params.yaml` (`NECROHUB_PARAMS`) and refuses an index built with
+  another one. `necrohub query` re-runs the search to print each citation's score.
+- `compose.yaml` has only the `db` service (pgvector pg17 pinned by digest); CI has a `test-db` job
+  on the same image. `pytest -m db` needs `DATABASE_URL` and skips without it.
+
 ### P6: generative fine-tune notebook (only if decision 6 includes (b); after P3)
 
 Done when:
