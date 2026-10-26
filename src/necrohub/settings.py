@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     ollama_host: str = Field(default="http://localhost:11434", validation_alias="OLLAMA_HOST")
     gemini_api_key: SecretStr | None = Field(default=None, validation_alias="GEMINI_API_KEY")
     database_url: SecretStr | None = Field(default=None, validation_alias="DATABASE_URL")
+    params_path: Path = Path("params.yaml")  # NECROHUB_PARAMS: the embed section picks the embedder
     store: Literal["memory", "pgvector"] = "memory"
     index_dir: Path = Path("data/serving/index")
     index_version: str | None = None  # default: the version in the index directory
