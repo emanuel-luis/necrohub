@@ -62,9 +62,38 @@ jobs:
       - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
         with: { python-version: "3.12", enable-cache: true }
       # the LLM SDKs only so the client request-shape tests run (their clients are faked)
-      - run: uv sync --locked --extra ollama --extra genai
+      # serve so the API tests run (with the memory store)
+      - run: uv sync --locked --extra ollama --extra genai --extra serve
       # ml, db, external and slow stay deselected by the pytest config
       - run: uv run pytest
+
+  test-db:
+    name: test-db (pgvector)
+    runs-on: ubuntu-latest
+    needs: lint
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    services:
+      postgres:
+        # the same pgvector image as compose.yaml, pinned by digest
+        image: pgvector/pgvector:pg17@sha256:ac08538c6f8b9904c33c8224c5e5706dbe760aca29db1d096972b4052c22a75d
+        env:
+          POSTGRES_PASSWORD: ci-only-not-a-secret
+          POSTGRES_DB: necrohub
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d necrohub" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://postgres:ci-only-not-a-secret@localhost:5432/necrohub
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { persist-credentials: false }
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with: { python-version: "3.12", enable-cache: true }
+      - run: uv sync --locked --extra db --extra serve
+      - run: uv run pytest -m db
 
   test-ml:
     name: test-ml (tiny models, offline)
@@ -105,6 +134,8 @@ jobs:
       # the same command as `make demo`; there is no DVC cache here, so every stage runs
       - run: uv run dvc repro
       - run: uv run dvc status --quiet
+      # the question the demo ends with: an answer and its citations from the fresh index
+      - run: uv run necrohub query "Qual a causa da morte no caso c7-00003?"
       # data stages must come back bit for bit, model stages within a numeric tolerance
       # (CPU float results differ across OS and CPU; decision 17)
       - run: >-

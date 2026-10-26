@@ -1,0 +1,24 @@
+# Local stack. P7 adds api, ui and ollama; for now only the database that `necrohub index load` fills.
+# Copy .env.example to .env first: compose reads POSTGRES_* from it.
+name: necrohub
+
+services:
+  db:
+    # pgvector/pgvector:pg17, pinned by the digest of its multi-arch index
+    image: pgvector/pgvector:pg17@sha256:ac08538c6f8b9904c33c8224c5e5706dbe760aca29db1d096972b4052c22a75d
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-necrohub}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?copy .env.example to .env and set POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-necrohub}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:

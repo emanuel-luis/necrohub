@@ -1,4 +1,4 @@
-.PHONY: help install install-ml install-gpu gpu-check lint type test test-ml test-fast leak-check demo generate ingest preprocess build-dataset train evaluate format clean
+.PHONY: help install install-ml install-gpu gpu-check lint type test test-ml test-fast leak-check demo generate ingest preprocess build-dataset train evaluate index index-load query serve format clean
 
 help:           ## list the targets
 	@grep -E '^[a-zA-Z_-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-14s %s\n", $$1, $$2}'
@@ -35,8 +35,9 @@ test-fast:      ## same tests, quiet
 leak-check:     ## fail on identifiers that are not in the fake pool
 	uv run necrohub check-identifiers
 
-demo:           ## the whole pipeline with DVC (generate -> evaluate, tiny-scratch on the CPU); needs `make install-ml`
+demo:           ## the whole pipeline with DVC (generate -> index, tiny-scratch on the CPU), then a question; needs `make install-ml`
 	uv run --locked --extra pipeline dvc repro
+	uv run necrohub query "Qual a causa da morte no caso c7-00003?"
 
 generate:       ## synthetic reports with gold labels into data/raw (params.yaml)
 	uv run necrohub generate --params params.yaml --out data/raw
@@ -56,6 +57,18 @@ train:          ## fine-tune the encoders (train.base_model) on data/datasets in
 
 evaluate:       ## score the encoders and the regex baseline on the test split into metrics/eval.json
 	uv run necrohub evaluate --params params.yaml --models models --data data/datasets --raw data/raw --out metrics/eval.json
+
+index:          ## chunk and embed data/processed into data/serving/index (params.yaml: embed, index)
+	uv run necrohub index build --params params.yaml --in data/processed --gold data/raw/gold --out data/serving/index
+
+index-load:     ## upsert data/serving/index into pgvector (needs DATABASE_URL and the db extra)
+	uv run necrohub index load --in data/serving/index
+
+query:          ## ask a question: make query Q="Qual a causa da morte no caso c7-00003?"
+	uv run necrohub query "$(Q)"
+
+serve:          ## the API on 127.0.0.1:8000 (needs the serve extra)
+	uv run necrohub serve
 
 format:         ## apply ruff fixes and formatting
 	uv run ruff check --fix
