@@ -8,6 +8,10 @@ from necrohub import __version__
 app = typer.Typer(
     no_args_is_help=True, add_completion=False, help="Synthetic necropsy report pipeline."
 )
+index_app = typer.Typer(
+    no_args_is_help=True, help="Build the serving index or load it into pgvector."
+)
+app.add_typer(index_app, name="index")
 
 
 def _version(value: bool) -> None:
@@ -295,3 +299,168 @@ def evaluate(
         typer.echo(str(exc), err=True)
         raise typer.Exit(1) from exc
     typer.echo(f"evaluate: {out.as_posix()} (run {run.run_id})")
+
+
+@index_app.command("build")
+def index_build(
+    params: Annotated[Path, typer.Option(help="Pipeline parameters file.")] = Path("params.yaml"),
+    in_: Annotated[Path, typer.Option("--in", help="Processed layer directory.")] = Path(
+        "data/processed"
+    ),
+    gold: Annotated[Path, typer.Option(help="Raw gold records (the leak metric only).")] = Path(
+        "data/raw/gold"
+    ),
+    out: Annotated[Path, typer.Option(help="Index directory to (re)write.")] = Path(
+        "data/serving/index"
+    ),
+    runs_dir: Annotated[Path, typer.Option(help="Where run manifests go.")] = Path("runs"),
+    metrics_dir: Annotated[Path, typer.Option(help="Where metrics/index.json goes.")] = Path(
+        "metrics"
+    ),
+) -> None:
+    """Chunk the redacted text of the processed layer, embed it and write the index files."""
+    from necrohub.index.build import run_index_build
+    from necrohub.params import load_params
+    from necrohub.runs import StageFailed
+
+    try:
+        run = run_index_build(
+            load_params(params), in_, gold, out, runs_dir=runs_dir, metrics_dir=metrics_dir
+        )
+    except (StageFailed, ValueError) as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(1) from exc
+    typer.echo(f"index build: {run.counts.written} chunks in {out.as_posix()} (run {run.run_id})")
+
+
+def _error_line(exc: BaseException) -> str:
+    from necrohub.runs import error_line
+
+    return error_line(exc)
+
+
+def _db_errors() -> tuple[type[Exception], ...]:
+    try:
+        import psycopg
+    except ImportError:
+        return ()
+    return (psycopg.Error,)
+
+
+@index_app.command("load")
+def index_load(
+    in_: Annotated[Path, typer.Option("--in", help="Index directory.")] = Path(
+        "data/serving/index"
+    ),
+    runs_dir: Annotated[Path, typer.Option(help="Where run manifests go.")] = Path("runs"),
+) -> None:
+    """Upsert the index into pgvector (DATABASE_URL), keyed by its index_version."""
+    import psycopg
+
+    from necrohub.index.load import run_index_load
+    from necrohub.index.pgvector import PgVectorStore
+    from necrohub.runs import StageFailed
+    from necrohub.settings import Settings
+
+    dsn = Settings().database_url
+    if dsn is None:
+        typer.echo("DATABASE_URL is not set", err=True)
+        raise typer.Exit(1)
+    try:
+        run = run_index_load(in_, PgVectorStore(dsn), runs_dir=runs_dir)
+    except (StageFailed, ValueError, OSError, psycopg.Error) as exc:
+        typer.echo(_error_line(exc), err=True)
+        raise typer.Exit(1) from exc
+    typer.echo(f"index load: {run.counts.written} chunks stored (run {run.run_id})")
+
+
+@app.command()
+def query(
+    question: Annotated[str, typer.Argument(help="The question, in Portuguese.")],
+    store: Annotated[
+        str | None, typer.Option(help="memory or pgvector. Default: NECROHUB_STORE or memory.")
+    ] = None,
+    index: Annotated[
+        Path | None, typer.Option(help="Index directory. Default: NECROHUB_INDEX_DIR.")
+    ] = None,
+    k: Annotated[int, typer.Option(min=1, max=20, help="Chunks to retrieve.")] = 4,
+    params: Annotated[
+        Path | None,
+        typer.Option(
+            help="Pipeline parameters file (embed). Default: NECROHUB_PARAMS or params.yaml."
+        ),
+    ] = None,
+) -> None:
+    """Answer a question from the serving index and print the answer with its citations."""
+    from necrohub.embed.factory import build_embedder
+    from necrohub.llm.base import LlmError
+    from necrohub.params import load_params
+    from necrohub.serve.rag import answer, case_id_in, llm_from_settings
+    from necrohub.serve.runtime import ConfigError, open_store
+    from necrohub.settings import Settings
+
+    if store not in (None, "memory", "pgvector"):
+        typer.echo(f"unknown store: {store} (memory or pgvector)", err=True)
+        raise typer.Exit(2)
+    overrides: dict[str, object] = {}
+    if params:
+        overrides["params_path"] = params
+    if store:
+        overrides["store"] = store
+    if index:
+        overrides["index_dir"] = index
+    settings = Settings(**overrides)  # type: ignore[arg-type]
+    caught: tuple[type[Exception], ...] = (ConfigError, LlmError, ValueError, OSError)
+    caught += _db_errors()
+    try:
+        embedder = build_embedder(load_params(settings.params_path).embed)
+        vector_store, version, _ = open_store(settings, embedder.id)
+        result = answer(
+            question,
+            embedder=embedder,
+            store=vector_store,
+            index_version=version,
+            llm=llm_from_settings(settings),
+            k=k,
+        )
+        scores = {
+            h.chunk.chunk_id: h.score
+            for h in vector_store.search(
+                version, embedder.embed([question])[0], k, doc_id=case_id_in(question)
+            )
+        }
+    except caught as exc:
+        typer.echo(_error_line(exc), err=True)
+        raise typer.Exit(1) from exc
+    typer.echo(f"Pergunta: {result.question}")
+    typer.echo(f"Resposta ({result.backend}): {result.answer}")
+    typer.echo(f"Fontes (index {result.index_version}):")
+    for n, c in enumerate(result.citations, 1):
+        score = scores.get(c.chunk_id)
+        shown = f"{score:.4f}" if score is not None else "n/a"
+        typer.echo(
+            f"  [{n}] doc_id={c.doc_id} section={c.section} ordinal={c.ordinal} score={shown}"
+        )
+
+
+@app.command()
+def serve(
+    host: Annotated[str, typer.Option(help="Interface to bind.")] = "127.0.0.1",
+    port: Annotated[int, typer.Option(help="Port to listen on.")] = 8000,
+) -> None:
+    """Serve GET /healthz and POST /ask (settings from NECROHUB_* and DATABASE_URL)."""
+    import uvicorn
+
+    from necrohub.llm.base import LlmError
+    from necrohub.serve.api import create_app
+    from necrohub.serve.runtime import ConfigError
+    from necrohub.settings import Settings
+
+    caught: tuple[type[Exception], ...] = (ConfigError, LlmError, ValueError, OSError)
+    caught += _db_errors()
+    try:
+        api = create_app(Settings())
+    except caught as exc:
+        typer.echo(_error_line(exc), err=True)
+        raise typer.Exit(1) from exc
+    uvicorn.run(api, host=host, port=port)

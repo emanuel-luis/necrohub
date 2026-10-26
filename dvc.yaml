@@ -170,3 +170,31 @@ stages:
     metrics:
       - metrics/eval.json:
           cache: false
+  index:
+    cmd: >-
+      necrohub index build --params params.yaml --in data/processed --gold data/raw/gold
+      --out data/serving/index --metrics-dir metrics
+    deps:
+      - data/processed
+      - data/raw/gold  # gold PII strings for the leak metric
+      - src/necrohub/index
+      - src/necrohub/embed
+      - src/necrohub/contracts
+      - src/necrohub/preprocess/deid
+      - src/necrohub/ids.py
+      - src/necrohub/data
+      - src/necrohub/ingest/readers.py
+      - src/necrohub/preprocess/normalize.py
+      - src/necrohub/params.py
+      - src/necrohub/runs.py
+      - src/necrohub/settings.py
+      - src/necrohub/cli.py
+      - uv.lock
+    params:
+      - embed
+      - index
+    outs:
+      - data/serving/index
+    metrics:
+      - metrics/index.json:
+          cache: false

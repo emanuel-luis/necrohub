@@ -1,6 +1,7 @@
+from pathlib import Path
 from typing import Literal
 
-from pydantic import Field, SecretStr
+from pydantic import AliasChoices, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -14,6 +15,16 @@ class Settings(BaseSettings):
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
     ollama_host: str = Field(default="http://localhost:11434", validation_alias="OLLAMA_HOST")
     gemini_api_key: SecretStr | None = Field(default=None, validation_alias="GEMINI_API_KEY")
+    database_url: SecretStr | None = Field(default=None, validation_alias="DATABASE_URL")
+    # NECROHUB_PARAMS (or params_path=...): the embed section picks the embedder
+    params_path: Path = Field(
+        default=Path("params.yaml"), validation_alias=AliasChoices("NECROHUB_PARAMS", "params_path")
+    )
+    store: Literal["memory", "pgvector"] = "memory"
+    index_dir: Path = Path("data/serving/index")
+    index_version: str | None = None  # default: the version in the index directory
+    llm: Literal["extractive", "ollama", "gemini"] = "extractive"
+    llm_model: str = "qwen3:4b-instruct-2507-q4_K_M"  # NECROHUB_LLM_MODEL, ollama and gemini
 
 
 def resolve_device(device: str = "auto") -> str:

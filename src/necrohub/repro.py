@@ -6,7 +6,8 @@ and random draw differs at the last bit between operating systems and CPUs, so t
 start from different weights on each machine.
 
 Gated (errors):
-- data stages: the dvc.lock entry and metrics/<stage>.json identical;
+- data stages (generate to build_dataset, and index): the dvc.lock entry and
+  metrics/<stage>.json identical;
 - model stages: same cmd, params and deps outside models/, and metrics with the same structure
   (a label missing from one side's per_label counts as all zeros) and the same data-determined
   fields: record, case and window counts, steps, dataset hashes, base model, task, seed, and the
@@ -30,6 +31,7 @@ DATA_STAGES: dict[str, str] = {
     "ingest": "ingest.json",
     "preprocess": "preprocess.json",
     "build_dataset": "build_dataset.json",
+    "index": "index.json",
 }
 MODEL_STAGES: dict[str, str] = {
     "train_ner": "train_ner.json",

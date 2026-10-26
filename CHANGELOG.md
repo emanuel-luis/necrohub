@@ -8,6 +8,19 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Serving layer (P5). `necrohub index build` (DVC stage `index`, `make index`) chunks the redacted
+  text of each section, embeds it (`embed` params: hashing, or a Hugging Face model) and writes
+  `data/serving/index/{chunks.jsonl,embeddings.npy,index.json}` byte for byte reproducibly, with a
+  content-derived `index_version`. It fails on row, dimension, NaN, norm or regex-PII problems and
+  reports `gold_pii_strings_in_chunks` in `metrics/index.json`.
+- `InMemoryVectorStore` and `PgVectorStore` (psycopg 3 and pgvector, the `db` extra) behind one
+  `VectorStore` protocol; `necrohub index load` migrates, upserts and checks the stored count.
+- RAG answerer (`necrohub query`, `make query`): extractive by default, an Ollama or Gemini
+  backend with `NECROHUB_LLM`; a case id in the question restricts retrieval to that case.
+- FastAPI app (`necrohub serve`, the `serve` extra): `GET /healthz` and `POST /ask`; it refuses to
+  start when the configured embedder differs from the index's.
+- `compose.yaml` with the pgvector `db` service (image pinned by digest), the `test-db` CI job, and
+  `make demo` now ends with `necrohub query`.
 - `necrohub train` (`make train`): fine-tunes an encoder for NER (BIO labels over tokenizer
   offsets, windows with stride for long sections, window merge by distance from the edge) or
   section classification with the Hugging Face `Trainer`. `train.base_model` is `tiny-scratch`

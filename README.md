@@ -12,14 +12,16 @@ questions over the corpus with retrieval.
 
 ## Status
 
-Phase 3 of 8, in progress: scaffold, text normalization, section splitting, regex and Hugging Face NER
+Phase 5 of 8, in progress: scaffold, text normalization, section splitting, regex and Hugging Face NER
 de-identification, hashing and Hugging Face embeddings, the identifier leak check, a seeded
 template generator with exact gold labels, an optional LLM realizer (local Ollama, optional
 Gemini) behind the same labelling step, PDF rendering of part of the reports, ingestion (PDF
 text extraction), the preprocess stage, the per-task dataset build, encoder fine-tuning and evaluation (a tiny model trained from scratch
 on the CPU in the demo) and a DVC pipeline over all of them (`make demo`) are in place. The CLI has
 nine commands: `check-identifiers`, `generate`, `ingest`, `preprocess`, `build-dataset`, `train`,
-`evaluate`, `gpu-check` and `check-repro`. The retrieval API and the UI come in later phases. The design and the phase plan are in
+`evaluate`, `gpu-check` and `check-repro`, plus `index build`, `index load`, `query` and `serve`: a
+serving index over the redacted text, an in-memory and a pgvector store, an extractive (or LLM)
+answerer with citations, and a small API (`GET /healthz`, `POST /ask`). The UI comes later. The design and the phase plan are in
 [docs/REFACTOR_PLAN.md](docs/REFACTOR_PLAN.md), the decisions in [docs/DECISIONS.md](docs/DECISIONS.md).
 
 ## What this demonstrates
@@ -52,7 +54,6 @@ In place now:
 
 Planned (see the phase plan):
 
-- The serving layer.
 - A model card with the numbers of a full GPU run (the demo model is a pipeline check, not a result).
 
 ## Architecture (target)
@@ -73,8 +74,8 @@ flowchart LR
 ## Tech stack
 
 Python 3.12, uv, Pydantic v2 and pydantic-settings, Typer, ftfy, NumPy, fpdf2, pypdf; Hugging Face
-Transformers and PyTorch as the optional `ml` extra (CPU wheels in CI); DVC as the `pipeline` extra. Planned: Postgres with
-pgvector, FastAPI, Streamlit, Docker Compose. Quality: ruff, mypy strict, pytest, Hypothesis, pip-audit and zizmor in CI.
+Transformers and PyTorch as the optional `ml` extra (CPU wheels in CI); DVC as the `pipeline` extra. Postgres with pgvector (`db` extra, compose service) and FastAPI (`serve` extra). Planned: Streamlit,
+the full Docker Compose stack. Quality: ruff, mypy strict, pytest, Hypothesis, pip-audit and zizmor in CI.
 
 ## Quickstart
 
@@ -141,7 +142,8 @@ skipped.
 | processed | `preprocess` | `documents.jsonl` (normalized text, sections, PII spans, redacted text), `rejects.jsonl` |
 | datasets | `build-dataset` | `{ner,sections,extraction,qa}/{train,validation,test}.jsonl`, `README.md` (dataset card) |
 | models | `train` | `encoder-{ner,sections}/` (`save_pretrained` model, tokenizer, `necrohub_train.json`); checkpoints in `models/.checkpoints/` |
-| metrics | `train`, `evaluate` | `train_{ner,sections}.json`, `eval.json` (test split, random vs held-out templates, regex vs encoder) |
+| serving | `index build` | `index/{chunks.jsonl,embeddings.npy,index.json}`: redacted chunks, vectors, version; `index load` copies it into pgvector |
+| metrics | `train`, `evaluate`, `index build` | `train_{ner,sections}.json`, `eval.json` (test split, random vs held-out templates, regex vs encoder), `index.json` |
 
 `ingest` reads a case from its PDF when it has one (pypdf text extraction; decision 13) and from
 its txt otherwise. `preprocess` normalizes, splits sections and de-identifies each document. Each
@@ -152,6 +154,22 @@ with whitespace drift and rejects. PDF extraction drops blank lines and re-wraps
 span cut by a line break still projects (its text becomes the processed slice, line break
 included), and only a span whose visible characters changed is rejected. At seed 7 every gold
 span projects: 765 exactly, 8 across a PDF line wrap.
+
+### Serving
+
+```bash
+make demo                         # ends with: necrohub query "Qual a causa da morte no caso c7-00003?"
+uv run necrohub query "Qual a causa da morte no caso c7-00003?" --k 4   # answer and citations
+uv run necrohub serve             # GET /healthz, POST /ask {"question": "...", "k": 4}
+cp .env.example .env && docker compose up -d --wait db   # Postgres with pgvector
+uv run necrohub index load        # needs DATABASE_URL; then NECROHUB_STORE=pgvector
+```
+
+The index holds only redacted text. The default answerer is extractive and deterministic: it returns
+the sentence closest to the question and cites its chunk; `NECROHUB_LLM=ollama` or `gemini` answers
+from the retrieved context instead. A case id in the question limits the search to that case.
+`metrics/index.json` reports `gold_pii_strings_in_chunks`: the regex de-identifier still misses
+some names, and this counts the chunks where that reaches the index.
 
 ### Datasets
 
@@ -185,7 +203,7 @@ Makefile directly.
 ```
 src/necrohub/
   cli.py                 Typer app (check-identifiers, generate, ingest, preprocess, build-dataset,
-                         train, evaluate, gpu-check, check-repro)
+                         train, evaluate, gpu-check, check-repro, index build/load, query, serve)
   settings.py            environment settings (NECROHUB_*, OLLAMA_HOST, GEMINI_API_KEY)
   params.py              typed sections of params.yaml
   runs.py                run manifests, atomic output swaps, tree hashes, JSONL io
@@ -200,7 +218,9 @@ src/necrohub/
   ingest/                readers (txt, pdf with pypdf), stage
   preprocess/            normalize, sections, align, pipeline, stage, deid/{base,regex,hf_ner}
   datasets/              split (seeded, by case), build (task records), card, stage
-  embed/                 Embedder protocol, token windows, hashing and Hugging Face embedders
+  embed/                 Embedder protocol, token windows, hashing and Hugging Face embedders, factory
+  index/                 index build and load, VectorStore protocol, in-memory and pgvector stores
+  serve/                 RAG answerer, store runtime, FastAPI app, prompts/
   train/                 labels (BIO), tiny (from-scratch BERT), encoder (Trainer, predict), gpu, stage
   evaluate/              metrics (strict and partial span P/R/F1, PII recall, sections), stage
   repro.py               check-repro: data stages bit for bit, model stages on structure, warnings on drift
@@ -211,7 +231,7 @@ tests/
   fixtures/reports/      three synthetic reports
   golden/                expected outputs (pytest --update-golden rewrites them)
 docs/                    refactor plan and decisions
-params.yaml              pipeline parameters (seed, generate, ingest, preprocess, dataset, train, evaluate)
+params.yaml              pipeline parameters (seed, generate, ingest, preprocess, dataset, train, evaluate, embed, index)
 dvc.yaml, dvc.lock       DVC pipeline (`make demo`) and its committed lock
 metrics/                 per-stage metrics, committed (DVC metrics, `cache: false`)
 ```
