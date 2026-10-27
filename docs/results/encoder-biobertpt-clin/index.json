@@ -1,0 +1,18 @@
+{
+  "chunks_per_section": {
+    "COMPLEMENTARY_EXAMS": 1500,
+    "CONCLUSION": 1500,
+    "EXTERNAL_EXAM": 1529,
+    "HISTORY": 1500,
+    "IDENTIFICATION": 1500,
+    "INTERNAL_EXAM": 1500,
+    "PREAMBLE": 1500,
+    "SIGNATURE": 1500
+  },
+  "dim": 256,
+  "embedder_id": "hashing-256",
+  "gold_pii_strings_in_chunks": 4500,
+  "index_version": "hashing-256-88ddd19a8ead",
+  "n_chunks": 12029,
+  "n_documents": 1500
+}
