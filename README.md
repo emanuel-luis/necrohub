@@ -31,6 +31,7 @@ flowchart LR
   generate --> raw[(raw)]
   raw --> ingest --> interim[(interim)]
   interim --> preprocess --> processed[(processed)]
+  raw --> preprocess
   raw --> build_dataset
   processed --> build_dataset --> datasets[(datasets)]
   datasets --> export_sft --> sft[(sft)]
@@ -51,7 +52,7 @@ flowchart LR
   qlora -.-> gguf[GGUF] -.-> ollama
 ```
 
-Solid arrows are the DVC pipeline and the serving path. Dashed arrows are optional side paths. Every stage also writes its own `metrics/<stage>.json`. The `index` and `evaluate` stages read `data/raw/gold` (the generator labels) for the PII leak metric and for the template of each test case.
+Solid arrows are the DVC pipeline and the serving path. Dashed arrows are optional side paths. Every stage also writes its own `metrics/<stage>.json`. The `preprocess`, `build_dataset`, `evaluate` and `index` stages read `data/raw/gold` (the generator labels): for the span alignment metric, the task records, the template of each test case and the PII leak metric.
 
 ## Tech stack
 
@@ -72,12 +73,13 @@ make up           # db, loader, api, ui in Docker Compose
 
 `make up` needs a finished `make demo`, since the stack loads `data/serving/index`. The UI is at http://127.0.0.1:8501 and the API at http://127.0.0.1:8000. `make down` stops the stack and deletes its volumes.
 
-Windows may not have `make`. The same steps without it:
+Windows may not have `make`. The same steps without it, in PowerShell:
 
-```bash
+```powershell
 uv sync --locked --extra ml --extra cpu --extra pipeline --extra db --extra serve --extra ui
 uv run --locked --extra pipeline dvc repro
 uv run necrohub query "Qual a causa da morte no caso c7-00003?"
+Copy-Item .env.example .env   # then set POSTGRES_PASSWORD in .env
 docker compose up -d --build --wait db loader api ui
 ```
 

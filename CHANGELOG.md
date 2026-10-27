@@ -9,7 +9,7 @@ The first release carries over, rewritten, the useful parts of three earlier pri
 
 ## [Unreleased]
 
-## [0.1.0] - 2026-10-26
+## [0.1.0] - 2026-10-27
 
 ### Added
 
