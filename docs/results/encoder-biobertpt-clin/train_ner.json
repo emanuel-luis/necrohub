@@ -1,0 +1,14 @@
+{
+  "base_model": "pucpr/biobertpt-clin",
+  "dataset_sha256": "3a94a72c2e1708c75b03d228a0a312dbaf32730a5b30fbd389051e8605a52ebf",
+  "n_records": {
+    "train": 8160,
+    "validation": 1024
+  },
+  "n_steps": 3060,
+  "n_windows": 8160,
+  "resumed_from_step": 0,
+  "task": "ner",
+  "train_loss": 0.0617,
+  "val_loss": 0.0001
+}

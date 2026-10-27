@@ -1,0 +1,71 @@
+{
+  "alignment": {
+    "exact": 47022,
+    "extraction_records_dropped": 0,
+    "ner_records_dropped": 0,
+    "projected": 47425,
+    "reject_fraction": 0.0,
+    "rejected": 0,
+    "whitespace_drift": 403
+  },
+  "cases": {
+    "test": 352,
+    "train": 1020,
+    "validation": 128
+  },
+  "datasets_sha256": "a01707932159cdfb75ade2dd2c065a7e13c617668782be4235b20a5188e7dec6",
+  "documents": 1500,
+  "holdout_templates": [
+    "t3"
+  ],
+  "ner_labels": {
+    "ADDRESS": 1500,
+    "CAUSE_OF_DEATH": 1500,
+    "CPF": 1500,
+    "CRM": 2136,
+    "DATE": 4500,
+    "DOC_NUMBER": 3000,
+    "FINDING": 3058,
+    "INJURY": 1613,
+    "LOC": 4500,
+    "MANNER_OF_DEATH": 1500,
+    "ORGAN": 10650,
+    "PER": 7500,
+    "PHONE": 1500,
+    "RG": 1500,
+    "SUBSTANCE": 1468
+  },
+  "records": {
+    "extraction": {
+      "test": 352,
+      "train": 1020,
+      "validation": 128
+    },
+    "ner": {
+      "test": 2816,
+      "train": 8160,
+      "validation": 1024
+    },
+    "qa": {
+      "test": 2112,
+      "train": 6120,
+      "validation": 768
+    },
+    "sections": {
+      "test": 2816,
+      "train": 8160,
+      "validation": 1024
+    }
+  },
+  "section_labels": {
+    "COMPLEMENTARY_EXAMS": 1500,
+    "CONCLUSION": 1500,
+    "EXTERNAL_EXAM": 1500,
+    "HISTORY": 1500,
+    "IDENTIFICATION": 1500,
+    "INTERNAL_EXAM": 1500,
+    "PREAMBLE": 1500,
+    "SIGNATURE": 1500
+  },
+  "seed": 7
+}
