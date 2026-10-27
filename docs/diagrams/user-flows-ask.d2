@@ -1,0 +1,41 @@
+# Reader journey: a question in the UI, retrieval in the API and the answer, on the compose
+# stack (store pgvector). Grounded in src/necrohub/serve/{ui,api,rag,runtime}.py,
+# src/necrohub/index/pgvector.py, src/necrohub/embed/ and compose.yaml.
+...@_style
+
+ask: "A question in the UI: retrieval, then the answer" {
+  shape: sequence_diagram
+  style: {font-size: 24; bold: true}
+
+  reader: Reader {class: actor}
+  ui: "ui\nStreamlit" {class: serving}
+  api: "api\nFastAPI" {class: serving}
+  emb: "embedder\nhashing or HF" {class: process}
+  db: "db\npgvector" {class: store}
+  llm: "Ollama or Gemini\n(NECROHUB_LLM)" {class: external}
+
+  startup: "when the api starts" {
+    api -> db: "index_versions row\nof the served version"
+    db -> api: "its embedder_id must\nmatch the configured\nembedder, or the api\nrefuses to start" {class: meta}
+  }
+  reader -> ui: "open the page\n(a ?q= link\nasks at once)"
+  ui -> api: "GET /healthz"
+  api -> db: "count the chunks\nof the version"
+  api -> ui: "200 with index_version\nand n_chunks (503\nwhen nothing loaded)" {class: meta}
+  reader -> ui: "question, k (1 to 20,\ndefault 4), Ask"
+  ui -> api: "POST /ask\n{question, k}"
+  api -> api: "validate (1 to 1000\ncharacters, else 422);\na case id such as\nc7-00003 limits the\nsearch to that case"
+  api -> emb: "embed the question"
+  api -> db: "k nearest chunks by\ncosine distance in the\nversion (and the case),\nties by chunk_id"
+  db -> api: "k redacted chunks\nwith scores (none: a\nfixed not-found answer)" {class: meta}
+  extractive: "default: extractive, deterministic" {
+    api -> emb: "embed each sentence\nof the chunks"
+    api -> api: "closest sentence to\nthe question, cited\nto its chunk"
+  }
+  generative: "NECROHUB_LLM=ollama or gemini" {
+    api -> llm: "system prompt and\nnumbered chunks,\ntemperature 0.2"
+    llm -> api: "answer citing [n];\na backend failure\nbecomes a 502" {class: meta}
+  }
+  api -> ui: "answer, citations,\nbackend, index_version" {class: meta}
+  ui -> reader: "the answer, backend\nand index version, each\ncited chunk in an\nexpander" {class: meta}
+}

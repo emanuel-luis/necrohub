@@ -1,0 +1,88 @@
+# Layers from the seed to the pgvector index and the SFT export: the stage that writes each layer, the boundary
+# checks of each stage, the run metadata and the identifier-leak check. Grounded in dvc.yaml,
+# params.yaml, .gitignore, src/necrohub/runs.py, src/necrohub/ids.py,
+# src/necrohub/generate/{stage,checks}.py and src/necrohub/{ingest,preprocess,datasets}/stage.py,
+# src/necrohub/sft/export.py, src/necrohub/index/{build,store,load}.py. Training and evaluation:
+# data-flow-ml.d2.
+...@_style
+
+title: "Data flow: seed to the pgvector index" {
+  shape: text
+  near: top-center
+  style: {font-size: 24; bold: true}
+}
+
+direction: down
+
+params: "params.yaml\nseed 7, 24 cases (demo)" {class: source}
+pool: "fake_identifiers.toml\nthe only RG, CRM, phone\nand e-mail values allowed" {class: source}
+
+generate: "generate\nsample case facts, realize the text\n(template or LLM), fill the slots,\nrender a seeded 25% to PDF" {class: process}
+raw: "raw · data/raw\nreports/<case_id>.txt (+ .pdf),\ngold/<case_id>.json, rejects.jsonl" {class: store}
+raw_checks: "checks on raw\ngold validates, spans match text,\nrequired slots, no leftover\nmarkers, no unlabelled identifiers" {class: check}
+
+ingest: "ingest\nthe PDF text (pypdf) when a\ncase has one, else the txt" {class: process}
+interim: "interim · data/interim\ningested.jsonl\n(IngestedDocument)" {class: store}
+interim_checks: "checks on interim\none document per report,\nunique doc_id, no U+FFFD,\nPDF length drift within 15%" {class: check}
+
+preprocess: "preprocess\nnormalize, split sections,\nde-identify (regex; hf_ner\noptional), redact once" {class: process}
+processed: "processed · data/processed\ndocuments.jsonl\n(ProcessedDocument)" {class: store}
+processed_checks: "checks on processed\nordered sections, coverage,\nspans in bounds, no regex\nPII in the redacted text" {class: check}
+
+build: "build_dataset\nsplits by case, seeded;\nheld-out template to test" {class: process}
+datasets: "datasets · data/datasets\nner, sections, extraction, qa\n(training: data-flow-ml)" {class: store}
+datasets_checks: "checks on datasets\nno case in two splits, align\nrejects within 5%, no gold\nPII in extraction or QA" {class: check}
+
+export: "export_sft\nchat messages with\npt-BR system prompts" {class: process}
+sft: "sft · data/sft\nchat JSONL per split,\nextraction.schema.json\n(cloud QLoRA notebook)" {class: store}
+sft_checks: "checks on sft\ntest cases stay in test,\nvalid CaseExtraction\ntargets, no regex PII" {class: check}
+
+index: "index build\nredacted text only, windows\nper section, hashing or\nHF embedder" {class: process}
+serving: "serving index\ndata/serving/index\nchunks.jsonl, embeddings.npy,\nindex.json" {class: store}
+index_checks: "checks on the index\nrows, dim, NaN, unit norms,\nno regex PII in chunks" {class: check}
+
+load: "index load\nmigrate, then upsert by\n(index_version, chunk_id)" {class: process}
+pg: "pgvector\nchunks, index_versions" {class: store}
+load_check: "check on load\nstored rows = n_chunks" {class: check}
+
+runs: "Run metadata of every stage\nruns/<stage>/<run_id>.json (local): UTC times,\nparams and input/output sha256, counts,\nrejects, checks · metrics/<stage>.json and\ndvc.lock committed, compared by check-repro" {class: store}
+leak: "Identifier-leak check · make lint, CI lint\nnecrohub check-identifiers over every file git\ntracks or would add (PDFs through their pypdf\ntext): fails on a valid CPF or CNPJ, or an RG,\nCRM, phone or e-mail outside the fake pool.\ndata/ is gitignored." {class: check}
+
+params -> generate
+pool -> generate: "fake values"
+generate -> raw
+generate -> raw_checks {class: layer}
+raw -> ingest
+ingest -> interim
+ingest -> interim_checks {class: layer}
+interim -> preprocess
+raw -> preprocess: "gold: alignment\nmetric" {class: meta}
+preprocess -> processed
+preprocess -> processed_checks {class: layer}
+processed -> build
+raw -> build: "gold labels"
+build -> datasets
+build -> datasets_checks {class: layer}
+datasets -> export: "extraction, qa"
+export -> sft
+export -> sft_checks {class: layer}
+processed -> index
+raw -> index: "gold PII:\nleak metric" {class: meta}
+index -> serving
+index -> index_checks {class: layer}
+serving -> load
+load -> pg
+serving -> load_check {class: layer}
+pool -> leak: "allowlist" {class: meta}
+pg -> runs {class: layer}
+
+legend: Legend {
+  class: legend
+  grid-columns: 6
+  source: source files {class: [source; legend-item]}
+  process: stage {class: [process; legend-item]}
+  store: stored data {class: [store; legend-store]}
+  check: boundary check {class: [check; legend-item]}
+  layer: "a failed check fails the stage\nand keeps the previous layer" {shape: text; style.font-size: 13}
+  edges: "solid arrow: data\ndashed: gold read for a\nmetric, or an allowlist" {shape: text; style.font-size: 13}
+}

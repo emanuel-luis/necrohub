@@ -1,0 +1,70 @@
+# The system in context: who runs what, the DVC pipeline, the compose stack and the external
+# services. Grounded in dvc.yaml, compose.yaml, the Makefile, src/necrohub/{cli,settings}.py,
+# src/necrohub/llm/, src/necrohub/serve/, notebooks/qlora_extraction.ipynb and
+# .github/workflows/ci.yml. Layers and checks: data-flow.d2 and data-flow-ml.d2.
+# Arrows follow the data: an LLM sends drafts or answers, the Hub sends the base model.
+...@_style
+
+title: "Architecture: a DVC pipeline over synthetic reports, served by a RAG stack" {
+  shape: text
+  near: top-center
+  style: {font-size: 24; bold: true}
+}
+
+direction: down
+
+dev: Developer {class: actor}
+reader: "Reader in\na browser" {class: actor}
+gha: "GitHub Actions\nlint, type, tests,\ndemo repro gate,\ncompose smoke,\ndiagrams" {class: external}
+hf: "Hugging Face Hub\npucpr/biobertpt-clin,\nbase model of the\nlocal GPU run" {class: external}
+colab: "Free cloud T4\nQLoRA notebook\n(not run yet)" {class: external}
+ollama: "Ollama, local LLM\nqwen3:4b-instruct-\n2507-q4_K_M (host, or\ncompose profile ollama)" {class: external}
+gemini: "Gemini API\noptional, paid,\noff by default" {class: external}
+
+pipeline: "Pipeline · necrohub CLI stages run by DVC (dvc.yaml)" {
+  class: group
+  generate: "generate → data/raw\nreports and gold labels;\ntemplate realizer (default)\nor LLM realizer" {class: process}
+  prep: "ingest + preprocess\n→ data/interim, data/processed\nPDF text, sections,\nde-identification" {class: process}
+  datasets: "build_dataset + export_sft\n→ data/datasets, data/sft\nner, sections, extraction, qa" {class: process}
+  train: "train_ner, train_sections,\nevaluate → models/, eval.json\nencoders vs a regex baseline" {class: process}
+  index: "index build\n→ data/serving/index\nredacted chunks + vectors" {class: process}
+  metrics: "metrics/ + dvc.lock\ncommitted; data/ and\nmodels/ never in git" {class: store}
+
+  generate -> prep -> datasets -> train
+  prep -> index
+}
+
+stack: "Serving · docker compose (make up)" {
+  class: group
+  loader: "loader\nnecrohub index load" {class: process}
+  db: "db\nPostgres 17 + pgvector" {class: store}
+  api: "api · FastAPI\nGET /healthz\nPOST /ask" {class: serving}
+  ui: "ui · Streamlit\n127.0.0.1:8501" {class: serving}
+
+  loader -> db: "upsert"
+  api -> db: "cosine search"
+  ui -> api: "HTTP only"
+}
+
+dev -> pipeline.generate: "make demo\n(dvc repro)"
+reader -> stack.ui: "question"
+pipeline.index -> stack.loader: "index dir,\nread-only mount"
+gha -> pipeline.metrics: "check-repro"
+
+ollama -> pipeline.generate: "drafts" {class: meta}
+gemini -> pipeline.generate {class: meta}
+ollama -> stack.api: "answers" {class: meta}
+gemini -> stack.api {class: meta}
+colab -> ollama: "GGUF +\nModelfile" {class: meta}
+hf -> pipeline.train {class: meta}
+
+legend: Legend {
+  class: legend
+  grid-columns: 6
+  actor: actor {class: [actor; legend-actor]}
+  external: external system {class: [external; legend-item]}
+  process: process {class: [process; legend-item]}
+  store: stored data {class: [store; legend-store]}
+  serving: serving {class: [serving; legend-item]}
+  edges: "solid arrow: data or a call\ndashed: optional path" {shape: text; style.font-size: 13}
+}

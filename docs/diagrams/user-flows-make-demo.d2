@@ -1,0 +1,37 @@
+# Developer journey: `make demo` from a fresh clone, then the same command again. Grounded in
+# the Makefile (demo target), dvc.yaml, src/necrohub/runs.py (stage_run, atomic_dir) and
+# src/necrohub/serve/rag.py. CI's demo job runs the same repro, then check-repro.
+...@_style
+
+demo: "make demo: dvc repro from the seed to the index, then a question" {
+  shape: sequence_diagram
+  style: {font-size: 24; bold: true}
+
+  dev: Developer {class: actor}
+  make: make {class: process}
+  dvc: DVC {class: process}
+  cli: "necrohub CLI" {class: process}
+  data: "data/ and\nmodels/" {class: store}
+  meta: "runs/, metrics/,\ndvc.lock" {class: store}
+
+  dev -> make: "make demo (after\nmake install-ml)"
+  make -> dvc: "uv run --locked\n--extra pipeline\ndvc repro"
+  dvc -> dvc: "hash deps, params\nand outs; compare\nwith dvc.lock"
+  stages: "each stale stage of dvc.yaml, upstream first: generate, ingest, preprocess,\nbuild_dataset, export_sft, train_ner, train_sections, evaluate, index" {
+    dvc -> cli: "necrohub <stage>\n--params params.yaml"
+    cli -> data: "read the\ninput layer"
+    cli -> data: "write a temp dir, run\nthe boundary checks,\nswap it in only\nwhen they pass"
+    cli -> meta: "runs/<stage>/<run_id>.json,\nmetrics/<stage>.json"
+    cli -> dvc: "exit 0; a failed check\nstops the run, the\nprevious layer stays" {class: meta}
+  }
+  dvc -> meta: "dvc.lock: hashes of\ndeps, params, outs"
+  make -> cli: "necrohub query \"Qual a causa\nda morte no caso c7-00003?\""
+  cli -> data: "in-memory store over\ndata/serving/index"
+  cli -> dev: "the answer and\nits cited chunk" {class: meta}
+  again: "the same command again" {
+    dev -> make: "make demo"
+    make -> dvc: "dvc repro"
+    dvc -> dev: "every stage up to\ndate: none reruns" {class: meta}
+    make -> cli: "the same question"
+  }
+}

@@ -1,0 +1,80 @@
+# The relational model: the two tables `necrohub index load` creates in Postgres with pgvector,
+# and the index files their rows come from. Grounded in src/necrohub/index/{pgvector,load,store}.py
+# and src/necrohub/contracts/serving.py. Run manifests are JSON files under runs/, not tables
+# (data-flow.d2). sql_table rows do not wrap: keep the type cells short.
+...@_style
+
+title: "Data model: the pgvector tables and the index files they load" {
+  shape: text
+  near: top-center
+  style: {font-size: 24; bold: true}
+}
+
+note: "Dashed arrows: what index load upserts. Both tables share index_version without a foreign key; index load\nwrites them in one transaction. index_version = <embedder slug>-<first 12 hex of sha256(chunks.jsonl +\nembeddings.npy)>, so loading the same index again changes nothing. chunk_id = first 16 hex of sha256(doc_id,\nsection, ordinal, embedder_id); embedding row i belongs to chunk line i. Exact cosine search (<=>), no ANN\nindex; the index chunks_version_doc on (index_version, doc_id) serves the case filter." {
+  shape: text
+  near: bottom-center
+  style.font-size: 14
+}
+
+direction: down
+
+files: "data/serving/index · the files of one index version" {
+  class: group
+
+  index_json: "index.json (IndexInfo)" {
+    shape: sql_table
+    schema_version: "1"
+    index_version: str
+    embedder_id: str
+    dim: int
+    n_chunks: int
+    chunks_sha256: str
+    embeddings_sha256: str
+    params: "dict"
+  }
+
+  chunks_jsonl: "chunks.jsonl (Chunk)" {
+    shape: sql_table
+    schema_version: "1"
+    chunk_id: str
+    doc_id: "str (case id)"
+    section: SectionLabel
+    ordinal: "int (window)"
+    text: "str (redacted)"
+    embedder_id: str
+  }
+
+  embeddings: "embeddings.npy" {
+    shape: sql_table
+    rows: "float32[n_chunks, dim]"
+  }
+}
+
+pg: "Postgres 17 + pgvector · created by index load" {
+  class: group
+
+  index_versions: {
+    shape: sql_table
+    index_version: text {constraint: primary_key}
+    embedder_id: "text not null"
+    dim: "int not null"
+    n_chunks: "int not null"
+    loaded_at: "timestamptz"
+  }
+
+  chunks: {
+    shape: sql_table
+    index_version: text {constraint: primary_key}
+    chunk_id: text {constraint: primary_key}
+    doc_id: "text not null"
+    section: "text not null"
+    ordinal: "int not null"
+    text: "text not null"
+    embedder_id: "text not null"
+    embedding: "vector not null"
+  }
+}
+
+files.index_json.index_version -> pg.index_versions.index_version {class: meta}
+files.chunks_jsonl.chunk_id -> pg.chunks.chunk_id {class: meta}
+files.embeddings.rows -> pg.chunks.embedding {class: meta}

@@ -1,0 +1,37 @@
+# Developer journey: the local GPU fine-tune of pucpr/biobertpt-clin with resumable checkpoints,
+# as docs/MODEL_CARD.md (Reproduce) documents it. Grounded in the Makefile (install-gpu,
+# gpu-check), src/necrohub/train/{stage,encoder,gpu}.py and docs/DECISIONS.md (rows 15 to 17).
+...@_style
+
+gpu: "Local GPU fine-tune with resumable checkpoints" {
+  shape: sequence_diagram
+  style: {font-size: 24; bold: true}
+
+  dev: Developer {class: actor}
+  run: "uv run:\nnecrohub, DVC" {class: process}
+  train: "train stage\n(Trainer)" {class: process}
+  hub: "Hugging Face Hub\npucpr/biobertpt-clin" {class: external}
+  ckpt: "models/\n.checkpoints/" {class: store}
+  out: "models/ and\nmetrics/" {class: store}
+
+  dev -> run: "make install-gpu:\nCUDA 12.6 torch,\na multi-GB download"
+  dev -> run: "necrohub gpu-check"
+  run -> dev: "fails unless torch has\nkernels for the GPU\n(GTX 1650, sm_75)" {class: meta}
+  dev -> run: "dvc exp run -S ...:\n1500 cases, base model\nbiobertpt-clin, fp16,\ngradient checkpointing,\nlr 5e-5, 3 epochs"
+  run -> run: "data stages\nfor 1500 cases"
+  run -> train: "necrohub train\n--task ner\n(then sections)"
+  train -> train: "checks: train and\nvalidation share no\ncase, records present,\nCUDA kernels again"
+  train -> hub: "from_pretrained"
+  hub -> train: "weights, tokenizer" {class: meta}
+  train -> ckpt: "dir <task>/<fingerprint>:\ntask, params, seed,\ndataset, code, torch\nand transformers"
+  train -> ckpt: "a checkpoint\nevery 200 steps"
+  stop: "the run stops (crash, reboot, Ctrl+C), then" {
+    dev -> run: "the same\ndvc exp run"
+    run -> train: "necrohub train\n--task ner"
+    ckpt -> train: "last checkpoint of\nthe fingerprint:\nresume from its step" {class: meta}
+  }
+  train -> out: "models/encoder-ner\n(atomic swap) and\nmetrics/train_ner.json\nwith resumed_from_step"
+  train -> ckpt: "delete the checkpoints\n(unless\nkeep_checkpoints)"
+  run -> out: "evaluate:\nmetrics/eval.json"
+  dev -> out: "keep the metrics in\ndocs/results/\nencoder-biobertpt-clin/"
+}
