@@ -1,0 +1,1151 @@
+{
+  "base_model": {
+    "ner": "pucpr/biobertpt-clin",
+    "sections": "pucpr/biobertpt-clin"
+  },
+  "datasets_sha256": "a01707932159cdfb75ade2dd2c065a7e13c617668782be4235b20a5188e7dec6",
+  "ner": {
+    "heldout_templates": {
+      "encoder": {
+        "partial": {
+          "macro": {
+            "f1": 0.92,
+            "precision": 0.9111,
+            "recall": 0.9333
+          },
+          "micro": {
+            "f1": 0.9679,
+            "fn": 225,
+            "fp": 225,
+            "precision": 0.9679,
+            "recall": 0.9679,
+            "tp": 6787
+          },
+          "micro_pii": {
+            "f1": 0.9444,
+            "fn": 225,
+            "fp": 225,
+            "precision": 0.9444,
+            "recall": 0.9444,
+            "tp": 3825
+          },
+          "per_label": {
+            "ADDRESS": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 225
+            },
+            "CAUSE_OF_DEATH": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 225
+            },
+            "CPF": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 225
+            },
+            "CRM": {
+              "f1": 0.0,
+              "fn": 225,
+              "fp": 0,
+              "precision": 0.0,
+              "recall": 0.0,
+              "tp": 0
+            },
+            "DATE": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 675
+            },
+            "DOC_NUMBER": {
+              "f1": 0.8,
+              "fn": 0,
+              "fp": 225,
+              "precision": 0.6667,
+              "recall": 1.0,
+              "tp": 450
+            },
+            "FINDING": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 461
+            },
+            "INJURY": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 242
+            },
+            "LOC": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 675
+            },
+            "MANNER_OF_DEATH": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 225
+            },
+            "ORGAN": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 1598
+            },
+            "PER": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 1125
+            },
+            "PHONE": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 225
+            },
+            "RG": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 225
+            },
+            "SUBSTANCE": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 211
+            }
+          }
+        },
+        "pii_char_recall": 1.0,
+        "pii_spans_missed": 0,
+        "strict": {
+          "macro": {
+            "f1": 0.92,
+            "precision": 0.9111,
+            "recall": 0.9333
+          },
+          "micro": {
+            "f1": 0.9679,
+            "fn": 225,
+            "fp": 225,
+            "precision": 0.9679,
+            "recall": 0.9679,
+            "tp": 6787
+          },
+          "micro_pii": {
+            "f1": 0.9444,
+            "fn": 225,
+            "fp": 225,
+            "precision": 0.9444,
+            "recall": 0.9444,
+            "tp": 3825
+          },
+          "per_label": {
+            "ADDRESS": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 225
+            },
+            "CAUSE_OF_DEATH": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 225
+            },
+            "CPF": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 225
+            },
+            "CRM": {
+              "f1": 0.0,
+              "fn": 225,
+              "fp": 0,
+              "precision": 0.0,
+              "recall": 0.0,
+              "tp": 0
+            },
+            "DATE": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 675
+            },
+            "DOC_NUMBER": {
+              "f1": 0.8,
+              "fn": 0,
+              "fp": 225,
+              "precision": 0.6667,
+              "recall": 1.0,
+              "tp": 450
+            },
+            "FINDING": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 461
+            },
+            "INJURY": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 242
+            },
+            "LOC": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 675
+            },
+            "MANNER_OF_DEATH": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 225
+            },
+            "ORGAN": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 1598
+            },
+            "PER": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 1125
+            },
+            "PHONE": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 225
+            },
+            "RG": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 225
+            },
+            "SUBSTANCE": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 211
+            }
+          }
+        }
+      },
+      "n_cases": 225,
+      "n_records": 1800,
+      "regex": {
+        "partial": {
+          "macro": {
+            "f1": 0.7407,
+            "precision": 0.7778,
+            "recall": 0.7222
+          },
+          "micro": {
+            "f1": 0.6667,
+            "fn": 2025,
+            "fp": 0,
+            "precision": 1.0,
+            "recall": 0.5,
+            "tp": 2025
+          },
+          "micro_pii": {
+            "f1": 0.6667,
+            "fn": 2025,
+            "fp": 0,
+            "precision": 1.0,
+            "recall": 0.5,
+            "tp": 2025
+          },
+          "per_label": {
+            "ADDRESS": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 225
+            },
+            "CPF": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 225
+            },
+            "CRM": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 225
+            },
+            "DATE": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 675
+            },
+            "DOC_NUMBER": {
+              "f1": 0.6667,
+              "fn": 225,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 0.5,
+              "tp": 225
+            },
+            "LOC": {
+              "f1": 0.0,
+              "fn": 675,
+              "fp": 0,
+              "precision": 0.0,
+              "recall": 0.0,
+              "tp": 0
+            },
+            "PER": {
+              "f1": 0.0,
+              "fn": 1125,
+              "fp": 0,
+              "precision": 0.0,
+              "recall": 0.0,
+              "tp": 0
+            },
+            "PHONE": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 225
+            },
+            "RG": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 225
+            }
+          }
+        },
+        "pii_char_recall": 0.4716,
+        "pii_spans_missed": 2025,
+        "strict": {
+          "macro": {
+            "f1": 0.7407,
+            "precision": 0.7778,
+            "recall": 0.7222
+          },
+          "micro": {
+            "f1": 0.6667,
+            "fn": 2025,
+            "fp": 0,
+            "precision": 1.0,
+            "recall": 0.5,
+            "tp": 2025
+          },
+          "micro_pii": {
+            "f1": 0.6667,
+            "fn": 2025,
+            "fp": 0,
+            "precision": 1.0,
+            "recall": 0.5,
+            "tp": 2025
+          },
+          "per_label": {
+            "ADDRESS": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 225
+            },
+            "CPF": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 225
+            },
+            "CRM": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 225
+            },
+            "DATE": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 675
+            },
+            "DOC_NUMBER": {
+              "f1": 0.6667,
+              "fn": 225,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 0.5,
+              "tp": 225
+            },
+            "LOC": {
+              "f1": 0.0,
+              "fn": 675,
+              "fp": 0,
+              "precision": 0.0,
+              "recall": 0.0,
+              "tp": 0
+            },
+            "PER": {
+              "f1": 0.0,
+              "fn": 1125,
+              "fp": 0,
+              "precision": 0.0,
+              "recall": 0.0,
+              "tp": 0
+            },
+            "PHONE": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 225
+            },
+            "RG": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 225
+            }
+          }
+        }
+      }
+    },
+    "random": {
+      "encoder": {
+        "partial": {
+          "macro": {
+            "f1": 1.0,
+            "precision": 1.0,
+            "recall": 1.0
+          },
+          "micro": {
+            "f1": 1.0,
+            "fn": 0,
+            "fp": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "tp": 4040
+          },
+          "micro_pii": {
+            "f1": 1.0,
+            "fn": 0,
+            "fp": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "tp": 2354
+          },
+          "per_label": {
+            "ADDRESS": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 127
+            },
+            "CAUSE_OF_DEATH": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 127
+            },
+            "CPF": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 127
+            },
+            "CRM": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 195
+            },
+            "DATE": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 381
+            },
+            "DOC_NUMBER": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 254
+            },
+            "FINDING": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 255
+            },
+            "INJURY": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 147
+            },
+            "LOC": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 381
+            },
+            "MANNER_OF_DEATH": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 127
+            },
+            "ORGAN": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 904
+            },
+            "PER": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 635
+            },
+            "PHONE": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 127
+            },
+            "RG": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 127
+            },
+            "SUBSTANCE": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 126
+            }
+          }
+        },
+        "pii_char_recall": 1.0,
+        "pii_spans_missed": 0,
+        "strict": {
+          "macro": {
+            "f1": 1.0,
+            "precision": 1.0,
+            "recall": 1.0
+          },
+          "micro": {
+            "f1": 1.0,
+            "fn": 0,
+            "fp": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "tp": 4040
+          },
+          "micro_pii": {
+            "f1": 1.0,
+            "fn": 0,
+            "fp": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "tp": 2354
+          },
+          "per_label": {
+            "ADDRESS": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 127
+            },
+            "CAUSE_OF_DEATH": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 127
+            },
+            "CPF": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 127
+            },
+            "CRM": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 195
+            },
+            "DATE": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 381
+            },
+            "DOC_NUMBER": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 254
+            },
+            "FINDING": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 255
+            },
+            "INJURY": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 147
+            },
+            "LOC": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 381
+            },
+            "MANNER_OF_DEATH": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 127
+            },
+            "ORGAN": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 904
+            },
+            "PER": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 635
+            },
+            "PHONE": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 127
+            },
+            "RG": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 127
+            },
+            "SUBSTANCE": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 126
+            }
+          }
+        }
+      },
+      "n_cases": 127,
+      "n_records": 1016,
+      "regex": {
+        "partial": {
+          "macro": {
+            "f1": 0.8101,
+            "precision": 0.8889,
+            "recall": 0.7817
+          },
+          "micro": {
+            "f1": 0.762,
+            "fn": 905,
+            "fp": 0,
+            "precision": 1.0,
+            "recall": 0.6155,
+            "tp": 1449
+          },
+          "micro_pii": {
+            "f1": 0.762,
+            "fn": 905,
+            "fp": 0,
+            "precision": 1.0,
+            "recall": 0.6155,
+            "tp": 1449
+          },
+          "per_label": {
+            "ADDRESS": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 127
+            },
+            "CPF": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 127
+            },
+            "CRM": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 195
+            },
+            "DATE": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 381
+            },
+            "DOC_NUMBER": {
+              "f1": 0.8686,
+              "fn": 59,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 0.7677,
+              "tp": 195
+            },
+            "LOC": {
+              "f1": 0.0,
+              "fn": 381,
+              "fp": 0,
+              "precision": 0.0,
+              "recall": 0.0,
+              "tp": 0
+            },
+            "PER": {
+              "f1": 0.4224,
+              "fn": 465,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 0.2677,
+              "tp": 170
+            },
+            "PHONE": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 127
+            },
+            "RG": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 127
+            }
+          }
+        },
+        "pii_char_recall": 0.5944,
+        "pii_spans_missed": 905,
+        "strict": {
+          "macro": {
+            "f1": 0.7996,
+            "precision": 0.8784,
+            "recall": 0.7712
+          },
+          "micro": {
+            "f1": 0.7557,
+            "fn": 917,
+            "fp": 12,
+            "precision": 0.9917,
+            "recall": 0.6105,
+            "tp": 1437
+          },
+          "micro_pii": {
+            "f1": 0.7557,
+            "fn": 917,
+            "fp": 12,
+            "precision": 0.9917,
+            "recall": 0.6105,
+            "tp": 1437
+          },
+          "per_label": {
+            "ADDRESS": {
+              "f1": 0.9055,
+              "fn": 12,
+              "fp": 12,
+              "precision": 0.9055,
+              "recall": 0.9055,
+              "tp": 115
+            },
+            "CPF": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 127
+            },
+            "CRM": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 195
+            },
+            "DATE": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 381
+            },
+            "DOC_NUMBER": {
+              "f1": 0.8686,
+              "fn": 59,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 0.7677,
+              "tp": 195
+            },
+            "LOC": {
+              "f1": 0.0,
+              "fn": 381,
+              "fp": 0,
+              "precision": 0.0,
+              "recall": 0.0,
+              "tp": 0
+            },
+            "PER": {
+              "f1": 0.4224,
+              "fn": 465,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 0.2677,
+              "tp": 170
+            },
+            "PHONE": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 127
+            },
+            "RG": {
+              "f1": 1.0,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 127
+            }
+          }
+        }
+      }
+    }
+  },
+  "schema_version": 1,
+  "sections": {
+    "heldout_templates": {
+      "encoder": {
+        "accuracy": 1.0,
+        "macro_f1": 1.0,
+        "per_label": {
+          "COMPLEMENTARY_EXAMS": {
+            "f1": 1.0,
+            "fn": 0,
+            "fp": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "tp": 225
+          },
+          "CONCLUSION": {
+            "f1": 1.0,
+            "fn": 0,
+            "fp": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "tp": 225
+          },
+          "EXTERNAL_EXAM": {
+            "f1": 1.0,
+            "fn": 0,
+            "fp": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "tp": 225
+          },
+          "HISTORY": {
+            "f1": 1.0,
+            "fn": 0,
+            "fp": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "tp": 225
+          },
+          "IDENTIFICATION": {
+            "f1": 1.0,
+            "fn": 0,
+            "fp": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "tp": 225
+          },
+          "INTERNAL_EXAM": {
+            "f1": 1.0,
+            "fn": 0,
+            "fp": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "tp": 225
+          },
+          "PREAMBLE": {
+            "f1": 1.0,
+            "fn": 0,
+            "fp": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "tp": 225
+          },
+          "SIGNATURE": {
+            "f1": 1.0,
+            "fn": 0,
+            "fp": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "tp": 225
+          }
+        }
+      },
+      "n_records": 1800
+    },
+    "random": {
+      "encoder": {
+        "accuracy": 1.0,
+        "macro_f1": 1.0,
+        "per_label": {
+          "COMPLEMENTARY_EXAMS": {
+            "f1": 1.0,
+            "fn": 0,
+            "fp": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "tp": 127
+          },
+          "CONCLUSION": {
+            "f1": 1.0,
+            "fn": 0,
+            "fp": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "tp": 127
+          },
+          "EXTERNAL_EXAM": {
+            "f1": 1.0,
+            "fn": 0,
+            "fp": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "tp": 127
+          },
+          "HISTORY": {
+            "f1": 1.0,
+            "fn": 0,
+            "fp": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "tp": 127
+          },
+          "IDENTIFICATION": {
+            "f1": 1.0,
+            "fn": 0,
+            "fp": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "tp": 127
+          },
+          "INTERNAL_EXAM": {
+            "f1": 1.0,
+            "fn": 0,
+            "fp": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "tp": 127
+          },
+          "PREAMBLE": {
+            "f1": 1.0,
+            "fn": 0,
+            "fp": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "tp": 127
+          },
+          "SIGNATURE": {
+            "f1": 1.0,
+            "fn": 0,
+            "fp": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "tp": 127
+          }
+        }
+      },
+      "n_records": 1016
+    }
+  },
+  "seed": 7
+}

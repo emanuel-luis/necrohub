@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "description": "Local fine-tune of pucpr/biobertpt-clin for NER/de-identification and section classification on the 1500-case synthetic corpus. Metrics copied from metrics/ of the run.",
+  "code_commit": "a348251",
+  "command": "uv run dvc exp run -S generate.n_cases=1500 -S train.base_model=pucpr/biobertpt-clin -S train.fp16=true -S train.gradient_checkpointing=true -S train.learning_rate=5e-5 -S train.epochs=3",
+  "params_overrides": {
+    "generate.n_cases": 1500,
+    "train.base_model": "pucpr/biobertpt-clin",
+    "train.fp16": true,
+    "train.gradient_checkpointing": true,
+    "train.learning_rate": 5e-05,
+    "train.epochs": 3
+  },
+  "params_unchanged_from_params_yaml": [
+    "seed 7",
+    "train.batch_size 8",
+    "train.max_length 256",
+    "train.stride 64",
+    "train.weight_decay 0.01",
+    "train.warmup_ratio 0.1"
+  ],
+  "datasets_sha256": "a01707932159cdfb75ade2dd2c065a7e13c617668782be4235b20a5188e7dec6",
+  "hardware": {
+    "gpu": "NVIDIA GeForce GTX 1650, 4 GB (compute capability sm_75)",
+    "driver": "591.59",
+    "os": "Windows 11",
+    "peak_vram_mib": 3355
+  },
+  "software": {
+    "torch": "2.14.1+cu126",
+    "cuda_runtime": "12.6",
+    "transformers": "5.20.2",
+    "python": "3.12"
+  },
+  "durations_s": {
+    "generate": 29,
+    "preprocess": 10,
+    "build_dataset": 49,
+    "train_ner": 8468,
+    "train_sections": 8133,
+    "evaluate": 114,
+    "index": 4
+  },
+  "notes": [
+    "The first attempt stopped when the train_sections process failed to start (Windows status 0xC0000142, before any training step). Rerunning the same command resumed at train_sections; the finished stages were not rerun.",
+    "The fine-tuned weights are not published: the base model declares no licence."
+  ]
+}
