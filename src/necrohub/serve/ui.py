@@ -6,6 +6,7 @@ call at the bottom.
 """
 
 import os
+from collections.abc import Mapping
 from typing import Any
 
 from pydantic import BaseModel
@@ -30,6 +31,11 @@ class AnswerView(BaseModel):
 
 def api_url() -> str:
     return os.environ.get("NECROHUB_API_URL", DEFAULT_API_URL).rstrip("/")
+
+
+def initial_question(query_params: Mapping[str, str]) -> str:
+    """The question from a `?q=` link, so a link can open the page with its answer shown."""
+    return query_params.get("q", "").strip()[:1000]  # the API accepts up to 1000 characters
 
 
 def ask_payload(question: str, k: int) -> dict[str, Any]:
@@ -83,9 +89,13 @@ def render() -> None:
         except (httpx.HTTPError, ValueError):
             st.error(error_message(None))
 
-    question = st.text_input("Question", placeholder="Qual a causa da morte no caso c7-00003?")
+    initial = initial_question(st.query_params)
+    question = st.text_input(
+        "Question", value=initial, placeholder="Qual a causa da morte no caso c7-00003?"
+    )
     k = st.slider("Chunks (k)", 1, 20, 4)
-    if st.button("Ask", disabled=not question.strip()):
+    # the button is created first so it always renders; a ?q= link asks without a click
+    if st.button("Ask", disabled=not question.strip()) or (initial and question == initial):
         try:
             response = httpx.post(f"{base}/ask", json=ask_payload(question, k), timeout=120)
         except httpx.HTTPError:
