@@ -25,34 +25,13 @@ Real necropsy reports cannot be shared, so the pipeline generates labelled synth
 
 ## Architecture
 
-```mermaid
-flowchart LR
-  seed[params.yaml, seed] --> generate
-  generate --> raw[(raw)]
-  raw --> ingest --> interim[(interim)]
-  interim --> preprocess --> processed[(processed)]
-  raw --> preprocess
-  raw --> build_dataset
-  processed --> build_dataset --> datasets[(datasets)]
-  datasets --> export_sft --> sft[(sft)]
-  datasets --> train_ner --> models[(models)]
-  datasets --> train_sections --> models
-  models --> evaluate
-  datasets --> evaluate
-  raw --> evaluate
-  evaluate --> evalm[(metrics/eval.json)]
-  processed --> index
-  raw --> index
-  index --> idx[(serving index)]
-  idx --> load[index load] --> pgvector[(pgvector)]
-  pgvector --> api[API] --> ui[UI]
-  ollama{{Ollama, optional}} -.-> generate
-  ollama -.-> api
-  sft -.-> qlora[[cloud QLoRA notebook]]
-  qlora -.-> gguf[GGUF] -.-> ollama
-```
+![Architecture: a developer runs make demo, and DVC runs the necrohub CLI stages: generate (template realizer, or an LLM realizer drafting with Ollama or Gemini), ingest and preprocess, build_dataset and export_sft, train and evaluate (the GPU run takes its base model from the Hugging Face Hub) and the index build. In the compose stack the loader upserts the index into Postgres with pgvector, the FastAPI api searches it and the Streamlit ui talks to the api over HTTP. GitHub Actions gates metrics and dvc.lock with check-repro, and the cloud QLoRA notebook exports a GGUF for Ollama](docs/diagrams/architecture.svg)
 
-Solid arrows are the DVC pipeline and the serving path. Dashed arrows are optional side paths. Every stage also writes its own `metrics/<stage>.json`. The `preprocess`, `build_dataset`, `evaluate` and `index` stages read `data/raw/gold` (the generator labels): for the span alignment metric, the task records, the template of each test case and the PII leak metric.
+Source: [architecture.d2](docs/diagrams/architecture.d2). Solid arrows are data or calls, dashed arrows optional paths.
+
+![Data flow: params.yaml and the fake identifier pool feed generate, which writes the raw layer; ingest, preprocess, build_dataset and export_sft write the interim, processed, datasets and sft layers, and index build and index load carry the redacted text to the serving index and pgvector. The boundary checks of each layer sit beside it, every stage writes a run manifest and its metrics, and check-identifiers scans every file git tracks or would add against the fake pool](docs/diagrams/data-flow.svg)
+
+Source: [data-flow.d2](docs/diagrams/data-flow.d2). Every stage also writes its own `metrics/<stage>.json`. The `preprocess`, `build_dataset`, `evaluate` and `index` stages read `data/raw/gold` (the generator labels): for the span alignment metric, the task records, the template of each test case and the PII leak metric.
 
 ## Tech stack
 
@@ -83,7 +62,11 @@ Copy-Item .env.example .env   # then set POSTGRES_PASSWORD in .env
 docker compose up -d --build --wait db loader api ui
 ```
 
-`make demo` writes `data/raw`, `data/interim`, `data/processed`, `data/datasets`, `data/sft`, `data/serving` and `models/` (gitignored), plus `metrics/<stage>.json` and `metrics/eval.json` (committed). A second run does nothing, and `uv run dvc status` reports the pipeline up to date. There is no DVC remote: the data regenerates from the seed in `params.yaml`. The demo corpus is 24 cases at seed 7, trained on with tiny models from scratch on the CPU.
+`make demo` writes `data/raw`, `data/interim`, `data/processed`, `data/datasets`, `data/sft`, `data/serving` and `models/` (gitignored), plus `metrics/<stage>.json` and `metrics/eval.json` (committed). A second run reruns no stage (it only asks the question again), and `uv run dvc status` reports the pipeline up to date. There is no DVC remote: the data regenerates from the seed in `params.yaml`. The demo corpus is 24 cases at seed 7, trained on with tiny models from scratch on the CPU.
+
+![Sequence of make demo: make runs dvc repro, which compares hashes with dvc.lock and runs each stale stage through the necrohub CLI; each stage reads its input layer, writes a temp directory, runs its boundary checks and swaps it in only when they pass, then writes its run manifest and metrics. DVC updates dvc.lock, make asks the demo question, and a second make demo reruns no stage and asks the question again](docs/diagrams/user-flows-make-demo.svg)
+
+Source: [user-flows-make-demo.d2](docs/diagrams/user-flows-make-demo.d2).
 
 The committed model-stage metrics (`metrics/train_*.json`, `metrics/eval.json`) and `dvc.lock` come from Linux. On Windows or macOS, `make demo` rewrites them because model numerics differ slightly between operating systems (decision 17, below). This is expected. Discard it with `git restore metrics dvc.lock`.
 
@@ -94,6 +77,14 @@ make test                          # offline unit tests
 make test-ml                       # tiny-model tests, offline (after make install-ml)
 uv run necrohub check-identifiers  # fail on identifiers outside the fake pool
 make help                          # every target
+```
+
+The diagrams are [D2](https://d2lang.com) sources in `docs/diagrams/`, rendered to the committed SVGs with D2 v0.9.0. `make d2-install` installs it, checksum verified (Linux x86_64; on Windows run the targets in WSL):
+
+```bash
+make diagrams                          # render every docs/diagrams/*.d2 to SVG
+make diagrams-check                    # what CI's diagrams job runs: fail on a stale SVG
+make diagrams-watch NAME=architecture  # live preview in the browser while editing
 ```
 
 ## Layers
@@ -136,6 +127,14 @@ Test split, de-identification over PII labels. `heldout_templates` holds the 225
 The regex finds no places in either scope and no person names on the unseen template. The encoder covers every PII character on the unseen template, although it labels all 225 CRM numbers there as DOC_NUMBER. Section classification scores 1.0 in both scopes. The corpus is synthetic and narrow, so these numbers are an upper bound; the model card has the per-label table and the limitations. Metrics: `docs/results/encoder-biobertpt-clin/`.
 <!-- results:end -->
 
+![Data flow of training and evaluation: train_ner and train_sections read the train and validation splits, take a Hub base model or build tiny-scratch offline, save and resume checkpoints under models/.checkpoints and write models/encoder-ner and encoder-sections with their training metrics; evaluate scores the encoders against the regex de-identifier on the test split, in the random and heldout_templates scopes, into metrics/eval.json, which check-repro gates in CI](docs/diagrams/data-flow-ml.svg)
+
+Source: [data-flow-ml.d2](docs/diagrams/data-flow-ml.d2).
+
+![Sequence of the local GPU run: make install-gpu and necrohub gpu-check, then dvc exp run with the full-run overrides; the train stage checks its inputs, loads pucpr/biobertpt-clin from the Hub, keys its checkpoint directory by a fingerprint and saves every 200 steps; after a stop, the same command resumes from the last checkpoint; the model is swapped in atomically, the checkpoints are deleted and evaluate writes metrics/eval.json](docs/diagrams/user-flows-gpu-train.svg)
+
+Source: [user-flows-gpu-train.d2](docs/diagrams/user-flows-gpu-train.d2).
+
 ## Reproducibility
 
 CI runs the demo on a clean Linux runner and fails unless `dvc status` is up to date and `dvc.lock` and `metrics/` match the committed files (`necrohub check-repro`). The gate has two levels:
@@ -156,6 +155,10 @@ Both use the in-memory store over `data/serving/index` by default. The compose s
 
 ![The UI answering "Qual a causa da morte no caso c7-00003?" from the demo index, with the cited CONCLUSION chunk and the API health in the sidebar](docs/assets/ui.png)
 
+![Sequence of a question: at startup the api checks that the served index version was built with the configured embedder; the ui calls GET /healthz, then POST /ask; the api validates the question, limits the search to a case id when the question names one, embeds the question and asks pgvector for the k nearest redacted chunks; by default it returns the closest sentence cited to its chunk, or, with NECROHUB_LLM set, an Ollama or Gemini answer citing the numbered chunks](docs/diagrams/user-flows-ask.svg)
+
+Source: [user-flows-ask.d2](docs/diagrams/user-flows-ask.d2).
+
 To run `query` or `serve` against pgvector outside compose, start the database and set the variables yourself, because `necrohub` does not read `.env` (only compose does). The database listens on 127.0.0.1:5432; use the password from your `.env`.
 
 ```bash
@@ -174,6 +177,10 @@ uv run necrohub index load
 uv run necrohub serve
 ```
 
+![Data model: index load reads index.json, chunks.jsonl and embeddings.npy from data/serving/index and upserts them into two pgvector tables, index_versions (primary key index_version) and chunks (primary key index_version and chunk_id, with the embedding vector); the tables share index_version without a foreign key](docs/diagrams/data-model.svg)
+
+Source: [data-model.d2](docs/diagrams/data-model.d2).
+
 The `ollama` profile adds Ollama and a model pull, so answers come from a local model instead of the extractive default:
 
 ```bash
@@ -184,6 +191,10 @@ NECROHUB_LLM=ollama docker compose --profile ollama up -d --wait
 
 `notebooks/qlora_extraction.ipynb` regenerates the 1500-case corpus from the seed, scores a base model, QLoRA-tunes `Qwen/Qwen3-4B-Instruct-2507` to extract the case facts as JSON, scores it again and exports a GGUF that `deploy/ollama/Modelfile` serves. It runs on a free T4 only, is committed without outputs and never runs in CI. The author has not run it yet, so there are no fine-tuned numbers. Steps and scorer are in [docs/PIPELINE.md](docs/PIPELINE.md).
 
+![Sequence of the QLoRA notebook as documented: it installs the pinned stack, clones necrohub at a pinned ref, reruns the stages for 1500 cases and asserts the corpus sha256, scores the base Qwen3-4B-Instruct-2507 with necrohub eval-extraction, QLoRA-tunes it on the train split, scores it again, merges the adapter, converts and quantizes it to GGUF with llama.cpp, creates the Ollama model and writes results/qlora_extraction.json](docs/diagrams/user-flows-qlora.svg)
+
+Source: [user-flows-qlora.d2](docs/diagrams/user-flows-qlora.d2).
+
 ## Project structure
 
 ```
@@ -191,7 +202,7 @@ src/necrohub/    package: contracts, one folder per stage, serving, CLI (tree in
 tests/           unit (offline), ml (tiny models), external (downloads, never in CI), golden files
 notebooks/       qlora_extraction.ipynb
 deploy/ollama/   Modelfile for the QLoRA GGUF
-docs/            DECISIONS.md, REFACTOR_PLAN.md, PIPELINE.md, results/
+docs/            DECISIONS.md, REFACTOR_PLAN.md, PIPELINE.md, diagrams/ (D2 + SVG), results/
 params.yaml      pipeline parameters
 dvc.yaml         the pipeline; dvc.lock is its committed lock
 metrics/         per-stage metrics, committed

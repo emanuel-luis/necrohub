@@ -1,0 +1,35 @@
+# Developer journey: the cloud QLoRA notebook as documented (README, docs/PIPELINE.md, docs
+# decisions 22 and 23). The notebook is committed without outputs and has not been run yet.
+# Grounded in notebooks/qlora_extraction.ipynb, src/necrohub/sft/export.py,
+# src/necrohub/evaluate/extraction.py and deploy/ollama/Modelfile.
+...@_style
+
+qlora: "Cloud QLoRA notebook on a free T4 (documented, not run yet)" {
+  shape: sequence_diagram
+  style: {font-size: 24; bold: true}
+
+  dev: Developer {class: actor}
+  nb: "notebook\nfree T4" {class: external}
+  cli: "necrohub CLI\nin the notebook" {class: process}
+  hub: "Hugging Face Hub\nQwen3-4B-Instruct-2507" {class: external}
+  llama: "llama.cpp\npinned tag" {class: process}
+  ollama: Ollama {class: serving}
+
+  dev -> nb: "open notebooks/\nqlora_extraction.ipynb"
+  nb -> nb: "pip install the pinned\nstack: transformers,\nTRL, peft, bitsandbytes"
+  nb -> cli: "git clone, checkout\nNECROHUB_REF; calls\nthrough uv run --locked"
+  nb -> cli: "generate, ingest,\npreprocess, build-dataset,\nexport-sft, 1500 cases"
+  cli -> nb: "SFT JSONL and the\ndatasets sha256" {class: meta}
+  nb -> nb: "assert the sha256 of\ndocs/results/\nfull-corpus.json"
+  nb -> hub: "download the\nbase model"
+  hub -> nb: "weights, loaded\nin 4 bits" {class: meta}
+  nb -> cli: "base predictions on\nthe test split:\nnecrohub eval-extraction"
+  nb -> nb: "QLoRA (nf4, TRL\nSFTTrainer) on the\ntrain split: extraction\nand QA examples"
+  nb -> cli: "tuned predictions:\nnecrohub eval-extraction"
+  nb -> nb: "merge the adapter into\na 16-bit copy"
+  nb -> llama: "convert_hf_to_gguf,\nllama-quantize Q4_K_M"
+  llama -> nb: "necrohub-extract\nGGUF" {class: meta}
+  nb -> ollama: "ollama create\nnecrohub-extract\n-f Modelfile (or copy\nGGUF and Modelfile)"
+  nb -> dev: "results/qlora_extraction.json:\nscores, versions, wall times" {class: meta}
+  dev -> dev: "copy it to\ndocs/results/"
+}

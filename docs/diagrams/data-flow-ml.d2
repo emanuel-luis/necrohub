@@ -1,0 +1,50 @@
+# From the datasets to the encoders and their evaluation: what training reads, where its
+# resumable checkpoints live, what evaluate scores and how CI gates the model stages. Grounded in
+# dvc.yaml, params.yaml (train, evaluate), src/necrohub/train/{stage,encoder,tiny,gpu}.py,
+# src/necrohub/evaluate/{stage,metrics}.py, src/necrohub/repro.py and docs/MODEL_CARD.md.
+# Up to the datasets: data-flow.d2. The cloud QLoRA path: user-flows-qlora.d2.
+...@_style
+
+title: "Data flow: datasets to the encoders and their evaluation" {
+  shape: text
+  near: top-center
+  style: {font-size: 24; bold: true}
+}
+
+direction: down
+
+datasets: "datasets · data/datasets\nner/, sections/\n{train,validation,test}.jsonl" {class: store}
+gold: "data/raw/gold\nthe template of\neach test case" {class: store}
+hub: "Hugging Face Hub\nbase model when\ntrain.base_model is\na Hub id" {class: external}
+
+train: "train_ner, train_sections\ntiny-scratch (demo, offline) or a\nHub model; trains on train, loss on\nvalidation, never opens test" {class: process}
+train_checks: "checks on training\ntrain and validation share\nno case; records present;\nCUDA kernels for the GPU" {class: check}
+ckpt: "models/.checkpoints/\n<task>/<fingerprint>\nevery 200 steps; removed\nafter a successful run" {class: store}
+models: "models\nmodels/encoder-{ner,sections}\n+ necrohub_train.json" {class: store}
+train_metrics: "metrics/train_{ner,sections}.json\nsteps, losses, dataset sha256,\nresumed_from_step" {class: store}
+
+evaluate: "evaluate\ntest split, scopes random and\nheldout_templates; encoders vs\nthe regex de-identifier" {class: process}
+eval: "metrics/eval.json\nstrict span F1, PII character\nrecall, spans missed,\nsection accuracy" {class: store}
+repro: "check-repro in CI\nmodel stages: inputs, structure\nand data-determined fields\nmust match; scores only warn" {class: check}
+
+datasets -> train: "train, validation"
+hub -> train {class: meta}
+hub -> train_checks {class: layer}
+train <-> ckpt: "save, resume"
+train -> models
+train -> train_metrics
+models -> evaluate
+datasets -> evaluate: "test"
+gold -> evaluate {class: meta}
+evaluate -> eval
+evaluate -> repro {class: layer}
+
+legend: Legend {
+  class: legend
+  grid-columns: 5
+  store: stored data {class: [store; legend-store]}
+  process: stage {class: [process; legend-item]}
+  check: boundary check {class: [check; legend-item]}
+  external: external system {class: [external; legend-item]}
+  edges: "solid arrow: data\ndashed: optional input" {shape: text; style.font-size: 13}
+}

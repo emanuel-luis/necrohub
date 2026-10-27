@@ -9,6 +9,19 @@ The first release carries over, rewritten, the useful parts of three earlier pri
 
 ## [Unreleased]
 
+### Added
+
+- D2 diagrams in `docs/diagrams/` rendered to SVG: architecture, the data flow from the seed to
+  pgvector, the training and evaluation flow, four user flows (a question in the UI, `make demo`,
+  the local GPU fine-tune, the cloud QLoRA notebook) and the pgvector data model.
+- `make d2-install`, `diagrams`, `diagrams-check` and `diagrams-watch`, and a `diagrams` CI job
+  that fails on a stale SVG and uploads the rendered files.
+
+### Changed
+
+- The README shows the SVG diagrams instead of the Mermaid flowchart.
+- The Makefile runs recipes with bash in strict mode (`-eu -o pipefail`).
+
 ## [0.1.0] - 2026-10-27
 
 ### Added
