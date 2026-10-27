@@ -1,6 +1,6 @@
 # Pipeline details
 
-The README gives the overview and the quickstart. This page holds the stage-level detail. Decisions are numbered in [DECISIONS.md](DECISIONS.md).
+The README gives the overview and the quickstart. This page holds the stage-level detail. Decisions are numbered in [DECISIONS.md](DECISIONS.md). The diagrams are in [diagrams/](diagrams/): D2 sources and the SVGs the README shows.
 
 ## Glossary
 

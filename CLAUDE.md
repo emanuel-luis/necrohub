@@ -46,6 +46,10 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
   model-determined drift only warns (`--strict-models` fails on it). No DVC remote, no push/pull.
   A new import in a stage needs its source in that stage's `dvc.yaml` deps
   (`tests/unit/test_dvc_deps.py` fails otherwise).
+- `make diagrams` / `make diagrams-check` / `make diagrams-watch NAME=<name>`: render
+  `docs/diagrams/*.d2` to the committed SVGs with D2 v0.9.0 (`make d2-install`, Linux x86_64; on
+  Windows run make in WSL). CI's `diagrams` job runs `diagrams-check`, which fails on a stale SVG.
+  Edit `.d2` files with an editor, never sed or a heredoc (they turn `\n` in labels into newlines).
 
 ## Repo map
 
@@ -94,6 +98,8 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
   `score_extraction`. `deploy/ollama/`, `notebooks/`, `docs/results/full-corpus.json` (reference
   corpus hashes the notebook asserts).
 - `src/necrohub/repro.py`: the `check-repro` comparison.
+- `docs/diagrams/`: D2 sources (`_style.d2`: theme, classes per element kind, legend) and their
+  rendered SVGs, shown in the README. Keep each under about 25 nodes and 1,300 px wide.
 - `tests/unit` (`test_idempotency.py`: every stage through build-dataset twice gives the
   same hashes), `tests/ml`, `tests/external`, `tests/fixtures/reports`, `tests/golden`, `tests/conftest.py` (`golden` fixture).
 
@@ -112,6 +118,8 @@ Pipeline for synthetic pt-BR forensic necropsy reports. Design: `docs/REFACTOR_P
 - No work at import time: no file reads, model loads or environment reads outside function bodies
   and class definitions.
 - No `__main__` blocks.
+- The diagrams match the code: a change to stages, checks, services or tables updates the `.d2`
+  and its SVG in the same PR. No Mermaid.
 
 ## Conventions
 
