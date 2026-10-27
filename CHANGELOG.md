@@ -38,6 +38,9 @@ The first release carries over, rewritten, the useful parts of three earlier pri
   from-scratch model for the demo, resumable checkpoints), `necrohub evaluate` (strict and partial
   span F1, PII character recall, random and held-out-template scopes, regex baseline) and
   `necrohub gpu-check` with the `cu126` extra (decision 15).
+- Model card and the metrics of a local fine-tune of `pucpr/biobertpt-clin` on the 1500-case
+  corpus (`docs/MODEL_CARD.md`, `docs/results/encoder-biobertpt-clin/`). The weights are not
+  published.
 - Serving: `necrohub index build`, in-memory and pgvector stores, an extractive or LLM answerer
   with citations (`necrohub query`), a FastAPI app (`necrohub serve`) and a Streamlit UI
   (`necrohub ui`; a `?q=` link opens it with the question answered).

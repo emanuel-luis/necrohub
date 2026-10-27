@@ -119,10 +119,19 @@ The corpus is 100% synthetic. Names come from Faker `pt_BR`, CPFs are checksum-i
 
 ## Models and results
 
-The model card is [docs/MODEL_CARD.md](docs/MODEL_CARD.md). The demo models are small BERTs trained from scratch on the CPU. They check the pipeline and are not a result. `pucpr/biobertpt-clin` is the base for a full local run.
+The model card is [docs/MODEL_CARD.md](docs/MODEL_CARD.md). The demo models are small BERTs trained from scratch on the CPU. They check the pipeline and are not a result. The results below come from a full local run: `pucpr/biobertpt-clin` fine-tuned for 3 epochs on the 1500-case corpus on a GTX 1650 (4 GB), about 2 h 20 min per head.
 
 <!-- results:start -->
-Results of the local GPU fine-tune are pending.
+Test split, de-identification over PII labels. `heldout_templates` holds the 225 cases written with a template never used in training; `random` holds the other 127 test cases.
+
+| Scope | System | Strict F1 | PII character recall | PII spans missed |
+| --- | --- | --- | --- | --- |
+| heldout_templates | regex | 0.6667 | 0.4716 | 2025 |
+| heldout_templates | fine-tuned encoder | 0.9444 | 1.0000 | 0 |
+| random | regex | 0.7557 | 0.5944 | 905 |
+| random | fine-tuned encoder | 1.0000 | 1.0000 | 0 |
+
+The regex finds no places in either scope and no person names on the unseen template. The encoder covers every PII character on the unseen template, although it labels all 225 CRM numbers there as DOC_NUMBER. Section classification scores 1.0 in both scopes. The corpus is synthetic and narrow, so these numbers are an upper bound; the model card has the per-label table and the limitations. Metrics: `docs/results/encoder-biobertpt-clin/`.
 <!-- results:end -->
 
 ## Reproducibility
