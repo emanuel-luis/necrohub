@@ -63,8 +63,8 @@ stages:
       size: 1792
     - path: uv.lock
       hash: md5
-      md5: 498e727e312f632f8706d2f52e747bc8
-      size: 381275
+      md5: 56127081e3570800b54e807729160b98
+      size: 379966
     params:
       params.yaml:
         generate:
@@ -129,8 +129,8 @@ stages:
       size: 7075
     - path: uv.lock
       hash: md5
-      md5: 498e727e312f632f8706d2f52e747bc8
-      size: 381275
+      md5: 56127081e3570800b54e807729160b98
+      size: 379966
     params:
       params.yaml:
         ingest:
@@ -141,12 +141,12 @@ stages:
     outs:
     - path: data/interim
       hash: md5
-      md5: 723779fd85c138ca987e96563694f1f2.dir
+      md5: fc8c9ce25a566d5cea3e0bb12a9915ec.dir
       size: 60008
       nfiles: 2
     - path: metrics/ingest.json
       hash: md5
-      md5: dd4985b1e6863e760fe3b13a4cf58014
+      md5: 20466c2f3f064c96a20ad24c15a60f39
       size: 285
   preprocess:
     cmd: necrohub preprocess --params params.yaml --in data/interim --out 
@@ -154,7 +154,7 @@ stages:
     deps:
     - path: data/interim
       hash: md5
-      md5: 723779fd85c138ca987e96563694f1f2.dir
+      md5: fc8c9ce25a566d5cea3e0bb12a9915ec.dir
       size: 60008
       nfiles: 2
     - path: data/raw
@@ -203,8 +203,8 @@ stages:
       size: 1792
     - path: uv.lock
       hash: md5
-      md5: 498e727e312f632f8706d2f52e747bc8
-      size: 381275
+      md5: 56127081e3570800b54e807729160b98
+      size: 379966
     params:
       params.yaml:
         preprocess:
@@ -281,8 +281,8 @@ stages:
       size: 7075
     - path: uv.lock
       hash: md5
-      md5: 498e727e312f632f8706d2f52e747bc8
-      size: 381275
+      md5: 56127081e3570800b54e807729160b98
+      size: 379966
     params:
       params.yaml:
         dataset:
@@ -350,8 +350,8 @@ stages:
       nfiles: 6
     - path: uv.lock
       hash: md5
-      md5: 498e727e312f632f8706d2f52e747bc8
-      size: 381275
+      md5: 56127081e3570800b54e807729160b98
+      size: 379966
     params:
       params.yaml:
         seed: 7
@@ -384,8 +384,8 @@ stages:
       size: 311
     - path: models/encoder-ner
       hash: md5
-      md5: ed4e70876f47c62c2e7251bfa0fa4109.dir
-      size: 421234
+      md5: 981f2c300a7ebc2fae6984df5aa45114.dir
+      size: 421119
       nfiles: 5
   train_sections:
     cmd: necrohub train --task sections --params params.yaml --data 
@@ -428,8 +428,8 @@ stages:
       nfiles: 6
     - path: uv.lock
       hash: md5
-      md5: 498e727e312f632f8706d2f52e747bc8
-      size: 381275
+      md5: 56127081e3570800b54e807729160b98
+      size: 379966
     params:
       params.yaml:
         seed: 7
@@ -458,12 +458,12 @@ stages:
     outs:
     - path: metrics/train_sections.json
       hash: md5
-      md5: 47107ca4dfad0e20394aa82f41ea5bcb
+      md5: a904b330d3eb9f111bd365f9548c3520
       size: 316
     - path: models/encoder-sections
       hash: md5
-      md5: 16de04a916dceb5628125ee46073e931.dir
-      size: 429561
+      md5: b51d65bbef6796d14260596accbc4647.dir
+      size: 429499
       nfiles: 5
   evaluate:
     cmd: necrohub evaluate --params params.yaml --models models --data 
@@ -481,13 +481,13 @@ stages:
       nfiles: 24
     - path: models/encoder-ner
       hash: md5
-      md5: ed4e70876f47c62c2e7251bfa0fa4109.dir
-      size: 421234
+      md5: 981f2c300a7ebc2fae6984df5aa45114.dir
+      size: 421119
       nfiles: 5
     - path: models/encoder-sections
       hash: md5
-      md5: 16de04a916dceb5628125ee46073e931.dir
-      size: 429561
+      md5: b51d65bbef6796d14260596accbc4647.dir
+      size: 429499
       nfiles: 5
     - path: src/necrohub/cli.py
       hash: md5
@@ -539,8 +539,8 @@ stages:
       nfiles: 6
     - path: uv.lock
       hash: md5
-      md5: 498e727e312f632f8706d2f52e747bc8
-      size: 381275
+      md5: 56127081e3570800b54e807729160b98
+      size: 379966
     params:
       params.yaml:
         evaluate:
@@ -554,7 +554,7 @@ stages:
     outs:
     - path: metrics/eval.json
       hash: md5
-      md5: 9701a262b035c3ef92fbf2abc9fb92da
+      md5: df2ca6acb90323eaa1b61eff248ec845
       size: 27038
   index:
     cmd: necrohub index build --params params.yaml --in data/processed --gold 
@@ -625,8 +625,8 @@ stages:
       size: 1792
     - path: uv.lock
       hash: md5
-      md5: 498e727e312f632f8706d2f52e747bc8
-      size: 381275
+      md5: 56127081e3570800b54e807729160b98
+      size: 379966
     params:
       params.yaml:
         embed:
@@ -718,8 +718,8 @@ stages:
       nfiles: 4
     - path: uv.lock
       hash: md5
-      md5: 498e727e312f632f8706d2f52e747bc8
-      size: 381275
+      md5: 56127081e3570800b54e807729160b98
+      size: 379966
     params:
       params.yaml:
         sft:
