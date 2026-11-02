@@ -1,25 +1,36 @@
-# Weekly update PRs, one per ecosystem: the SHA-pinned actions, the Dockerfile and compose digests, uv.lock.
+# Monthly update PRs, one group per ecosystem for minor and patch: the SHA-pinned actions, the
+# Dockerfile and compose digests, uv.lock. Semver-major version updates are ignored (majors move
+# by hand) and a release waits 7 days before it is proposed. Security updates skip the schedule
+# and the cooldown. .github/workflows/dependabot-auto-merge.yml merges these PRs once CI is green.
 version: 2
 updates:
   - package-ecosystem: github-actions
     directory: /
-    schedule: { interval: weekly }
+    schedule: { interval: monthly }
     cooldown: { default-days: 7 }
     groups:
-      github-actions: { patterns: ["*"] }
+      github-actions: { patterns: ["*"], update-types: ["minor", "patch"] }
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: docker
     directory: /
-    schedule: { interval: weekly }
+    schedule: { interval: monthly }
     cooldown: { default-days: 7 }
     groups:
-      docker: { patterns: ["*"] }
+      docker: { patterns: ["*"], update-types: ["minor", "patch"] }
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: uv
     directory: /
-    schedule: { interval: weekly }
+    schedule: { interval: monthly }
     cooldown: { default-days: 7 }
     groups:
-      uv: { patterns: ["*"] }
+      uv: { patterns: ["*"], update-types: ["minor", "patch"] }
     ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
       # google-genai (2.33.0, the latest) requires tenacity<9.2.0, so a 9.2 bump can only
       # resolve by downgrading google-genai to 1.x, which breaks the Gemini client. Drop this
       # rule when google-genai lifts the cap.
@@ -27,7 +38,10 @@ updates:
         versions: [">=9.2.0"]
   - package-ecosystem: docker-compose
     directory: /
-    schedule: { interval: weekly }
+    schedule: { interval: monthly }
     cooldown: { default-days: 7 }
     groups:
-      docker-compose: { patterns: ["*"] }
+      docker-compose: { patterns: ["*"], update-types: ["minor", "patch"] }
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
