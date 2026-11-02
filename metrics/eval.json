@@ -1002,22 +1002,22 @@
   "sections": {
     "heldout_templates": {
       "encoder": {
-        "accuracy": 0.4062,
-        "macro_f1": 0.277,
+        "accuracy": 0.4688,
+        "macro_f1": 0.3513,
         "per_label": {
           "COMPLEMENTARY_EXAMS": {
-            "f1": 0.0,
-            "fn": 4,
-            "fp": 0,
-            "precision": 0.0,
-            "recall": 0.0,
-            "tp": 0
+            "f1": 0.6154,
+            "fn": 0,
+            "fp": 5,
+            "precision": 0.4444,
+            "recall": 1.0,
+            "tp": 4
           },
           "CONCLUSION": {
-            "f1": 0.4286,
+            "f1": 0.4615,
             "fn": 1,
-            "fp": 7,
-            "precision": 0.3,
+            "fp": 6,
+            "precision": 0.3333,
             "recall": 0.75,
             "tp": 3
           },
@@ -1038,36 +1038,36 @@
             "tp": 0
           },
           "IDENTIFICATION": {
-            "f1": 0.0,
-            "fn": 4,
-            "fp": 1,
-            "precision": 0.0,
-            "recall": 0.0,
-            "tp": 0
+            "f1": 0.6667,
+            "fn": 1,
+            "fp": 2,
+            "precision": 0.6,
+            "recall": 0.75,
+            "tp": 3
           },
           "INTERNAL_EXAM": {
-            "f1": 0.4444,
-            "fn": 2,
-            "fp": 3,
-            "precision": 0.4,
-            "recall": 0.5,
-            "tp": 2
+            "f1": 0.4,
+            "fn": 3,
+            "fp": 0,
+            "precision": 1.0,
+            "recall": 0.25,
+            "tp": 1
           },
           "PREAMBLE": {
-            "f1": 0.7273,
+            "f1": 0.6667,
             "fn": 0,
-            "fp": 3,
-            "precision": 0.5714,
+            "fp": 4,
+            "precision": 0.5,
             "recall": 1.0,
             "tp": 4
           },
           "SIGNATURE": {
-            "f1": 0.6154,
-            "fn": 0,
-            "fp": 5,
-            "precision": 0.4444,
-            "recall": 1.0,
-            "tp": 4
+            "f1": 0.0,
+            "fn": 4,
+            "fp": 0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "tp": 0
           }
         }
       },
@@ -1076,21 +1076,21 @@
     "random": {
       "encoder": {
         "accuracy": 0.3125,
-        "macro_f1": 0.1805,
+        "macro_f1": 0.2375,
         "per_label": {
           "COMPLEMENTARY_EXAMS": {
-            "f1": 0.0,
-            "fn": 2,
-            "fp": 0,
-            "precision": 0.0,
-            "recall": 0.0,
-            "tp": 0
+            "f1": 0.6667,
+            "fn": 0,
+            "fp": 2,
+            "precision": 0.5,
+            "recall": 1.0,
+            "tp": 2
           },
           "CONCLUSION": {
-            "f1": 0.3333,
+            "f1": 0.5,
             "fn": 1,
-            "fp": 3,
-            "precision": 0.25,
+            "fp": 1,
+            "precision": 0.5,
             "recall": 0.5,
             "tp": 1
           },
@@ -1111,36 +1111,36 @@
             "tp": 0
           },
           "IDENTIFICATION": {
+            "f1": 0.4,
+            "fn": 1,
+            "fp": 2,
+            "precision": 0.3333,
+            "recall": 0.5,
+            "tp": 1
+          },
+          "INTERNAL_EXAM": {
             "f1": 0.0,
             "fn": 2,
-            "fp": 1,
+            "fp": 3,
             "precision": 0.0,
             "recall": 0.0,
             "tp": 0
           },
-          "INTERNAL_EXAM": {
+          "PREAMBLE": {
+            "f1": 0.3333,
+            "fn": 1,
+            "fp": 3,
+            "precision": 0.25,
+            "recall": 0.5,
+            "tp": 1
+          },
+          "SIGNATURE": {
             "f1": 0.0,
             "fn": 2,
             "fp": 0,
             "precision": 0.0,
             "recall": 0.0,
             "tp": 0
-          },
-          "PREAMBLE": {
-            "f1": 0.4444,
-            "fn": 0,
-            "fp": 5,
-            "precision": 0.2857,
-            "recall": 1.0,
-            "tp": 2
-          },
-          "SIGNATURE": {
-            "f1": 0.6667,
-            "fn": 0,
-            "fp": 2,
-            "precision": 0.5,
-            "recall": 1.0,
-            "tp": 2
           }
         }
       },

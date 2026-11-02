@@ -9,6 +9,6 @@
   "n_windows": 128,
   "resumed_from_step": 0,
   "task": "sections",
-  "train_loss": 1.5546,
-  "val_loss": 1.4464
+  "train_loss": 1.5381,
+  "val_loss": 1.3098
 }
